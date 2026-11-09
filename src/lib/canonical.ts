@@ -1,7 +1,7 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, utf8ToBytes, randomBytes } from "@noble/hashes/utils";
 
-/** Deterministic JSON: object keys sorted, no whitespace. Used for every hash in Sealed. */
+/** Deterministic JSON: object keys sorted, no whitespace. Used for every hash in Blackbox. */
 export function canonical(value: unknown): string {
   if (value === null || typeof value !== "object") {
     if (typeof value === "number" && !Number.isFinite(value)) throw new Error("non-finite number");

@@ -24,7 +24,7 @@ export function LogView({ entries, brokenAt = null, showQuiet = false, max }: { 
             }}>
             <span className="mono muted">#{e.seq}</span>
             <span>
-              <span className="mono" style={{ fontSize: 11, letterSpacing: ".05em", textTransform: "uppercase", color: blocked ? "var(--wax)" : "var(--muted)" }}>{e.kind}{e.payload.attack ? " · attack" : ""}</span>
+              <span className="mono" style={{ fontSize: 11, letterSpacing: ".05em", textTransform: "uppercase", color: blocked ? "var(--wax)" : "var(--muted)" }}>{e.kind}{e.payload.attack ? (e.payload.simulated ? " · simulated attack" : " · attack") : ""}</span>
               <span style={{ display: "block", color: blocked ? "var(--wax)" : "var(--ink)", wordBreak: "break-word" }}>{describe(e)}</span>
               <span className="mono muted" style={{ fontSize: 11 }}>{first ? "hash no longer matches: " : ""}{e.hash.slice(0, 20)}...</span>
             </span>

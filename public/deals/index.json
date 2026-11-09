@@ -1,4 +1,15 @@
 [
-  { "id": "deal_3c1186424fa4", "label": "Attack mode, closed at 0.9085", "hero": true },
-  { "id": "deal_77ea0d964036", "label": "Plain run, closed at 0.92" }
+  {
+    "id": "deal_f2782613a915",
+    "label": "Simulated attack, closed at 0.92",
+    "hero": true
+  },
+  {
+    "id": "deal_c1ab4822348c",
+    "label": "Plain run, closed at 0.91"
+  },
+  {
+    "id": "deal_f2782613a915_tampered",
+    "label": "Tampered example (should fail)"
+  }
 ]

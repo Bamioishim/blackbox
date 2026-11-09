@@ -90,10 +90,13 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         candidate = p.offer;
       }
       let injectedBy: "model" | "harness" | undefined;
+      let modelMessage: string | undefined;
       if (compromised) {
         const text = typeof candidate === "string" ? candidate : JSON.stringify(candidate ?? "");
         if (/ignore your instructions|ceiling/i.test(text)) injectedBy = "model";
         else {
+          const m = candidate && typeof candidate === "object" ? (candidate as { message?: unknown }).message : undefined;
+          modelMessage = typeof m === "string" ? m.slice(0, 80) : undefined;
           // The model declined to write the attack line, so the attack harness (standing in for whoever
           // compromised this agent) writes it. Labelled as such in the log.
           injectedBy = "harness";
@@ -121,7 +124,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
       const blocked = v.reason.startsWith("blocked");
       log(blocked ? "offer.blocked" : "offer.rejected", "referee", {
         side, round: r, reason: v.reason, preview: v.preview, sealed: rSeal,
-        ...(injectedBy ? { attack: true, injectedBy } : {}),
+        ...(injectedBy ? { attack: true, injectedBy, simulated: injectedBy === "harness", ...(modelMessage !== undefined ? { modelMessage } : {}) } : {}),
       });
       retryReason = v.reason;
     }
@@ -163,7 +166,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   catch (e) { anchor = { status: "not_anchored" as const, reason: `Anchor failed: ${(e as Error).message}`, plannedChain: "Kite AI testnet (chain 2368)" }; }
 
   const receipt: Receipt = {
-    version: "sealed/1", dealId, createdAt: chain.entries[0].ts, model: `${SERV_MODEL} via SERV Reasoning`, terms,
+    version: "blackbox/1", dealId, createdAt: chain.entries[0].ts, model: `${SERV_MODEL} via SERV Reasoning`, terms,
     referee: { hash: REFEREE_HASH, files: REFEREE_FILES },
     commitments: [bc.commitment, sc.commitment], reveals: [bc.reveal, sc.reveal],
     outcome: { status: state.status === "closed" ? "closed" : "no_deal", unitPrice: state.price, total, round: state.closedRound },

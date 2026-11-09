@@ -1,10 +1,10 @@
 /**
  * Anchoring is pluggable. Today nothing is anchored: no contract is deployed and no funds are spent.
- * contracts/SealedAnchor.sol + anchor-evm.ts show the one-transaction design.
+ * contracts/BlackboxAnchor.sol + anchor-evm.ts show the one-transaction design.
  */
 export type AnchorRecord =
   | { status: "not_anchored"; reason: string; plannedChain: string }
-  | { status: "anchored"; chain: string; chainId: number; contract: string; txHash: string; explorerUrl: string; finalHash: string };
+  | { status: "anchored"; chain: string; chainId: number; contract: string; txHash: string; explorerUrl: string; finalHash: string; block?: number };
 
 export interface Anchorer {
   anchor(dealId: string, finalHash: string, refereeHash: string): Promise<AnchorRecord>;

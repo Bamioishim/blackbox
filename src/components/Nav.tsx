@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Seal } from "./Seal";
+import { LogoMark } from "./Logo";
 
 export function Nav() {
   const p = usePathname();
@@ -12,7 +12,7 @@ export function Nav() {
   ];
   return (
     <header className="nav">
-      <Link href="/" className="wordmark"><Seal size={24} />Sealed</Link>
+      <Link href="/" className="wordmark"><LogoMark size={26} />Blackbox</Link>
       <nav className="nav-links">
         {links.map((l) => (
           <Link key={l.href} href={l.href} aria-current={p === l.href ? "page" : undefined}>{l.label}</Link>

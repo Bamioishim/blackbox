@@ -1,4 +1,4 @@
-import { verifyMessage } from "viem";
+import { verifyMessage, encodeFunctionData, decodeFunctionResult, keccak256, toBytes } from "viem";
 import { canonical } from "./canonical";
 import { verifyChain, type LogEntry } from "./chain";
 import { checkReveal, priceWithinLimits, type Commitment, type Reveal } from "./commit";
@@ -13,7 +13,23 @@ function find(log: LogEntry[], kind: LogEntry["kind"]) {
   return log.filter((e) => e.kind === kind);
 }
 
-export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_HASH): Promise<Check[]> {
+const RPC: Record<number, string> = { 2368: "https://rpc-testnet.gokite.ai/", 2366: "https://rpc.gokite.ai/" };
+const ANCHORS_ABI = [{ type: "function", name: "anchors", stateMutability: "view", inputs: [{ name: "", type: "bytes32" }],
+  outputs: [{ name: "finalHash", type: "bytes32" }, { name: "refereeHash", type: "bytes32" }, { name: "blockTime", type: "uint64" }, { name: "writer", type: "address" }] }] as const;
+
+/** Reads the anchor straight from the chain's public RPC, so the check doesn't trust the receipt. */
+export async function readAnchor(chainId: number, contract: string, dealId: string) {
+  const rpc = RPC[chainId];
+  if (!rpc) throw new Error(`no public RPC known for chain ${chainId}`);
+  const data = encodeFunctionData({ abi: ANCHORS_ABI, functionName: "anchors", args: [keccak256(toBytes(dealId))] });
+  const res = await fetch(rpc, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: contract, data }, "latest"] }) });
+  const j = await res.json();
+  if (j.error) throw new Error(j.error.message);
+  const [finalHash, refereeHash, blockTime, writer] = decodeFunctionResult({ abi: ANCHORS_ABI, functionName: "anchors", data: j.result });
+  return { finalHash: finalHash.slice(2), refereeHash: refereeHash.slice(2), blockTime: Number(blockTime), writer };
+}
+
+export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_HASH, opts: { onchain?: boolean } = {}): Promise<Check[]> {
   const checks: Check[] = [];
   const log = Array.isArray(r?.log) ? r.log : [];
 
@@ -94,10 +110,21 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
   }
 
   // 6. Anchor
-  checks.push(
-    r.anchor?.status === "anchored"
-      ? { id: "anchor", label: "Final hash anchored onchain", ok: r.anchor.finalHash === r.finalHash, detail: `${r.anchor.chain}: ${r.anchor.explorerUrl}` }
-      : { id: "anchor", label: "Final hash anchored onchain", ok: null, detail: "Not anchored yet. The contract is written but not deployed." },
-  );
+  if (r.anchor?.status === "anchored") {
+    const a = r.anchor;
+    if (opts.onchain) {
+      try {
+        const on = await readAnchor(a.chainId, a.contract, r.dealId);
+        const ok = on.blockTime > 0 && on.finalHash === r.finalHash && headOk;
+        checks.push({ id: "anchor", label: "Final hash matches the onchain anchor", ok, detail: on.blockTime === 0 ? `Nothing anchored for this deal on ${a.chain}.` : `${ok ? "Matches" : "Does NOT match"} the hash written on ${a.chain} at ${new Date(on.blockTime * 1000).toISOString()}. ${a.explorerUrl}` });
+      } catch (e) {
+        checks.push({ id: "anchor", label: "Final hash matches the onchain anchor", ok: null, detail: `Couldn't reach ${a.chain} (${(e as Error).message}). Check by hand: ${a.explorerUrl}` });
+      }
+    } else {
+      checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: a.finalHash === r.finalHash && headOk, detail: `${a.chain}: ${a.explorerUrl} (not read from chain in this check)` });
+    }
+  } else {
+    checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: null, detail: "Not anchored yet." });
+  }
   return checks;
 }

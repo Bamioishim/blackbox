@@ -59,7 +59,7 @@ export function Verifier() {
   const effective = useMemo(() => (receipt ? (tampered ? tamper(receipt) : { r: receipt, note: "" }) : null), [receipt, tampered]);
   useEffect(() => {
     let live = true;
-    if (effective) verifyReceipt(effective.r).then((c) => { if (live) setChecked({ for: effective, checks: c }); });
+    if (effective) verifyReceipt(effective.r, undefined, { onchain: true }).then((c) => { if (live) setChecked({ for: effective, checks: c }); });
     return () => { live = false; };
   }, [effective]);
   const checks = checked && checked.for === effective ? checked.checks : null;
@@ -102,7 +102,7 @@ export function Verifier() {
         </div>
         <div>
           <span className="label">Or paste receipt JSON</span>
-          <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder='{"version":"sealed/1", ...}' style={{ marginTop: 6 }} />
+          <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder='{"version":"blackbox/1", ...}' style={{ marginTop: 6 }} />
           <button className="btn" style={{ marginTop: 8 }} onClick={fromText} disabled={!text.trim()}>Verify pasted receipt</button>
         </div>
       </div>
@@ -124,6 +124,11 @@ export function Verifier() {
               </label>
             </div>
             {tampered && <p className="wax" style={{ marginTop: 10 }}>{effective.note}</p>}
+            {effective.r.example?.tampered && (
+              <p style={{ marginTop: 10, padding: "10px 14px", border: "1px solid var(--wax)", background: "var(--wax-soft)" }}>
+                <span className="tag mock">Tampered example</span> <span>{effective.r.example.note}</span>
+              </p>
+            )}
             <p className="mono muted" style={{ fontSize: 12.5 }}>{effective.r.dealId} · {effective.r.model} · recorded {effective.r.createdAt} · this site&apos;s referee {REFEREE_HASH.slice(0, 16)}...</p>
 
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(0,1fr)", gap: 40, marginTop: 20 }} className="v-grid">

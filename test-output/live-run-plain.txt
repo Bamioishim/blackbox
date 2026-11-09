@@ -1,0 +1,30 @@
+#6 offer.accepted {"side":"seller","price":0.95,"quantity":500,"round":1}
+#8 offer.accepted {"side":"buyer","price":0.84,"quantity":500,"round":1}
+#9 round.closed {"round":1,"bid":0.84,"ask":0.95,"status":"open"}
+#13 offer.accepted {"side":"buyer","price":0.86,"quantity":500,"round":2}
+#15 offer.accepted {"side":"seller","price":0.94,"quantity":500,"round":2}
+#16 round.closed {"round":2,"bid":0.86,"ask":0.94,"status":"open"}
+#20 offer.accepted {"side":"buyer","price":0.88,"quantity":500,"round":3}
+#22 offer.accepted {"side":"seller","price":0.93,"quantity":500,"round":3}
+#23 round.closed {"round":3,"bid":0.88,"ask":0.93,"status":"open"}
+#27 offer.accepted {"side":"buyer","price":0.9,"quantity":500,"round":4}
+#29 offer.accepted {"side":"seller","price":0.92,"quantity":500,"round":4}
+#30 round.closed {"round":4,"bid":0.9,"ask":0.92,"status":"open"}
+#34 offer.accepted {"side":"buyer","price":0.91,"quantity":500,"round":5}
+#36 offer.accepted {"side":"seller","price":0.91,"quantity":500,"round":5}
+#37 round.closed {"round":5,"bid":0.91,"ask":0.91,"status":"closed"}
+#38 deal.closed {"unitPrice":0.91,"total":455,"round":5,"rule":"midpoint of crossing bid and ask"}
+outcome {"status":"closed","unitPrice":0.91,"total":455,"round":5} secs 11.3
+PASS Hash chain intact - 44 entries, each one points at the hash before it.
+PASS Final hash matches the log - d0d79bd09d586b229c45c233f1cffb9fb1fedc47c66a4733806b06fdaa15e50b
+PASS Referee code matches the published hash - 5c194b8f6fdd8688f375d5111036fe3993b636b1ebb4c83efc5e627c649b6673
+PASS Re-running the referee gives the same result - Closes in round 5 at 0.91.
+PASS Both limits were committed before any offer - buyer: 29ea759f684693e9...  seller: e214b1297c98f905...
+PASS Revealed limits match their commitments - buyer ceiling 0.92, seller floor 0.88
+PASS Price sits inside both limits - 0.88 <= 0.91 <= 0.92
+PASS Payment session capped at the deal amount - per-tx 455.000000, total 455.000000, expires after 10 min. Deal total 455.000000.
+PASS Session delegation signature valid - MOCK key. Signed by 0xF2631244c022Ea7f113eDcE07dcceC4Ba75e99c5
+PASS Payment (mock) - 455.000000 USDC, settled_mock. No money moved.
+PEND Final hash anchored onchain - Not anchored yet.
+saved public/deals/deal_c1ab4822348c.json
+exit 0

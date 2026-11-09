@@ -1,0 +1,105 @@
+{
+  "compiler": "solc 0.8.24, optimizer 200 runs",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dealId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AlreadyAnchored",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "dealId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "finalHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "refereeHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "writer",
+          "type": "address"
+        }
+      ],
+      "name": "Anchored",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dealId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "finalHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "refereeHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchors",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "finalHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "refereeHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint64",
+          "name": "blockTime",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "writer",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561000f575f80fd5b506102528061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610034575f3560e01c80636ed37a1d14610038578063b01b6d531461004d575b5f80fd5b61004b6100463660046101dc565b6100d9565b005b61009761005b366004610205565b5f6020819052908152604090208054600182015460029092015490919067ffffffffffffffff811690600160401b90046001600160a01b031684565b6040516100d09493929190938452602084019290925267ffffffffffffffff1660408301526001600160a01b0316606082015260800190565b60405180910390f35b5f8381526020819052604090206002015467ffffffffffffffff1615610119576040516330d2381360e01b81526004810184905260240160405180910390fd5b60408051608081018252838152602080820184815267ffffffffffffffff42811684860190815233606086018181525f8b815295869052948790209551865592516001860155516002909401805493516001600160a01b0316600160401b026001600160e01b0319909416949091169390931791909117909155905184907f1924bad3b76c6eedc73b83868fd4fd15578340e9fe8656ba683f84242e2fe335906101cf9086908690918252602082015260400190565b60405180910390a3505050565b5f805f606084860312156101ee575f80fd5b505081359360208301359350604090920135919050565b5f60208284031215610215575f80fd5b503591905056fea2646970667358221220528f80d6a01195a3c02354c70c43c0401d96dbb0646d15bccf8af9333d4fc88564736f6c63430008180033"
+}

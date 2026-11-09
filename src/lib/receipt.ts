@@ -13,7 +13,7 @@ export type DealTerms = {
 };
 
 export type Receipt = {
-  version: "sealed/1";
+  version: "blackbox/1";
   dealId: string;
   createdAt: string;
   model: string;
@@ -26,6 +26,8 @@ export type Receipt = {
   finalHash: string;
   settlement: Settlement | null;
   anchor: AnchorRecord;
+  /** Set only on the deliberately tampered example shipped in public/deals. */
+  example?: { tampered: true; note: string };
 };
 
 /** Accepted offers grouped by round, read straight from the log. */

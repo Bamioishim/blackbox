@@ -75,7 +75,7 @@ export function buildSessionIntent(deal: SettleInput, mode: SessionIntent["mode"
     mode,
     sessionId: (mode === "mock" ? "mock_sess_" : "sess_") + randomHex(8),
     dealId: deal.dealId,
-    taskSummary: `Pay ${total} USDC for ${deal.quantity} x ${deal.item} (Sealed deal ${deal.dealId}). One payment only.`,
+    taskSummary: `Pay ${total} USDC for ${deal.quantity} x ${deal.item} (Blackbox deal ${deal.dealId}). One payment only.`,
     asset: "USDC",
     maxAmountPerTx: total,
     maxTotalAmount: total,

@@ -1,0 +1,12 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vitest.config.mts:4:41). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v5.1.0 /workspace/sealed-build/sealed
+
+
+ Test Files  4 passed (4)
+      Tests  30 passed (30)
+   Start at  17:02:02
+   Duration  528ms (import 57%, transform 24%, tests 17%, worker 2%)
+

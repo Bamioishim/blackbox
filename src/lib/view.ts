@@ -21,7 +21,7 @@ export function describe(e: LogEntry): string {
     case "prompt": return `${p.side} agent prompted for round ${p.round} (sealed, ${p.chars} chars)`;
     case "response": return `${p.side} agent replied (sealed, ${p.chars} chars)`;
     case "offer.accepted": return `${p.side} ${p.side === "buyer" ? "bids" : "asks"} ${p.price} for ${p.quantity}, round ${p.round}`;
-    case "offer.blocked": return `${p.reason}: "${p.preview}"${p.attack ? ` (attack mode; line written by ${p.injectedBy === "model" ? "the compromised agent" : "the attack harness"})` : ""}`;
+    case "offer.blocked": return `${p.reason}: "${p.preview}"${p.attack ? (p.injectedBy === "model" ? " (attack line written by the compromised SERV agent itself)" : ` (simulated attack: the test harness wrote this line${p.modelMessage !== undefined ? `; asked to, the SERV model only produced "${p.modelMessage}"` : ""})`) : ""}`;
     case "offer.rejected": return `${p.reason} (${p.side}, round ${p.round})`;
     case "guard": return `${p.side}'s own guard ${p.action}`;
     case "round.closed": return `Round ${p.round} closed. Standing bid ${p.bid ?? "none"}, ask ${p.ask ?? "none"}.`;
@@ -35,13 +35,13 @@ export function describe(e: LogEntry): string {
   }
 }
 
-const KEY = "sealed:deal:";
+const KEY = "blackbox:deal:";
 export function saveLocal(r: Receipt) {
   try { localStorage.setItem(KEY + r.dealId, JSON.stringify(r)); } catch {}
 }
 export async function loadReceipt(id: string): Promise<Receipt | null> {
   try { const v = localStorage.getItem(KEY + id); if (v) return JSON.parse(v); } catch {}
-  if (!/^deal_[a-f0-9]{6,32}$/.test(id)) return null;
+  if (!/^deal_[a-z0-9_-]{6,40}$/.test(id)) return null;
   const res = await fetch(`/deals/${id}.json`);
   return res.ok ? res.json() : null;
 }

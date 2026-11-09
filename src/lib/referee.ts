@@ -1,5 +1,5 @@
 /**
- * Sealed referee. Deterministic code, no model, no network, no clock, no randomness.
+ * The referee. Deterministic code, no model, no network, no clock, no randomness.
  * Same inputs always give the same outcome, so anyone can re-run it on a recorded log.
  * This file (plus schema.ts) is hashed at build time; the hash is shown in the UI and README.
  *

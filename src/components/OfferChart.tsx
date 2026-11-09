@@ -95,7 +95,7 @@ export function OfferChart({
         {blockedRounds.map((r, i) => (
           <g key={`b${r}-${i}`}>
             <line x1={x(r)} x2={x(r)} y1={T} y2={H - B} stroke="var(--wax)" strokeOpacity=".5" strokeDasharray="2 4" />
-            <text x={x(r) + 6} y={T + 12} fontSize="11.5" fill="var(--wax)">blocked</text>
+            <text x={x(r) + 6} y={T + 12} fontSize="11.5" fill="var(--wax)">blocked injection</text>
           </g>
         ))}
 
