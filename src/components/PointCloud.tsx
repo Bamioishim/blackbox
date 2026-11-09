@@ -83,7 +83,7 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
     d.flags.forEach((f, i) => {
       const bidHere = d.rounds.find((r) => r.round === f.round);
       const pr = bidHere?.seller?.price ?? bidHere?.buyer?.price ?? (lo + hi) / 2;
-      const p: V3 = [X(f.round), Math.min(H * 0.95, Y(pr) + 0.22 + i * 0.2), 0];
+      const p: V3 = [X(f.round) + i * 0.22, Math.min(H * 1.15, Y(pr) + 0.24 + i * 0.36), 0];
       for (let k = 0; k < 120; k++) pts.push({ p: [p[0] + (rand() - 0.5) * 0.02, p[1] - rand() * (p[1] + H), p[2]], a: 0.5, c: 2 });
       anchors.push({ id: `f${i}`, p, flag: `Flag-0${i + 1}`, text: `${f.label} · R${f.round}` });
     });
