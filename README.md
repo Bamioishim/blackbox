@@ -64,3 +64,7 @@ npm run live-run -- --attack # one real negotiation on SERV Reasoning, prints th
 - `src/lib/settle.ts`: `settle(deal)` interface and the mock Kite settler; `settle-kite.ts`: real adapter sketch
 - `src/lib/anchor.ts`, `anchor-evm.ts`, `contracts/SealedAnchor.sol`: pluggable anchoring (off)
 - `src/lib/verify.ts`: the checks the public verifier runs
+
+## Deploys
+
+Preview builds come from the `preview` branch. `main` is the production branch on Vercel, so merging to `main` ships production.
