@@ -38,14 +38,15 @@ export function ReceiptCard({ r }: { r: Receipt }) {
           <Row k="Caps" v={`per payment ${s.session.maxAmountPerTx} · total ${s.session.maxTotalAmount} ${s.session.asset}`} />
           <Row k="Expires" v={`${s.session.expiresAt} (${Math.round(s.session.ttlSeconds / 60)} min)`} />
           <Row k="Delegation" v={<>{s.delegation.signer}<br /><span className="muted">{s.delegation.signature.slice(0, 42)}...</span></>} />
-          <Row k="Payment" v={`${s.payment.amount} USDC · ${s.payment.code} · ${s.payment.ref ?? ""}`} />
+          <Row k="Payment" v={`${s.payment.amount} USDC · ${s.payment.code} · ${s.payment.ref ?? ""}${s.live ? "" : " (mock ref, not a chain tx)"}`} />
           {s.enforcement.map((e) => <Row key={e.label} k="Rail check" v={`${e.label}: refused, ${e.code}`} />)}
         </>
       )}
       <Row k="Final hash" v={r.finalHash} />
       <Row k="Anchor" v={r.anchor.status === "anchored" ? <a href={r.anchor.explorerUrl}>{r.anchor.txHash}</a> : "not anchored yet"} />
       <Row k="Referee" v={r.referee.hash} />
-      <div style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap" }}>
+      <pre className="snippet" style={{ marginTop: 16 }}><b>npm run verify -- </b>{r.dealId}.json --entries</pre>
+      <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
         <Link className="btn primary" href={`/verify?id=${r.dealId}`}><span>Verify this deal</span><span className="arrow">&rarr;</span></Link>
         <button className="btn" onClick={download}>Download receipt</button>
       </div>

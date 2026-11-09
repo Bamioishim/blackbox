@@ -11,7 +11,8 @@
     "predev": "node scripts/referee-hash.mjs",
     "prebuild": "node scripts/referee-hash.mjs",
     "test": "vitest run",
-    "live-run": "tsx --conditions=react-server scripts/live-run.mts"
+    "live-run": "tsx --conditions=react-server scripts/live-run.mts",
+    "verify": "tsx scripts/verify.mts"
   },
   "dependencies": {
     "@noble/curves": "^1.9.7",

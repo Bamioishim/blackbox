@@ -12,7 +12,7 @@ function fmt(n: number) {
 }
 
 export function OfferChart({
-  rounds, maxRounds, reveal, price, closedRound, blockedRounds = [], title,
+  rounds, maxRounds, reveal, price, closedRound, blockedRounds = [], flags, title,
 }: {
   rounds: ChartRound[];
   maxRounds: number;
@@ -20,6 +20,7 @@ export function OfferChart({
   price?: number | null;
   closedRound?: number | null;
   blockedRounds?: number[];
+  flags?: { round: number; label: string }[];
   title?: string;
 }) {
   const values: number[] = [];
@@ -96,16 +97,22 @@ export function OfferChart({
           )}
         </AnimatePresence>
 
-        {blockedRounds.map((r, i) => (
-          <g key={`b${r}-${i}`}>
-            <line x1={x(r)} x2={x(r)} y1={T} y2={H - B} stroke="var(--wax)" strokeOpacity=".5" strokeDasharray="2 4" />
-            <g fontFamily="var(--font-geist-mono)" fontSize="10.5" letterSpacing="1.2">
-              <rect x={x(r) + 6} y={T - 2} width={196} height={22} fill="#0c0d0e" fillOpacity=".9" stroke="var(--wax)" strokeOpacity=".55" />
-              <text x={x(r) + 14} y={T + 13} fill="var(--wax)">FLAG-0{i + 1}</text>
-              <text x={x(r) + 72} y={T + 13} fill="var(--ink-2)">BLOCKED INJECTION</text>
+        {(flags ?? blockedRounds.map((r) => ({ round: r, label: "INJECTION BLOCKED" }))).map((f, i) => {
+          const r = f.round;
+          const wdt = 74 + f.label.length * 7.2;
+          const bx = Math.min(x(r) + 6, W - R - wdt + 100);
+          const by = T - 2 + i * 26;
+          return (
+            <g key={`b${r}-${i}`}>
+              <line x1={x(r)} x2={x(r)} y1={T} y2={H - B} stroke="var(--wax)" strokeOpacity=".5" strokeDasharray="2 4" />
+              <g fontFamily="var(--font-geist-mono)" fontSize="10.5" letterSpacing="1.2">
+                <rect x={bx} y={by} width={wdt} height={22} fill="#0c0d0e" fillOpacity=".9" stroke="var(--wax)" strokeOpacity=".55" />
+                <text x={bx + 8} y={by + 15} fill="var(--wax)">FLAG-0{i + 1}</text>
+                <text x={bx + 66} y={by + 15} fill="var(--ink-2)">{f.label}</text>
+              </g>
             </g>
-          </g>
-        ))}
+          );
+        })}
 
         {segs(seller).map((s) => (
           <motion.path key={"s" + s.key} d={s.d} fill="none" stroke="var(--ink-2)" strokeWidth="2" strokeDasharray="7 5"

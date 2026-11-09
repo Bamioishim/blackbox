@@ -21,7 +21,7 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
 body {
-  background-color: var(--paper);
+  background-color: #0a0a0b;
   /* faint survey grid */
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><path d='M80 0V80M0 80H80' fill='none' stroke='%23e9e6df' stroke-opacity='.04'/><path d='M38 40h4M40 38v4' stroke='%23e9e6df' stroke-opacity='.07'/></svg>");
   color: var(--ink);
@@ -30,7 +30,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  padding-bottom: 64px;
+  padding-bottom: 76px;
 }
 
 /* film grain */
@@ -54,7 +54,7 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 4px; 
 a:hover { text-decoration-color: var(--wax); }
 ::selection { background: var(--wax); color: var(--paper); }
 
-.display { font-family: var(--font-display), Georgia, serif; font-weight: 400; letter-spacing: -0.015em; line-height: 1.0; }
+.display { font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; font-weight: 500; letter-spacing: -0.045em; line-height: 0.98; }
 .display .dim, .dim { color: var(--muted); }
 .mono { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 0.86em; }
 .muted { color: var(--muted); }
@@ -134,3 +134,39 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
   .readouts { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
   .statusbar .cell:nth-child(n+3):not(:last-child) { display: none; }
 }
+
+/* left survey ruler */
+.ruler { position: fixed; left: 0; top: 0; bottom: 0; width: 34px; z-index: 40; pointer-events: none; border-right: 1px solid var(--rule);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 15px, rgba(233,230,223,.16) 15px 16px); background-size: 7px 16px; background-repeat: repeat-y; background-position: right 0 top 0; }
+.ruler span { position: absolute; left: 6px; font-family: var(--font-geist-mono), monospace; font-size: 9px; letter-spacing: .08em; color: var(--dim); }
+.ruler span::after { content: ""; position: absolute; left: 14px; top: 6px; width: 14px; height: 1px; background: rgba(233,230,223,.32); }
+@media (max-width: 1180px) { .ruler { display: none; } }
+
+/* stat bar with numbered tabs */
+.statbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: rgba(10,10,11,.95); border-top: 1px solid var(--rule); backdrop-filter: blur(6px); display: flex; align-items: stretch; padding-left: 34px; }
+.statbar .stat { padding: 11px 26px; border-right: 1px solid var(--rule); white-space: nowrap; }
+.statbar .stat .v { display: block; font-family: var(--font-geist-mono), monospace; font-size: 15px; letter-spacing: .06em; color: var(--ink); margin-top: 2px; }
+.statbar .tabs { display: flex; margin-left: auto; }
+.statbar .tabs a { display: flex; align-items: center; gap: 10px; padding: 0 30px; border-left: 1px solid var(--rule); text-decoration: none; font-family: var(--font-geist-mono), monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.statbar .tabs a b { font-weight: 400; color: var(--dim); }
+.statbar .tabs a:hover, .statbar .tabs a[aria-current="page"] { color: var(--ink); }
+.statbar .tabs a[aria-current="page"] b, .statbar .tabs a:hover b { color: var(--wax); }
+@media (max-width: 1100px) { .statbar .stat:nth-child(n+3) { display: none; } .statbar .tabs a { padding: 0 14px; } }
+@media (max-width: 700px) { .statbar .tabs { display: none; } .statbar { padding-left: 0; } }
+
+/* figure labels */
+.figlabel { font-family: var(--font-geist-mono), monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); line-height: 1.5; }
+.figlabel span { color: var(--dim); display: block; }
+
+/* blue flag callout, NORRVIK style */
+.callout { position: absolute; display: inline-flex; gap: 8px; white-space: nowrap; font-family: var(--font-geist-mono), monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; padding: 4px 8px; background: rgba(10,10,11,.86); border: 1px solid rgba(233,230,223,.14); color: var(--ink-2); pointer-events: none; transform: translate(-50%, -100%); }
+.callout b { color: var(--wax); font-weight: 400; }
+
+/* refusal stamp */
+.stamp { display: inline-block; font-family: var(--font-geist-mono), monospace; font-size: 22px; letter-spacing: .3em; padding: 6px 12px 6px 18px; border: 2px solid var(--wax); color: var(--wax); text-transform: uppercase; transform: rotate(-6deg); background: rgba(10,10,11,.6); }
+.ok-dot { display: inline-block; width: 7px; height: 7px; background: var(--ink-2); }
+.bad-dot { display: inline-block; width: 7px; height: 7px; background: var(--wax); }
+.snippet { font-family: var(--font-geist-mono), monospace; font-size: 12.5px; background: rgba(233,230,223,.04); border: 1px solid var(--rule); padding: 10px 12px; white-space: pre-wrap; word-break: break-all; color: var(--ink-2); margin: 0; }
+.snippet b { color: var(--wax); font-weight: 400; }
+.dropzone { border: 1px dashed var(--rule-2); padding: 14px; transition: border-color .2s, background .2s; }
+.dropzone.over { border-color: var(--wax); background: var(--wax-soft); }

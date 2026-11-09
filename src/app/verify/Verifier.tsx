@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import type { Receipt } from "@/lib/receipt";
-import { verifyReceipt, type Check } from "@/lib/verify";
+import { auditEntries, verifyReceipt, type Check } from "@/lib/verify";
 import { verifyChain } from "@/lib/chain";
 import { chartData, listLocal, loadReceipt } from "@/lib/view";
 import { REFEREE_HASH } from "@/lib/referee-hash.generated";
@@ -50,6 +50,14 @@ export function Verifier() {
     if (!r) { setErr(`No receipt found for ${dealId}. Paste the receipt JSON instead.`); setReceipt(null); return; }
     setId(dealId.trim()); setReceipt(r); setText("");
   }
+  const [over, setOver] = useState(false);
+  async function fromFile(f: File | undefined) {
+    if (!f) return;
+    const t = await f.text();
+    setText(t);
+    try { const r = JSON.parse(t) as Receipt; if (!Array.isArray(r.log)) throw new Error("That JSON has no log."); setErr(null); setTampered(false); setReceipt(r); setId(r.dealId ?? ""); }
+    catch (e) { setErr(`Couldn't read ${f.name}: ${(e as Error).message}`); }
+  }
   function fromText() {
     setErr(null); setTampered(false);
     try { const r = JSON.parse(text) as Receipt; if (!Array.isArray(r.log)) throw new Error("That JSON has no log."); setReceipt(r); setId(r.dealId ?? ""); }
@@ -72,7 +80,9 @@ export function Verifier() {
     const el = chain?.brokenAt != null ? box.querySelector<HTMLElement>(`[data-seq="${chain.brokenAt}"]`) : null;
     box.scrollTo({ top: el ? el.offsetTop - box.offsetTop - 80 : 0, behavior: "smooth" });
   }, [chain?.brokenAt, effective]);
-  const failed = checks?.some((c) => c.ok === false);
+  const audit = useMemo(() => (effective ? auditEntries(effective.r.log) : null), [effective]);
+  const auditBad = audit ? audit.filter((a) => a.hash !== "ok" || a.rule === "fail") : [];
+  const failed = checks?.some((c) => c.ok === false) || auditBad.length > 0;
   const chart = effective ? chartData(effective.r.log) : null;
 
   return (
@@ -100,10 +110,13 @@ export function Verifier() {
             </p>
           )}
         </div>
-        <div>
-          <span className="label">Or paste receipt JSON</span>
-          <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder='{"version":"blackbox/1", ...}' style={{ marginTop: 6 }} />
-          <button className="btn" style={{ marginTop: 8 }} onClick={fromText} disabled={!text.trim()}>Verify pasted receipt</button>
+        <div className={`dropzone${over ? " over" : ""}`} onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)} onDrop={(e) => { e.preventDefault(); setOver(false); fromFile(e.dataTransfer.files?.[0]); }}>
+          <span className="label">Or drop / paste a receipt JSON</span>
+          <textarea rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder='Drop deal_....json here, or paste {"version":"blackbox/1", ...}' style={{ marginTop: 6 }} />
+          <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
+            <button className="btn" onClick={fromText} disabled={!text.trim()}>Verify pasted receipt</button>
+            <label className="btn" style={{ cursor: "pointer" }}>Choose file<input type="file" accept="application/json,.json" style={{ display: "none" }} onChange={(e) => fromFile(e.target.files?.[0])} /></label>
+          </div>
         </div>
       </div>
       {err && <p className="wax">{err}</p>}
@@ -133,11 +146,11 @@ export function Verifier() {
 
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(0,1fr)", gap: 40, marginTop: 20 }} className="v-grid">
               <div>
-                {chart && <OfferChart rounds={chart.rounds} maxRounds={chart.maxRounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} />}
+                {chart && <OfferChart rounds={chart.rounds} maxRounds={chart.maxRounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} flags={chart.flags} />}
                 <div className="panel" style={{ marginTop: 30 }}>
-                  <div className="panel-head hud"><span>Field report 02 / <b>hash-chained log</b></span><span className={chain && !chain.ok ? "wax" : ""}>{effective.r.log.length} entries{chain && !chain.ok ? ` / broken at #${chain.brokenAt}` : " / chain intact"}</span></div>
+                  <div className="panel-head hud"><span>Field report 02 / <b>hash-chained log</b></span><span className={chain && !chain.ok ? "wax" : ""}>{audit ? `${audit.length - auditBad.length} / ${audit.length} entries pass` : ""}{chain && !chain.ok ? ` / broken at #${chain.brokenAt}` : " / chain intact"}</span></div>
                   <div ref={logBox} style={{ maxHeight: 520, overflow: "auto", position: "relative" }} data-lenis-prevent>
-                    <LogView entries={effective.r.log} brokenAt={chain?.brokenAt ?? null} />
+                    <LogView entries={effective.r.log} brokenAt={chain?.brokenAt ?? null} audit={audit ?? undefined} />
                   </div>
                 </div>
               </div>
@@ -148,6 +161,14 @@ export function Verifier() {
                     <div className="panel-body"><Checks checks={checks} /></div>
                   </div>
                 )}
+                <div className="panel" style={{ marginTop: 20 }}>
+                  <div className="panel-head hud"><span>Field report 03 / <b>verify it yourself</b></span><span>offline / no website</span></div>
+                  <div className="panel-body" style={{ paddingTop: 10 }}>
+                    <pre className="snippet">{`git clone https://github.com/Bamioishim/blackbox && cd blackbox && npm i\n`}<b>npm run verify -- </b>{`${effective.r.dealId}.json --entries`}</pre>
+                    <p className="muted" style={{ fontSize: 13, margin: "8px 0 0" }}>Same checks, same referee code, run on your machine. Exit code 0 means the record holds up; 1 means it doesn&apos;t, with the first failing entry printed.</p>
+                    <button className="btn" style={{ marginTop: 10 }} onClick={() => { const b = new Blob([JSON.stringify(effective.r, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${effective.r.dealId}${tampered ? "_tampered" : ""}.json`; a.click(); }}>Download this receipt</button>
+                  </div>
+                </div>
                 {effective.r.anchor.status !== "anchored" && (
                   <p className="muted" style={{ fontSize: 14, marginTop: 16 }}>
                     Without an onchain anchor, this check proves the log is internally consistent, not that it wasn&apos;t rewritten whole before you got it. Anchoring the final hash fixes that; it&apos;s built and waiting for approval to deploy.
@@ -158,6 +179,19 @@ export function Verifier() {
           </motion.section>
         )}
       </AnimatePresence>
+      <section id="archive" style={{ marginTop: 90, scrollMarginTop: 30 }}>
+        <p className="hud">(04) Archive / recorded deals</p>
+        <div style={{ borderTop: "1px solid var(--rule)" }}>
+          {samples.map((s, i) => (
+            <button key={s.id} onClick={() => { load(s.id); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ all: "unset", cursor: "pointer", display: "grid", gridTemplateColumns: "60px minmax(0,260px) 1fr auto", gap: 18, width: "100%", padding: "14px 0", borderBottom: "1px solid var(--rule)", alignItems: "baseline" }}>
+              <span className="hud wax">{String(i + 1).padStart(2, "0")}</span>
+              <span className="mono">{s.id}</span>
+              <span className="muted">{s.label}</span>
+              <span className="hud">Verify &rarr;</span>
+            </button>
+          ))}
+        </div>
+      </section>
       <style>{`@media (max-width: 900px) { .v-grid { grid-template-columns: 1fr !important; } }`}</style>
     </main>
   );

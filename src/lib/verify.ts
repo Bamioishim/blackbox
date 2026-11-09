@@ -2,7 +2,8 @@ import { verifyMessage, encodeFunctionData, decodeFunctionResult, keccak256, toB
 import { canonical } from "./canonical";
 import { verifyChain, type LogEntry } from "./chain";
 import { checkReveal, priceWithinLimits, type Commitment, type Reveal } from "./commit";
-import { replay } from "./referee";
+import { replay, initialState, judge, closeRound, type RefereeState, type Side } from "./referee";
+import type { Offer } from "./schema";
 import { roundsFromLog, type Receipt } from "./receipt";
 import { REFEREE_HASH } from "./referee-hash.generated";
 import type { SessionIntent, Delegation, PaymentAttempt } from "./settle";
@@ -127,4 +128,68 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: null, detail: "Not anchored yet." });
   }
   return checks;
+}
+
+export type EntryAudit = {
+  seq: number;
+  kind: LogEntry["kind"];
+  /** ok: hash recomputes and links; broken: first entry that fails; after: follows a broken entry, can't be trusted */
+  hash: "ok" | "broken" | "after";
+  /** Result of re-running the referee rule that applies to this entry, if any. */
+  rule: "ok" | "fail" | null;
+  note: string;
+};
+
+/**
+ * Per-entry audit: recomputes each entry's hash and link, and re-runs the referee on every
+ * offer, refusal, round close, deal close and reveal, so a judge sees exactly which line fails.
+ */
+export function auditEntries(log: LogEntry[]): EntryAudit[] {
+  const chain = verifyChain(log);
+  const open = log.find((e) => e.kind === "deal.open")?.payload as { quantity?: number; maxRounds?: number } | undefined;
+  const terms = { quantity: Number(open?.quantity), maxRounds: Number(open?.maxRounds) };
+  const commits = log.filter((e) => e.kind === "commit").map((e) => e.payload as unknown as Commitment);
+  let state: RefereeState = initialState();
+  let accepted: Record<Side, Offer | null> = { buyer: null, seller: null };
+  return log.map((e, i) => {
+    const hash: EntryAudit["hash"] = chain.ok || chain.brokenAt === null || i < chain.brokenAt ? "ok" : i === chain.brokenAt ? "broken" : "after";
+    const p = e.payload as Record<string, unknown>;
+    let rule: EntryAudit["rule"] = null;
+    let note = "";
+    try {
+      if (e.kind === "offer.accepted") {
+        const v = judge(state, terms, p.side as Side, { price: p.price, quantity: p.quantity, round: p.round });
+        rule = v.accepted ? "ok" : "fail";
+        note = v.accepted ? "referee accepts this offer" : `referee would refuse: ${v.reason}`;
+        if (v.accepted) accepted[p.side as Side] = v.offer;
+      } else if (e.kind === "offer.rejected" && /moved backwards/.test(String(p.reason))) {
+        const price = Number(p.attempted ?? p.preview);
+        const v = judge(state, terms, p.side as Side, { price, quantity: terms.quantity, round: state.round });
+        rule = !v.accepted && v.reason === p.reason ? "ok" : "fail";
+        note = rule === "ok" ? `referee refuses ${price} again: ${"reason" in v ? v.reason : ""}` : "referee would NOT refuse this offer";
+      } else if (e.kind === "offer.blocked" || e.kind === "offer.rejected") {
+        rule = /^(blocked|rejected): /.test(String(p.reason)) ? "ok" : "fail";
+        note = "refusal recorded; raw text is sealed, so only the reason is public";
+      } else if (e.kind === "round.closed") {
+        const next = closeRound(state, terms, accepted.buyer, accepted.seller);
+        const ok = next.bid === p.bid && next.ask === p.ask && (next.status === "open" ? p.status === "open" : next.status === p.status) && state.round === Number(p.round);
+        rule = ok ? "ok" : "fail";
+        note = ok ? `bid ${next.bid ?? "-"} / ask ${next.ask ?? "-"} / ${next.status}` : `replay gives bid ${next.bid} ask ${next.ask} ${next.status}`;
+        state = next; accepted = { buyer: null, seller: null };
+      } else if (e.kind === "deal.closed") {
+        const ok = state.status === "closed" && state.price === p.unitPrice;
+        rule = ok ? "ok" : "fail";
+        note = ok ? `midpoint ${state.price}` : `replay price ${state.price ?? "none"}, log says ${p.unitPrice}`;
+      } else if (e.kind === "reveal") {
+        const c = commits.find((x) => x.side === p.side);
+        const ok = !!c && checkReveal(c, p as unknown as Reveal);
+        rule = ok ? "ok" : "fail";
+        note = ok ? "hashes to its commitment" : "does not match its commitment";
+      }
+    } catch (err) {
+      rule = "fail"; note = (err as Error).message;
+    }
+    if (hash !== "ok") note = (hash === "broken" ? "hash no longer matches this entry. " : "after a broken entry. ") + note;
+    return { seq: e.seq, kind: e.kind, hash, rule, note };
+  });
 }

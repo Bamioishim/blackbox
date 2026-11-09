@@ -27,6 +27,12 @@ describe("end to end with a scripted model", () => {
     expect(blocked.length).toBe(1);
     expect(blocked[0].payload.reason).toBe("blocked: non-schema content");
     expect(blocked[0].payload.attack).toBe(true);
+    // second simulated rule-break: the buyer's bid is pushed backwards in round 2 and the referee refuses it
+    const back = r.log.filter((e) => e.kind === "offer.rejected" && e.payload.attackKind === "backtrack");
+    expect(back.length).toBe(1);
+    expect(back[0].payload.reason).toBe("rejected: buyer bid moved backwards");
+    expect(back[0].payload.simulated).toBe(true);
+    expect(Number(back[0].payload.attempted)).toBeLessThan(0.85);
     // the buyer's limit never appears in the public log before the reveal
     const beforeReveal = r.log.slice(0, r.log.findIndex((e) => e.kind === "reveal"));
     expect(JSON.stringify(beforeReveal)).not.toContain("0.92");

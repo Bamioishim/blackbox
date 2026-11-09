@@ -6,6 +6,12 @@ Two AI agents strike a private deal. Neither sees the other's limit. A determini
 
 Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**.
 
+## Three proofs
+
+1. **Decisions move a real transaction.** Every agent decision (open, counter, accept, hold, walk) updates a live transaction ticket (bid/ask, spread, total) and the deal ends in `settle(deal)`. Settlement is a clearly labelled **mock** today: no money moves and the ref is not a chain tx.
+2. **Judges verify, not trust.** `/verify` takes a deal ID or a dropped receipt JSON and re-hashes every entry, re-runs the referee on each offer, refusal, round and close, and checks the commit-reveal, all in the browser with a per-entry HASH/RULE pass/fail. Offline: `npm run verify -- public/deals/<deal>.json --entries` (exit 0 = holds up). The shipped tampered deal fails at entry #44.
+3. **Rule-breaks get stopped on screen.** Attack mode (simulated) has a test harness inject a prompt-injection message from the seller's side and push the buyer's bid backwards in round 2. The referee refuses both (`blocked: non-schema content`, `rejected: buyer bid moved backwards`), the UI shows the offending message, the code rule that fired and a REJECTED stamp, and the negotiation continues.
+
 ## How it works
 
 1. **Seal the limits.** The buyer's ceiling and the seller's floor are committed as `sha256(canonical({side, dealId, limit, salt}))` before any offer.

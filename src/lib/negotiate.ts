@@ -104,6 +104,15 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         }
       }
 
+      // Second simulated rule-break: in round 2 the harness rewrites the buyer's first submission so its bid
+      // moves BELOW its own standing bid. The referee's no-going-backwards rule must refuse it.
+      let backtrackFrom: number | undefined;
+      if (input.attackMode && side === "buyer" && r === 2 && attempt === 0 && s.bid !== null &&
+          candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+        backtrackFrom = typeof (candidate as Offer).price === "number" ? (candidate as Offer).price : undefined;
+        candidate = { ...(candidate as object), price: round6(Math.max(0.000001, s.bid - Math.max(0.01, s.bid * 0.03))) };
+      }
+
       // Owner guard: never let your own agent offer past your own limit. Numbers stay private.
       if (candidate && typeof candidate === "object" && typeof (candidate as Offer).price === "number") {
         const price = (candidate as Offer).price;
@@ -124,7 +133,10 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
       const blocked = v.reason.startsWith("blocked");
       log(blocked ? "offer.blocked" : "offer.rejected", "referee", {
         side, round: r, reason: v.reason, preview: v.preview, sealed: rSeal,
-        ...(injectedBy ? { attack: true, injectedBy, simulated: injectedBy === "harness", ...(modelMessage !== undefined ? { modelMessage } : {}) } : {}),
+        ...(injectedBy ? { attack: true, attackKind: "injection", injectedBy, simulated: injectedBy === "harness", ...(modelMessage !== undefined ? { modelMessage } : {}) } : {}),
+        ...(!injectedBy && candidate && typeof candidate === "object" && backtrackFrom !== undefined
+          ? { attack: true, attackKind: "backtrack", injectedBy: "harness", simulated: true, attempted: (candidate as Offer).price, modelPrice: backtrackFrom }
+          : {}),
       });
       retryReason = v.reason;
     }

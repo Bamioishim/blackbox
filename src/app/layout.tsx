@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { Nav } from "@/components/Nav";
+import { Nav, Tabs } from "@/components/Nav";
 import { REFEREE_HASH } from "@/lib/referee-hash.generated";
+import { heroReceipt } from "@/lib/samples";
+import { auditEntries } from "@/lib/verify";
 import "./globals.css";
-
-const display = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "Blackbox: private deals between AI agents",
-  description: "Two SERV Reasoning agents negotiate. Neither sees the other's limit. A deterministic referee closes the deal and a hash-chained record proves it was fair.",
+  description: "Two SERV Reasoning agents negotiate. Neither sees the other's limit. A deterministic referee closes the deal and a hash-chained record anyone can verify proves it was fair.",
 };
 
+const RULER = ["03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14"];
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const r = heroReceipt();
+  const audit = r ? auditEntries(r.log) : [];
+  const passed = audit.filter((a) => a.hash === "ok" && a.rule !== "fail").length;
   return (
-    <html lang="en" className={`${display.variable} ${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <SmoothScroll />
+        <div className="ruler" aria-hidden>{RULER.map((n, i) => <span key={n} style={{ top: 96 + i * 80 }}>{n}</span>)}</div>
         <div className="wrap">
           <Nav />
           {children}
@@ -27,14 +32,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span>Referee sha256 <b>{REFEREE_HASH}</b></span>
           </footer>
         </div>
-        <div className="statusbar" role="contentinfo" aria-label="Build status">
-          <div className="wrap">
-            <div className="cell"><span className="hud">Referee</span><span className="v">{REFEREE_HASH.slice(0, 8)}...{REFEREE_HASH.slice(-4)}</span></div>
-            <div className="cell"><span className="hud">Agents</span><span className="v">SERV live</span></div>
-            <div className="cell"><span className="hud">Payment</span><span className="v" style={{ color: "var(--wax)" }}>Mock</span></div>
-            <div className="cell"><span className="hud">Anchor</span><span className="v" style={{ color: "var(--wax)" }}>Not yet</span></div>
-            <div className="cell"><span className="hud">Kite testnet</span><span className="v">Chain 2368</span></div>
-          </div>
+        <div className="statbar" role="contentinfo" aria-label="Recorded deal status">
+          <div className="stat"><span className="hud">Rounds</span><span className="v">{r?.outcome.round ?? "-"} / {r?.terms.maxRounds ?? "-"}</span></div>
+          <div className="stat"><span className="hud">Final price</span><span className="v">{r?.outcome.unitPrice != null ? `${r.outcome.unitPrice} USDC` : "no deal"}</span></div>
+          <div className="stat"><span className="hud">Entries verified</span><span className="v">{passed} / {audit.length}</span></div>
+          <div className="stat"><span className="hud">Payment</span><span className="v" style={{ color: "var(--wax)" }}>Mock</span></div>
+          <Tabs />
         </div>
       </body>
     </html>
