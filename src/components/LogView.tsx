@@ -18,7 +18,7 @@ export function LogView({ entries, brokenAt = null, showQuiet = false, max, audi
         const broken = brokenAt !== null && e.seq >= brokenAt;
         const first = brokenAt === e.seq;
         return (
-          <motion.li key={e.seq} data-seq={e.seq} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 26 }}
+          <motion.li key={e.seq} data-seq={e.seq} className="log-row" layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 26 }}
             style={{
               display: "grid", gridTemplateColumns: audit ? "44px 1fr 92px" : "44px 1fr", gap: 10, padding: "8px 10px", borderBottom: "1px solid var(--rule)",
               background: first ? "rgba(126,179,247,.16)" : blocked ? "var(--wax-soft)" : "transparent",
@@ -32,7 +32,7 @@ export function LogView({ entries, brokenAt = null, showQuiet = false, max, audi
               <span className="mono muted" style={{ fontSize: 11 }}>{first ? "hash no longer matches: " : ""}{e.hash.slice(0, 20)}...{au && au.rule !== null && au.note ? ` · ${au.note}` : ""}</span>
             </span>
             {au && (
-              <span className="mono" style={{ fontSize: 10.5, letterSpacing: ".1em", textAlign: "right", lineHeight: 1.9, color: bad ? "var(--wax)" : "var(--muted)" }} title={au.note}>
+              <span className="mono audit" style={{ fontSize: 10.5, letterSpacing: ".1em", textAlign: "right", lineHeight: 1.9, color: bad ? "var(--wax)" : "var(--muted)" }} title={au.note}>
                 <span style={{ display: "block" }}><i className={au.hash === "ok" ? "ok-dot" : "bad-dot"} /> HASH {au.hash === "ok" ? "OK" : "FAIL"}</span>
                 {au.rule !== null && <span style={{ display: "block" }}><i className={au.rule === "ok" ? "ok-dot" : "bad-dot"} /> RULE {au.rule === "ok" ? "OK" : "FAIL"}</span>}
               </span>

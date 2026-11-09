@@ -124,11 +124,22 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
         const s = q.s ? q.s * f : q.c === 2 ? 1.6 : 1.1 * f;
         ctx.fillRect(x, y, s, s);
       }
-      anchors.forEach((a, i) => { const [x, y] = project(a.p); els[i].style.left = `${x}px`; els[i].style.top = `${y - 8}px`; });
+      const boxes: { l: number; r: number; t: number; b: number }[] = [];
+      anchors.forEach((a, i) => {
+        const [x, y] = project(a.p);
+        const ew = els[i].offsetWidth, eh = els[i].offsetHeight, hw = ew / 2;
+        const cx = Math.max(hw + 2, Math.min(w - hw - 2, x));
+        let top = Math.max(eh + 2, y - 8);
+        // keep callouts from stacking on top of each other
+        for (let pass = 0; pass < 3; pass++) for (const o of boxes) if (cx - hw < o.r && cx + hw > o.l && top - eh < o.b && top > o.t) top = o.t - 3;
+        top = Math.max(eh + 2, top);
+        boxes.push({ l: cx - hw, r: cx + hw, t: top - eh, b: top });
+        els[i].style.left = `${cx}px`; els[i].style.top = `${top}px`;
+      });
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
-    const down = (e: PointerEvent) => { drag = { x: e.clientX, yaw }; cv.setPointerCapture(e.pointerId); };
+    const down = (e: PointerEvent) => { if (e.pointerType !== "mouse") return; drag = { x: e.clientX, yaw }; cv.setPointerCapture(e.pointerId); };
     const move = (e: PointerEvent) => { if (drag) yaw = drag.yaw + (e.clientX - drag.x) / 260; };
     const up = () => { drag = null; };
     cv.addEventListener("pointerdown", down); cv.addEventListener("pointermove", move); cv.addEventListener("pointerup", up);
@@ -137,7 +148,7 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <canvas ref={canvas} style={{ width: "100%", height: "100%", display: "block", cursor: "grab", touchAction: "pan-y" }} aria-label="Recorded negotiation drawn as a point cloud: bids and asks converge inside the box, flags mark refused offers" role="img" />
+      <canvas ref={canvas} style={{ width: "100%", height: "100%", display: "block", cursor: "grab", touchAction: "pan-y pinch-zoom" }} aria-label="Recorded negotiation drawn as a point cloud: bids and asks converge inside the box, flags mark refused offers" role="img" />
       <div ref={layer} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} />
     </div>
   );

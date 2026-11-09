@@ -28,7 +28,7 @@ function StylePick({ value, onChange }: { value: Style; onChange: (s: Style) => 
   return (
     <div style={{ display: "flex", border: "1px solid var(--rule-2)", overflow: "hidden" }}>
       {(["patient", "balanced", "eager"] as Style[]).map((s) => (
-        <button key={s} type="button" onClick={() => onChange(s)}
+        <button key={s} type="button" className="style-pick" onClick={() => onChange(s)}
           style={{ flex: 1, padding: "9px 6px", border: 0, outline: value === s ? "1px solid var(--wax)" : "none", outlineOffset: -1, fontFamily: "var(--font-geist-mono)", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", cursor: "pointer", background: value === s ? "var(--wax-soft)" : "transparent", color: value === s ? "var(--wax)" : "var(--muted)" }}>
           {s}
         </button>
@@ -122,7 +122,7 @@ export function DealConsole() {
           <Field label="Seller floor (private)"><input type="number" step="0.001" value={floor} onChange={(e) => setFloor(Number(e.target.value))} /></Field>
           <Field label="Rounds"><input type="number" min={2} max={10} value={rounds} onChange={(e) => setRounds(Number(e.target.value))} /></Field>
         </div>
-        <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr) auto", gap: 14, alignItems: "end" }}>
+        <div className="terms-grid terms-2" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr) auto", gap: 14, alignItems: "end" }}>
           <Field label="Buyer's agent"><StylePick value={bStyle} onChange={setBStyle} /></Field>
           <Field label="Seller's agent"><StylePick value={sStyle} onChange={setSStyle} /></Field>
           <label style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 14, cursor: "pointer" }}>
@@ -130,7 +130,7 @@ export function DealConsole() {
             <span style={{ fontSize: 13.5 }}><span style={{ fontWeight: 500 }}>Attack mode (simulated).</span> <span className="muted">Round 2: an injection from the seller&apos;s side and a backwards bid from the buyer&apos;s side.</span></span>
           </label>
           <div style={{ marginBottom: 14 }}>
-            <button className="btn primary" disabled={running}><span>{running ? "Negotiating..." : "Seal limits and start"}</span><span className="arrow">&rarr;</span></button>
+            <button className="btn primary start-btn" disabled={running}><span>{running ? "Negotiating..." : "Seal limits and start"}</span><span className="arrow">&rarr;</span></button>
           </div>
         </div>
       </form>
@@ -165,7 +165,7 @@ export function DealConsole() {
           <div className="panel" style={{ marginTop: 28 }}>
           <div className="panel-head" style={{ padding: "0 14px" }}><div style={{ display: "flex", gap: 0 }}>
             {([["public", "Public log"], ["buyer", "Buyer's console"], ["seller", "Seller's console"]] as const).map(([k, l]) => (
-              <button key={k} onClick={() => setTab(k)} style={{ border: 0, background: "none", font: "inherit", fontFamily: "var(--font-geist-mono)", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", padding: "12px 0 10px", marginRight: 22, cursor: "pointer", color: tab === k ? "var(--ink)" : "var(--muted)", borderBottom: tab === k ? "2px solid var(--wax)" : "2px solid transparent" }}>{l}</button>
+              <button key={k} className="log-tab" onClick={() => setTab(k)} style={{ border: 0, background: "none", font: "inherit", fontFamily: "var(--font-geist-mono)", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", padding: "12px 0 10px", marginRight: 22, cursor: "pointer", color: tab === k ? "var(--ink)" : "var(--muted)", borderBottom: tab === k ? "2px solid var(--wax)" : "2px solid transparent" }}>{l}</button>
             ))}
           </div>
           <span className="hud" style={{ alignSelf: "center" }}>Field report 03</span></div>
@@ -198,7 +198,7 @@ export function DealConsole() {
             )}
           </AnimatePresence>
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div className="ticket-col" style={{ minWidth: 0 }}>
           <Ticket log={entries} stopped={stopped} />
         </div>
       </div>

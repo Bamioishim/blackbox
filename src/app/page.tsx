@@ -6,6 +6,7 @@ import { REFEREE_HASH, REFEREE_FILES } from "@/lib/referee-hash.generated";
 import { PointCloud } from "@/components/PointCloud";
 import { RefusalScene } from "@/components/RefusalScene";
 import { Ticket } from "@/components/Ticket";
+import { CopyHash } from "@/components/CopyHash";
 import { Reveal } from "@/components/Reveal";
 
 const STEPS = [
@@ -42,11 +43,11 @@ export default function Home() {
   return (
     <main>
       <section className="hero" style={{ position: "relative", minHeight: "min(760px, calc(100vh - 140px))", display: "grid", gridTemplateColumns: "minmax(0, 0.82fr) minmax(0, 1.18fr)", alignItems: "center", gap: 20 }}>
-        <div style={{ position: "absolute", top: 22, left: 0, right: 0, display: "flex", justifyContent: "space-between", pointerEvents: "none", zIndex: 2 }}>
+        <div className="hero-coords" style={{ position: "absolute", top: 22, left: 0, right: 0, display: "flex", justifyContent: "space-between", pointerEvents: "none", zIndex: 2 }}>
           <div className="figlabel">Fig. 01 / {r ? r.dealId : "no deal"} / point cloud<span>Local grid / price × round</span></div>
-          <div className="figlabel" style={{ textAlign: "right" }}>{closed ? `R ${closed.round} / P ${closed.unitPrice}` : "R - / P -"}<span>{r ? `${r.log.length} entries / ${attacks.length} flagged` : ""}</span></div>
+          <div className="figlabel fig-right" style={{ textAlign: "right" }}>{closed ? `R ${closed.round} / P ${closed.unitPrice}` : "R - / P -"}<span>{r ? `${r.log.length} entries / ${attacks.length} flagged` : ""}</span></div>
         </div>
-        <div style={{ position: "relative", zIndex: 2, paddingTop: 60 }}>
+        <div className="hero-copy" style={{ position: "relative", zIndex: 2, paddingTop: 60 }}>
           <p className="hud wax">(01) Negotiate / verify / referee</p>
           <h1 className="display" style={{ fontSize: "clamp(40px, 4.4vw, 66px)", margin: "16px 0 22px" }}>
             The ground truth <span className="dim" style={{ display: "block" }}>for every agent deal.</span>
@@ -60,9 +61,9 @@ export default function Home() {
             <Link href={r ? `/verify?id=${r.dealId}` : "/verify"} className="link-hud">Verify a recorded deal ↗</Link>
           </div>
         </div>
-        <div style={{ position: "relative", height: "min(700px, calc(100vh - 160px))", minHeight: 460, marginRight: -40 }}>
+        <div className="hero-visual" style={{ position: "relative", height: "min(700px, calc(100vh - 160px))", minHeight: 460, marginRight: -40 }}>
           {r && <PointCloud receipt={r} />}
-          <span className="hud" style={{ position: "absolute", right: 40, bottom: 10, fontSize: 10 }}>Drag to orbit / real SERV run</span>
+          <span className="hud hero-hint" style={{ position: "absolute", right: 40, bottom: 10, fontSize: 10 }}>Drag to orbit / real SERV run</span>
         </div>
       </section>
 
@@ -148,7 +149,7 @@ export default function Home() {
       <Reveal as="section" style={{ paddingTop: 110 }}>
         <div data-reveal className="panel" style={{ padding: "18px 20px" }}>
           <p className="hud" style={{ margin: 0 }}>(07) Published referee code</p>
-          <p className="mono" style={{ fontSize: "clamp(13px, 1.6vw, 18px)", wordBreak: "break-all", margin: "8px 0" }}>sha256 {REFEREE_HASH}</p>
+          <p className="mono" style={{ fontSize: "clamp(13px, 1.6vw, 18px)", wordBreak: "break-all", margin: "8px 0" }}>sha256 <CopyHash value={REFEREE_HASH} label="referee hash" /></p>
           <p className="muted" style={{ fontSize: 14 }}>Hash of {REFEREE_FILES.join(" + ")}. Every receipt carries it, and the verifier flags any receipt made by different referee code. Rebuild it with <span className="mono">npm run referee-hash</span>.</p>
         </div>
       </Reveal>

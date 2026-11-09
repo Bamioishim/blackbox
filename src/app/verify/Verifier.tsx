@@ -102,7 +102,7 @@ export function Verifier() {
             <button className="btn" onClick={() => load(id)}>Load</button>
           </div>
           {(samples.length > 0 || local.length > 0) && (
-            <p style={{ fontSize: 14, marginTop: 10 }}>
+            <p className="deal-links" style={{ fontSize: 14, marginTop: 10 }}>
               <span className="muted">Recorded deals: </span>
               {[...samples.map((s) => ({ id: s.id, label: s.label })), ...local.filter((l) => !samples.some((s) => s.id === l)).map((l) => ({ id: l, label: `${l} (this browser)` }))].map((s, i) => (
                 <span key={s.id}>{i ? " · " : ""}<a href="#" onClick={(e) => { e.preventDefault(); load(s.id); }}>{s.label}</a></span>
@@ -183,7 +183,7 @@ export function Verifier() {
         <p className="hud">(04) Archive / recorded deals</p>
         <div style={{ borderTop: "1px solid var(--rule)" }}>
           {samples.map((s, i) => (
-            <button key={s.id} onClick={() => { load(s.id); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ all: "unset", cursor: "pointer", display: "grid", gridTemplateColumns: "60px minmax(0,260px) 1fr auto", gap: 18, width: "100%", padding: "14px 0", borderBottom: "1px solid var(--rule)", alignItems: "baseline" }}>
+            <button key={s.id} className="arch-row" onClick={() => { load(s.id); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={{ all: "unset", cursor: "pointer", display: "grid", gridTemplateColumns: "60px minmax(0,260px) 1fr auto", gap: 18, width: "100%", padding: "14px 0", borderBottom: "1px solid var(--rule)", alignItems: "baseline" }}>
               <span className="hud wax">{String(i + 1).padStart(2, "0")}</span>
               <span className="mono">{s.id}</span>
               <span className="muted">{s.label}</span>

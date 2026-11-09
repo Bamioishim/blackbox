@@ -14,7 +14,7 @@ export function Ticket({ log, stopped = false }: { log: LogEntry[]; stopped?: bo
   const ds = decisions(log);
   const s = t.settlement;
   return (
-    <div className="panel" style={{ position: "sticky", top: 20 }}>
+    <div className="panel ticket" style={{ position: "sticky", top: 20 }}>
       <div className="panel-head hud"><span>Field report 02 / <b>transaction ticket</b></span><span className={t.status.startsWith("settled") || t.status === "agreed" ? "wax" : ""}>{STATUS[t.status]}</span></div>
       <div className="readouts" style={{ borderTop: 0, gridAutoFlow: "row", gridTemplateColumns: "1fr 1fr" }}>
         <div style={{ paddingLeft: 14 }}><span className="hud">Quantity</span><span className="v">{t.quantity || "-"} {t.item}</span></div>
@@ -31,7 +31,7 @@ export function Ticket({ log, stopped = false }: { log: LogEntry[]; stopped?: bo
             {ds.length === 0 && <li className="muted" style={{ fontSize: 13.5, padding: "6px 0" }}>Each agent decision lands here: open, counter, accept, hold or walk.</li>}
             {ds.map((d) => (
               <motion.li key={`${d.round}-${d.side}`} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ type: "spring", stiffness: 240, damping: 24 }}
-                style={{ display: "grid", gridTemplateColumns: "34px 58px 76px 1fr", gap: 8, padding: "5px 0", borderBottom: "1px dashed var(--rule)", fontSize: 13 }} className="mono">
+                className="mono decision-row" style={{ display: "grid", gridTemplateColumns: "34px 58px 76px 1fr", gap: 8, padding: "5px 0", borderBottom: "1px dashed var(--rule)", fontSize: 13 }}>
                 <span className="muted">R{d.round}</span>
                 <span style={{ color: "var(--ink-2)" }}>{d.side}</span>
                 <span style={{ color: d.action === "accept" ? "var(--wax)" : d.action === "walk" || d.action === "hold" ? "var(--muted)" : "var(--ink)", textTransform: "uppercase" }}>{d.action}</span>

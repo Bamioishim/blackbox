@@ -6,7 +6,11 @@ import { Nav, Tabs } from "@/components/Nav";
 import { REFEREE_HASH } from "@/lib/referee-hash.generated";
 import { heroReceipt } from "@/lib/samples";
 import { auditEntries } from "@/lib/verify";
+import { CopyHash } from "@/components/CopyHash";
+import type { Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0a0a0b" };
 
 export const metadata: Metadata = {
   title: "Blackbox: private deals between AI agents",
@@ -29,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <footer className="footer hud">
             <span>Blackbox / built on SERV Reasoning / SERV Hackathon 02</span>
-            <span>Referee sha256 <b>{REFEREE_HASH}</b></span>
+            <span>Referee sha256 <b><CopyHash value={REFEREE_HASH} label="referee hash" /></b></span>
           </footer>
         </div>
         <div className="statbar" role="contentinfo" aria-label="Recorded deal status">

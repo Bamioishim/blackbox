@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LogoMark } from "./Logo";
 
 export const TABS = [
@@ -21,6 +22,7 @@ export function Nav() {
         ))}
       </nav>
       <span className="hud rec"><i aria-hidden />Recording</span>
+      <MobileMenu />
     </header>
   );
 }
@@ -31,5 +33,30 @@ export function Tabs() {
     <nav className="tabs" aria-label="Sections">
       {TABS.map((t) => <Link key={t.n} href={t.href} aria-current={p === t.href ? "page" : undefined}><b>{t.n}</b>{t.label}</Link>)}
     </nav>
+  );
+}
+
+function MobileMenu() {
+  const [open, setOpen] = useState(false);
+  const p = usePathname();
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  return (
+    <>
+      <button type="button" className="menu-btn" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen((o) => !o)}>
+        <span aria-hidden className={`menu-icon${open ? " x" : ""}`}><i /><i /></span>{open ? "Close" : "Menu"}
+      </button>
+      {open && (
+        <nav id="mobile-menu" className="mobile-menu" aria-label="Main">
+          {TABS.map((t) => (
+            <Link key={t.n} href={t.href} onClick={() => setOpen(false)} aria-current={p === t.href ? "page" : undefined}><b>{t.n}</b>{t.label}<span aria-hidden>&rarr;</span></Link>
+          ))}
+        </nav>
+      )}
+    </>
   );
 }

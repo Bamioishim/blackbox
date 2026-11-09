@@ -2,10 +2,11 @@
 import Link from "next/link";
 import type { Receipt } from "@/lib/receipt";
 import { Seal } from "./Seal";
+import { CopyHash } from "./CopyHash";
 
 function Row({ k, v, mono = true }: { k: string; v: React.ReactNode; mono?: boolean }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: 12, padding: "7px 0", borderBottom: "1px dashed var(--rule)", fontSize: 14 }}>
+    <div className="kv-row" style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: 12, padding: "7px 0", borderBottom: "1px dashed var(--rule)", fontSize: 14 }}>
       <span className="muted">{k}</span>
       <span className={mono ? "mono" : ""} style={{ wordBreak: "break-all" }}>{v}</span>
     </div>
@@ -42,9 +43,9 @@ export function ReceiptCard({ r }: { r: Receipt }) {
           {s.enforcement.map((e) => <Row key={e.label} k="Rail check" v={`${e.label}: refused, ${e.code}`} />)}
         </>
       )}
-      <Row k="Final hash" v={r.finalHash} />
+      <Row k="Final hash" v={<CopyHash value={r.finalHash} label="final hash" />} />
       <Row k="Anchor" v={r.anchor.status === "anchored" ? <a href={r.anchor.explorerUrl}>{r.anchor.txHash}</a> : "not anchored yet"} />
-      <Row k="Referee" v={r.referee.hash} />
+      <Row k="Referee" v={<CopyHash value={r.referee.hash} label="referee hash" />} />
       <pre className="snippet" style={{ marginTop: 16 }}><b>npm run verify -- </b>{r.dealId}.json --entries</pre>
       <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
         <Link className="btn primary" href={`/verify?id=${r.dealId}`}><span>Verify this deal</span><span className="arrow">&rarr;</span></Link>
