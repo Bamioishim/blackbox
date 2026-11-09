@@ -17,9 +17,9 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 **Your spending limit.** Before the deal starts you type a spending limit (total USDC) on `/deal`. It is separate from the prices and from your private ceiling, and it does four things:
 
 1. It is committed as `sha256(canonical({kind:"budget", dealId, budget, salt}))` in a `mandate.open` log entry **before the first offer**, so the seller can't read it but you can't change it later.
-2. It becomes the cap on the Kite Passport spending session: `payment_policy.max_total_amount = max_amount_per_tx = your limit` ([`kiteDelegation()`](src/lib/settle.ts) builds the exact delegation JSON for `kpass session create --separate --delegation …`). Kite's backend refuses anything past it with `session_total_exceeded` / `session_rule_exceeded`.
+2. It mirrors the intended Kite Passport spending-session cap: `payment_policy.max_total_amount = max_amount_per_tx = your limit`. This is enforced by Blackbox's demo guard only; no Passport session is created and Kite's backend does not enforce it in the deployed demo.
 3. Your own guard holds back any bid whose total would pass it, so your agent can't agree to a deal you can't pay.
-4. At settlement the limit is revealed, and settle pays **exactly the agreed total, once**. The receipt shows three refused attempts: 0.01 over the agreed total (`over_agreed_total`), a second payment (`deal_already_settled`), and spending past your limit (`session_total_exceeded`). If the deal total were above your limit, settle refuses to pay at all (tested in `tests/settle.test.ts`).
+4. At the simulated settlement step the limit is revealed, and the demo checks that the agreed total is within it. No USDC is transferred. The receipt shows three simulated refusal checks: 0.01 over the agreed total (`over_agreed_total`), a second payment (`deal_already_settled`), and spending past your limit (`session_total_exceeded`).
 
 The verifier checks that the limit was committed before any offer, that the reveal matches the commitment, that the session caps equal your limit, and that the deal total sits inside it.
 
@@ -34,7 +34,7 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 3. **A referee, not a model.** [`src/lib/referee.ts`](src/lib/referee.ts) and [`src/lib/schema.ts`](src/lib/schema.ts) are plain deterministic code. They accept exactly `{price, quantity, round}`. Anything else is dropped and logged as `blocked: non-schema content`. Bids can't go down and asks can't go up. When bid >= ask, the deal closes at the midpoint.
 4. **Owner guard.** Before an offer reaches the table, the owner's side checks it against the owner's own limit and asks the agent again if it slips. So the crossing price always sits inside both limits.
 5. **Reveal.** After close, both sides reveal limit and salt. Anyone can check them against the commitments and confirm the price is inside both.
-6. **Settle inside your limit.** `settle(deal)` pays through a session shaped like a Kite Passport spending session whose caps are your spending limit (15-minute expiry), and only for exactly the agreed total, once. The receipt shows the session, caps, expiry and signed delegation, plus the refused attempts above.
+6. **Settlement (simulated).** `settle(deal)` records the intended Kite Passport session shape, your spending cap (15-minute expiry), and the exact agreed total. It does not create a Passport session or transfer USDC. The receipt labels this as simulated and shows the refusal checks above.
 7. **Record everything.** Every prompt, reply, offer, block, reveal and settlement step is a log entry whose hash includes the previous entry's hash. Prompts and replies are logged as salted hashes so the public log can't be brute-forced for the limits.
 8. **Verify.** `/verify` takes a deal ID or receipt JSON and, in the browser, re-hashes the chain, re-runs the referee on the logged offers, checks the commit-reveal, the price, the caps and the delegation signature. A tamper toggle edits one offer to show the check turning red.
 
@@ -48,7 +48,7 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 | Referee, commit-reveal, hash chain, verifier | Live, unit tested |
 | Your spending limit | Live: committed before offers, enforced by the guard and the session caps, checked by the verifier |
 | Agent identity | Live: per-deal agent keys sign every offer, verified. Not yet bound to Kite agent DIDs (needs Kite onboarding) |
-| Payment via Kite Passport | **SIMULATED — no real funds moved.** Same session shape and refusal codes as Kite's docs; the delegation is signed by a throwaway key; the ref is not a transaction. `src/lib/settle-kite.ts` builds the real `kpass session create --separate` call with your limit as the cap. It is off in the deployed app: it needs USDC in the Passport wallet and the owner's passkey approval. If it is switched on (`SETTLE_MODE=kite`) and can't confirm a payment, settlement falls back to the simulation and says `SIMULATED — no real funds moved (fallback: <reason>)` everywhere. |
+| Payment via Kite Passport | **SIMULATED — no real funds moved.** The receipt mirrors the intended session cap and refusal checks, but the delegation is signed by a throwaway key and the `sim_…` ref is not a transaction. Live settlement is not implemented. Kite's published docs currently provide CLI/agent-skill flows and state that there is no public HTTP API reference for app backends. The old server-side CLI attempt has been disabled; `SETTLE_MODE=kite` now safely falls back to an explicitly labelled simulation. A real integration needs a Kite-supported server/hosted-agent handoff and a verifiable transaction hash. [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
 | Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
 | Deal lookup by ID | Recorded deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Deals you run are kept in your browser. No server database. |
 
@@ -102,7 +102,7 @@ Latest outputs are in [`test-output/`](test-output/).
 - `src/lib/chain.ts`: hash-chained log
 - `src/lib/agents.ts`, `src/lib/negotiate.ts`: SERV agents and the negotiation loop
 - `src/lib/identity.ts`: owner identity (Kite Passport) and per-deal agent keys that sign offers
-- `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, Kite delegation builder and the SIMULATED settler; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: real `kpass` adapter (off)
+- `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, intended Kite delegation shape and the SIMULATED settler; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: guarded placeholder that refuses unsupported server-side CLI execution
 - `src/lib/anchor.ts`, `anchor-evm.ts`, `contracts/BlackboxAnchor.sol`, `scripts/anchor.mjs`: pluggable anchoring (off until deployed)
 - `src/lib/verify.ts`: the checks the public verifier runs
 
