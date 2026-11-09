@@ -1,0 +1,71 @@
+deal_330d29f9a714  57 entries  final 6a1c5b9e7c9f8153...
+000 HASH-OK           deal.open          
+001 HASH-OK           commit             
+002 HASH-OK           commit             
+003 HASH-OK           prompt             
+004 HASH-OK           prompt             
+005 HASH-OK           response           
+006 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+007 HASH-OK           response           
+008 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+009 HASH-OK  RULE-OK  round.closed       bid 0.84 / ask 0.96 / open
+010 HASH-OK           prompt             
+011 HASH-OK           prompt             
+012 HASH-OK           response           
+013 HASH-OK  RULE-OK  offer.blocked      refusal recorded; raw text is sealed, so only the reason is public
+014 HASH-OK           prompt             
+015 HASH-OK           response           
+016 HASH-OK  RULE-OK  offer.rejected     referee refuses 0.8148 again: rejected: buyer bid moved backwards
+017 HASH-OK           prompt             
+018 HASH-OK           response           
+019 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+020 HASH-OK           response           
+021 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+022 HASH-OK  RULE-OK  round.closed       bid 0.86 / ask 0.95 / open
+023 HASH-OK           prompt             
+024 HASH-OK           prompt             
+025 HASH-OK           response           
+026 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+027 HASH-OK           response           
+028 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+029 HASH-OK  RULE-OK  round.closed       bid 0.88 / ask 0.94 / open
+030 HASH-OK           prompt             
+031 HASH-OK           prompt             
+032 HASH-OK           response           
+033 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+034 HASH-OK           response           
+035 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+036 HASH-OK  RULE-OK  round.closed       bid 0.9 / ask 0.93 / open
+037 HASH-OK           prompt             
+038 HASH-OK           prompt             
+039 HASH-OK           response           
+040 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+041 HASH-OK           response           
+042 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+043 HASH-OK  RULE-OK  round.closed       bid 0.91 / ask 0.92 / open
+044 HASH-OK           prompt             
+045 HASH-OK           prompt             
+046 HASH-OK           response           
+047 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+048 HASH-OK           response           
+049 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+050 HASH-OK  RULE-OK  round.closed       bid 0.92 / ask 0.91 / closed
+051 HASH-OK  RULE-OK  deal.closed        midpoint 0.915
+052 HASH-OK  RULE-OK  reveal             hashes to its commitment
+053 HASH-OK  RULE-OK  reveal             hashes to its commitment
+054 HASH-OK           settle.session     
+055 HASH-OK           settle.payment     
+056 HASH-OK           settle.enforcement 
+entries: 57/57 pass
+PASS Hash chain intact - 57 entries, each one points at the hash before it.
+PASS Final hash matches the log - 6a1c5b9e7c9f81534027d39d1202463a460528b5a721ef5d9233e60f1d9e5c0a
+PASS Referee code matches the published hash - 5c194b8f6fdd8688f375d5111036fe3993b636b1ebb4c83efc5e627c649b6673
+PASS Re-running the referee gives the same result - Closes in round 6 at 0.915.
+PASS Both limits were committed before any offer - buyer: 2520eb0c80dbaaa0...  seller: d8931b68c908e5a1...
+PASS Revealed limits match their commitments - buyer ceiling 0.92, seller floor 0.88
+PASS Price sits inside both limits - 0.88 <= 0.915 <= 0.92
+PASS Payment session capped at the deal amount - per-tx 457.500000, total 457.500000, expires after 10 min. Deal total 457.500000.
+PASS Session delegation signature valid - MOCK key. Signed by 0xb3cE49621f0bC37C25E2F6349bD764C4Ae5Fb745
+PASS Payment (mock) - 457.500000 USDC, settled_mock. No money moved.
+---- Final hash anchored onchain - Not anchored yet.
+RESULT: RECORD HOLDS UP

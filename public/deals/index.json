@@ -1,8 +1,12 @@
 [
   {
-    "id": "deal_f2782613a915",
-    "label": "Simulated attack, closed at 0.92",
+    "id": "deal_330d29f9a714",
+    "label": "Simulated attack (injection + backwards bid), closed at 0.915",
     "hero": true
+  },
+  {
+    "id": "deal_f2782613a915",
+    "label": "Simulated attack, closed at 0.92"
   },
   {
     "id": "deal_c1ab4822348c",

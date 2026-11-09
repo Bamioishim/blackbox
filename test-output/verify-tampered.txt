@@ -1,0 +1,68 @@
+deal_f2782613a915_tampered  54 entries  final af22110225b18bd2...
+000 HASH-OK           deal.open          
+001 HASH-OK           commit             
+002 HASH-OK           commit             
+003 HASH-OK           prompt             
+004 HASH-OK           prompt             
+005 HASH-OK           response           
+006 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+007 HASH-OK           response           
+008 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+009 HASH-OK  RULE-OK  round.closed       bid 0.86 / ask 0.97 / open
+010 HASH-OK           prompt             
+011 HASH-OK           prompt             
+012 HASH-OK           response           
+013 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+014 HASH-OK           response           
+015 HASH-OK  RULE-OK  offer.blocked      refusal recorded; raw text is sealed, so only the reason is public
+016 HASH-OK           prompt             
+017 HASH-OK           response           
+018 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+019 HASH-OK  RULE-OK  round.closed       bid 0.88 / ask 0.96 / open
+020 HASH-OK           prompt             
+021 HASH-OK           prompt             
+022 HASH-OK           response           
+023 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+024 HASH-OK           response           
+025 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+026 HASH-OK  RULE-OK  round.closed       bid 0.9 / ask 0.95 / open
+027 HASH-OK           prompt             
+028 HASH-OK           prompt             
+029 HASH-OK           response           
+030 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+031 HASH-OK           response           
+032 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+033 HASH-OK  RULE-OK  round.closed       bid 0.91 / ask 0.94 / open
+034 HASH-OK           prompt             
+035 HASH-OK           prompt             
+036 HASH-OK           response           
+037 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+038 HASH-OK           response           
+039 HASH-OK  RULE-OK  offer.accepted     referee accepts this offer
+040 HASH-OK  RULE-OK  round.closed       bid 0.915 / ask 0.93 / open
+041 HASH-OK           prompt             
+042 HASH-OK           prompt             
+043 HASH-OK           response           
+044 HASH-BAD RULE-BAD offer.accepted     hash no longer matches this entry. referee would refuse: rejected: buyer bid moved backwards
+045 HASH-BAD          response           after a broken entry. 
+046 HASH-BAD RULE-OK  offer.accepted     after a broken entry. referee accepts this offer
+047 HASH-BAD RULE-BAD round.closed       after a broken entry. replay gives bid 0.915 ask 0.92 no_deal
+048 HASH-BAD RULE-BAD deal.closed        after a broken entry. replay price none, log says 0.92
+049 HASH-BAD RULE-OK  reveal             after a broken entry. hashes to its commitment
+050 HASH-BAD RULE-OK  reveal             after a broken entry. hashes to its commitment
+051 HASH-BAD          settle.session     after a broken entry. 
+052 HASH-BAD          settle.payment     after a broken entry. 
+053 HASH-BAD          settle.enforcement after a broken entry. 
+entries: 44/54 pass, first failure at #44 (offer.accepted): hash no longer matches this entry. referee would refuse: rejected: buyer bid moved backwards
+FAIL Hash chain intact - entry 44 was changed after it was written. Everything from entry 44 on can't be trusted.
+FAIL Final hash matches the log - The receipt's final hash is not the last entry of this log.
+PASS Referee code matches the published hash - 5c194b8f6fdd8688f375d5111036fe3993b636b1ebb4c83efc5e627c649b6673
+FAIL Re-running the referee gives the same result - Replay says no_deal at none; the log says 0.92.
+PASS Both limits were committed before any offer - buyer: 35879f53c4fe5cc6...  seller: a14a1d781cdef591...
+PASS Revealed limits match their commitments - buyer ceiling 0.92, seller floor 0.88
+PASS Price sits inside both limits - 0.88 <= 0.92 <= 0.92
+PASS Payment session capped at the deal amount - per-tx 460.000000, total 460.000000, expires after 10 min. Deal total 460.000000.
+PASS Session delegation signature valid - MOCK key. Signed by 0x4aE29d4DCC1Eb528F72610129DC81e2B44b063EC
+PASS Payment (mock) - 460.000000 USDC, settled_mock. No money moved.
+---- Final hash anchored onchain - Not anchored yet.
+RESULT: FAILED
