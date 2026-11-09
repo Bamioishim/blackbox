@@ -77,8 +77,8 @@ export function Verifier() {
 
   return (
     <main style={{ paddingTop: 48 }}>
-      <p className="label">Public verifier</p>
-      <h1 className="display" style={{ fontSize: "clamp(42px, 6vw, 76px)", margin: "8px 0 14px", maxWidth: 940 }}>Check a deal without trusting us.</h1>
+      <p className="hud wax">(03) Public verifier / no account</p>
+      <h1 className="display" style={{ fontSize: "clamp(42px, 6vw, 76px)", margin: "8px 0 14px", maxWidth: 940 }}>Check a deal <span className="dim">without trusting us.</span></h1>
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
         Paste a deal ID or a receipt. Your browser re-hashes every log entry, re-runs the referee on the recorded offers,
         checks both revealed limits against their commitments, and reads the payment caps. No account, nothing sent to a server.
@@ -111,16 +111,16 @@ export function Verifier() {
       <AnimatePresence mode="wait">
         {effective && (
           <motion.section key={effective.r.dealId} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 160, damping: 22 }} style={{ marginTop: 50 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", borderTop: "1px solid var(--ink)", paddingTop: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, flexWrap: "wrap", borderTop: "1px solid var(--rule-2)", paddingTop: 20 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <span style={{ transform: "scale(1.6)", display: "inline-flex" }}><Mark ok={checks ? !failed : null} /></span>
                 <h2 className="display" style={{ fontSize: 38, margin: 0, color: failed ? "var(--wax)" : "var(--ink)" }}>
                   {!checks ? "Checking..." : failed ? (chain && !chain.ok ? `Broken at entry #${chain.brokenAt}` : "Checks failed") : "Record holds up"}
                 </h2>
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "8px 14px", border: `1px solid ${tampered ? "var(--wax)" : "var(--rule)"}`, borderRadius: 4 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", padding: "8px 14px", border: `1px solid ${tampered ? "var(--wax)" : "var(--rule-2)"}` }}>
                 <input type="checkbox" checked={tampered} onChange={(e) => setTampered(e.target.checked)} style={{ width: 16 }} />
-                <span><b style={{ fontWeight: 500 }}>Tamper demo.</b> <span className="muted" style={{ fontSize: 14 }}>Quietly edit one offer.</span></span>
+                <span><b className="hud" style={{ color: "var(--ink)" }}>Tamper demo</b> <span className="muted" style={{ fontSize: 14 }}>Quietly edit one offer.</span></span>
               </label>
             </div>
             {tampered && <p className="wax" style={{ marginTop: 10 }}>{effective.note}</p>}
@@ -134,13 +134,20 @@ export function Verifier() {
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.25fr) minmax(0,1fr)", gap: 40, marginTop: 20 }} className="v-grid">
               <div>
                 {chart && <OfferChart rounds={chart.rounds} maxRounds={chart.maxRounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} />}
-                <h3 className="display" style={{ fontSize: 28, margin: "34px 0 6px" }}>The log</h3>
-                <div ref={logBox} style={{ maxHeight: 520, overflow: "auto", position: "relative" }} data-lenis-prevent>
-                  <LogView entries={effective.r.log} brokenAt={chain?.brokenAt ?? null} />
+                <div className="panel" style={{ marginTop: 30 }}>
+                  <div className="panel-head hud"><span>Field report 02 / <b>hash-chained log</b></span><span className={chain && !chain.ok ? "wax" : ""}>{effective.r.log.length} entries{chain && !chain.ok ? ` / broken at #${chain.brokenAt}` : " / chain intact"}</span></div>
+                  <div ref={logBox} style={{ maxHeight: 520, overflow: "auto", position: "relative" }} data-lenis-prevent>
+                    <LogView entries={effective.r.log} brokenAt={chain?.brokenAt ?? null} />
+                  </div>
                 </div>
               </div>
               <div>
-                {checks && <Checks checks={checks} />}
+                {checks && (
+                  <div className="panel">
+                    <div className="panel-head hud"><span>Field report 01 / <b>checks</b></span><span className={failed ? "wax" : ""}>{checks.filter((c) => c.ok).length} / {checks.length} pass{failed ? ` / ${checks.filter((c) => c.ok === false).length} flagged` : ""}{checks.some((c) => c.ok === null) ? ` / ${checks.filter((c) => c.ok === null).length} pending` : ""}</span></div>
+                    <div className="panel-body"><Checks checks={checks} /></div>
+                  </div>
+                )}
                 {effective.r.anchor.status !== "anchored" && (
                   <p className="muted" style={{ fontSize: 14, marginTop: 16 }}>
                     Without an onchain anchor, this check proves the log is internally consistent, not that it wasn&apos;t rewritten whole before you got it. Anchoring the final hash fixes that; it&apos;s built and waiting for approval to deploy.

@@ -22,9 +22,9 @@ export function ReceiptCard({ r }: { r: Receipt }) {
     a.click();
   };
   return (
-    <section style={{ background: "#f7f3ea", border: "1px solid var(--rule)", padding: "26px 26px 20px", position: "relative" }}>
+    <section style={{ padding: "26px 26px 20px" }} className="panel">
       <div style={{ position: "absolute", top: -18, right: 22 }}><Seal size={44} /></div>
-      <p className="label" style={{ margin: 0 }}>Receipt</p>
+      <p className="hud" style={{ margin: 0 }}>Field report / <b>receipt</b></p>
       <h3 className="display" style={{ fontSize: 40, margin: "6px 0 14px" }}>
         {r.outcome.status === "closed" ? <>{r.outcome.unitPrice} <span className="muted" style={{ fontSize: 22 }}>USDC per unit</span></> : "No deal"}
       </h3>
@@ -46,7 +46,7 @@ export function ReceiptCard({ r }: { r: Receipt }) {
       <Row k="Anchor" v={r.anchor.status === "anchored" ? <a href={r.anchor.explorerUrl}>{r.anchor.txHash}</a> : "not anchored yet"} />
       <Row k="Referee" v={r.referee.hash} />
       <div style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap" }}>
-        <Link className="btn primary" href={`/verify?id=${r.dealId}`}>Verify this deal</Link>
+        <Link className="btn primary" href={`/verify?id=${r.dealId}`}><span>Verify this deal</span><span className="arrow">&rarr;</span></Link>
         <button className="btn" onClick={download}>Download receipt</button>
       </div>
     </section>

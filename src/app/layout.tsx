@@ -22,10 +22,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="wrap">
           <Nav />
           {children}
-          <footer className="footer">
-            <span>Blackbox, built on SERV Reasoning for SERV Hackathon 02.</span>
-            <span className="mono">referee sha256 {REFEREE_HASH.slice(0, 16)}...{REFEREE_HASH.slice(-8)}</span>
+          <footer className="footer hud">
+            <span>Blackbox / built on SERV Reasoning / SERV Hackathon 02</span>
+            <span>Referee sha256 <b>{REFEREE_HASH}</b></span>
           </footer>
+        </div>
+        <div className="statusbar" role="contentinfo" aria-label="Build status">
+          <div className="wrap">
+            <div className="cell"><span className="hud">Referee</span><span className="v">{REFEREE_HASH.slice(0, 8)}...{REFEREE_HASH.slice(-4)}</span></div>
+            <div className="cell"><span className="hud">Agents</span><span className="v">SERV live</span></div>
+            <div className="cell"><span className="hud">Payment</span><span className="v" style={{ color: "var(--wax)" }}>Mock</span></div>
+            <div className="cell"><span className="hud">Anchor</span><span className="v" style={{ color: "var(--wax)" }}>Not yet</span></div>
+            <div className="cell"><span className="hud">Kite testnet</span><span className="v">Chain 2368</span></div>
+          </div>
         </div>
       </body>
     </html>

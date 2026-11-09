@@ -53,13 +53,17 @@ export function OfferChart({
 
   return (
     <figure style={{ margin: 0 }}>
+      <div className="hud" style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, fontSize: 10.5 }}>
+        <span>Fig. 01 / <b>offers by round</b> / price, USDC</span>
+        <span>{rounds.length ? `R${rounds.length} of ${maxRounds}` : `0 of ${maxRounds}`}{reveal ? " / limits revealed" : " / limits sealed"}</span>
+      </div>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={title ?? "Offers by round"} style={{ display: "block", overflow: "visible" }}>
         <defs>
           <pattern id="hatchB" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" strokeOpacity=".16" strokeWidth="2" />
+            <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" strokeOpacity=".09" strokeWidth="2" />
           </pattern>
           <pattern id="hatchS" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-            <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" strokeOpacity=".16" strokeWidth="2" />
+            <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink)" strokeOpacity=".09" strokeWidth="2" />
           </pattern>
         </defs>
 
@@ -86,8 +90,8 @@ export function OfferChart({
               )}
               <line x1={L} x2={W - R} y1={y(reveal.buyer)} y2={y(reveal.buyer)} stroke="var(--ink)" strokeWidth="1.2" />
               <line x1={L} x2={W - R} y1={y(reveal.seller)} y2={y(reveal.seller)} stroke="var(--ink)" strokeWidth="1.2" strokeDasharray="6 5" />
-              <text x={W - R + 10} y={ly("b", y(reveal.buyer))} fontSize="12.5" fill="var(--ink)">buyer ceiling {fmt(reveal.buyer)}</text>
-              <text x={W - R + 10} y={ly("s", y(reveal.seller))} fontSize="12.5" fill="var(--ink)">seller floor {fmt(reveal.seller)}</text>
+              <text x={W - R + 18} y={ly("b", y(reveal.buyer))} fontSize="11.5" fill="var(--ink-2)" fontFamily="var(--font-geist-mono)">CEILING {fmt(reveal.buyer)}</text>
+              <text x={W - R + 18} y={ly("s", y(reveal.seller))} fontSize="11.5" fill="var(--ink-2)" fontFamily="var(--font-geist-mono)">FLOOR {fmt(reveal.seller)}</text>
             </motion.g>
           )}
         </AnimatePresence>
@@ -95,7 +99,11 @@ export function OfferChart({
         {blockedRounds.map((r, i) => (
           <g key={`b${r}-${i}`}>
             <line x1={x(r)} x2={x(r)} y1={T} y2={H - B} stroke="var(--wax)" strokeOpacity=".5" strokeDasharray="2 4" />
-            <text x={x(r) + 6} y={T + 12} fontSize="11.5" fill="var(--wax)">blocked injection</text>
+            <g fontFamily="var(--font-geist-mono)" fontSize="10.5" letterSpacing="1.2">
+              <rect x={x(r) + 6} y={T - 2} width={196} height={22} fill="#0c0d0e" fillOpacity=".9" stroke="var(--wax)" strokeOpacity=".55" />
+              <text x={x(r) + 14} y={T + 13} fill="var(--wax)">FLAG-0{i + 1}</text>
+              <text x={x(r) + 72} y={T + 13} fill="var(--ink-2)">BLOCKED INJECTION</text>
+            </g>
           </g>
         ))}
 
@@ -122,16 +130,29 @@ export function OfferChart({
               style={{ transformBox: "fill-box", transformOrigin: "center" }}>
               <line x1={L} x2={W - R} y1={y(price)} y2={y(price)} stroke="var(--wax)" strokeWidth="1" strokeDasharray="3 4" />
               <circle cx={x(closedRound)} cy={y(price)} r={11} fill="var(--wax)" />
-              <circle cx={x(closedRound)} cy={y(price)} r={6.5} fill="none" stroke="#f2ede3" strokeOpacity=".7" />
-              <text x={W - R + 10} y={ly("p", y(price))} fontSize="13" fill="var(--wax)" fontWeight="600">settled {fmt(price)}</text>
+              <circle cx={x(closedRound)} cy={y(price)} r={6.5} fill="none" stroke="#0c0d0e" strokeOpacity=".7" />
+              <text x={W - R + 18} y={ly("p", y(price))} fontSize="12.5" fill="var(--wax)" fontFamily="var(--font-geist-mono)">SETTLED {fmt(price)}</text>
+              {reveal && (() => {
+                const bx = Math.max(L + 8, x(closedRound) - 262), by = Math.min(H - B - 44, Math.max(y(reveal.seller), y(price)) + 16);
+                return (
+                  <g fontFamily="var(--font-geist-mono)" fontSize="10.5" letterSpacing="1.1">
+                    <line x1={x(closedRound)} y1={y(price)} x2={bx + 250} y2={by + 1} stroke="var(--wax)" strokeOpacity=".6" />
+                    <rect x={bx} y={by} width={250} height={36} fill="#0c0d0e" fillOpacity=".92" stroke="var(--rule-2)" />
+                    <text x={bx + 9} y={by + 14} fill="var(--wax)">DELTA</text>
+                    <text x={bx + 60} y={by + 14} fill="var(--ink-2)">UNDER CEILING {fmt(reveal.buyer - price)}</text>
+                    <text x={bx + 60} y={by + 28} fill="var(--ink-2)">OVER FLOOR {fmt(price - reveal.seller)}</text>
+                    <text x={bx + 196} y={by + 21} fill={price <= reveal.buyer && price >= reveal.seller ? "var(--ink)" : "var(--wax)"}>{price <= reveal.buyer && price >= reveal.seller ? "INSIDE" : "OUTSIDE"}</text>
+                  </g>
+                );
+              })()}
             </motion.g>
           )}
         </AnimatePresence>
       </svg>
-      <figcaption style={{ display: "flex", gap: 22, fontSize: 13.5, color: "var(--muted)", marginTop: 8, flexWrap: "wrap" }}>
+      <figcaption className="hud" style={{ display: "flex", gap: 22, marginTop: 10, flexWrap: "wrap", fontSize: 10.5 }}>
         <span><svg width="26" height="10"><line x1="0" x2="26" y1="5" y2="5" stroke="var(--ink)" strokeWidth="2.4" /></svg> buyer bids</span>
         <span><svg width="26" height="10"><line x1="0" x2="26" y1="5" y2="5" stroke="var(--ink-2)" strokeWidth="2" strokeDasharray="7 5" /></svg> seller asks</span>
-        {reveal && <span><svg width="14" height="12"><rect width="14" height="12" fill="var(--wax-soft)" stroke="var(--wax)" strokeOpacity=".3" /></svg> price both owners would accept, shown only after reveal</span>}
+        {reveal && <span><svg width="14" height="12"><rect width="14" height="12" fill="var(--wax-soft)" stroke="var(--wax)" strokeOpacity=".3" /></svg> zone both owners accept, shown after reveal</span>}
       </figcaption>
     </figure>
   );
