@@ -1,0 +1,572 @@
+{
+  "version": "sealed/1",
+  "dealId": "deal_77ea0d964036",
+  "createdAt": "2026-11-09T15:33:24.898Z",
+  "model": "gpt-5.4-mini via SERV Reasoning",
+  "terms": {
+    "item": "X tokens",
+    "quantity": 500,
+    "asset": "USDC",
+    "referencePrice": 0.9,
+    "maxRounds": 6,
+    "attackMode": false
+  },
+  "referee": {
+    "hash": "e6e294732ecd3ed3a4d9b7c2539ffae5630fd0de21436aa5c759565385fd77af",
+    "files": [
+      "src/lib/schema.ts",
+      "src/lib/referee.ts"
+    ]
+  },
+  "commitments": [
+    {
+      "side": "buyer",
+      "dealId": "deal_77ea0d964036",
+      "commitment": "c3514ef98876a69acbb778ba6a14c27364f3419b2b12596735262be8dc5906ff"
+    },
+    {
+      "side": "seller",
+      "dealId": "deal_77ea0d964036",
+      "commitment": "90d6e5cf78f0c7689dfdeb83cfe71eebd4d082201cbde715decf4a12fe8d7c0d"
+    }
+  ],
+  "reveals": [
+    {
+      "side": "buyer",
+      "dealId": "deal_77ea0d964036",
+      "limit": "0.920000",
+      "salt": "883f427327c4393cb8c9e4a79ef27974f429239df8ce881b114c06541ae1d504"
+    },
+    {
+      "side": "seller",
+      "dealId": "deal_77ea0d964036",
+      "limit": "0.880000",
+      "salt": "fff6a4cf371c943091871923550259ca7df895a3c4568eb259f55e566b8eeebb"
+    }
+  ],
+  "outcome": {
+    "status": "closed",
+    "unitPrice": 0.92,
+    "total": 460,
+    "round": 3
+  },
+  "log": [
+    {
+      "seq": 0,
+      "ts": "2026-11-09T15:33:24.898Z",
+      "kind": "deal.open",
+      "actor": "system",
+      "payload": {
+        "dealId": "deal_77ea0d964036",
+        "item": "X tokens",
+        "quantity": 500,
+        "asset": "USDC",
+        "referencePrice": 0.9,
+        "maxRounds": 6,
+        "attackMode": false,
+        "model": "gpt-5.4-mini",
+        "refereeHash": "e6e294732ecd3ed3a4d9b7c2539ffae5630fd0de21436aa5c759565385fd77af"
+      },
+      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "b24857f18d8827720d610910c643558da088ff3a33ba2fdeeb29605eaea13898"
+    },
+    {
+      "seq": 1,
+      "ts": "2026-11-09T15:33:24.899Z",
+      "kind": "commit",
+      "actor": "buyer",
+      "payload": {
+        "side": "buyer",
+        "dealId": "deal_77ea0d964036",
+        "commitment": "c3514ef98876a69acbb778ba6a14c27364f3419b2b12596735262be8dc5906ff"
+      },
+      "prevHash": "b24857f18d8827720d610910c643558da088ff3a33ba2fdeeb29605eaea13898",
+      "hash": "b64cee32e8af891d33b62c7ed3d3ae431a9f78ab787382a78803f3ae203638aa"
+    },
+    {
+      "seq": 2,
+      "ts": "2026-11-09T15:33:24.899Z",
+      "kind": "commit",
+      "actor": "seller",
+      "payload": {
+        "side": "seller",
+        "dealId": "deal_77ea0d964036",
+        "commitment": "90d6e5cf78f0c7689dfdeb83cfe71eebd4d082201cbde715decf4a12fe8d7c0d"
+      },
+      "prevHash": "b64cee32e8af891d33b62c7ed3d3ae431a9f78ab787382a78803f3ae203638aa",
+      "hash": "454fb7e3c5564a4d637d3406b7018471a3fc4569e6c85fe74c4b403a9804a13b"
+    },
+    {
+      "seq": 3,
+      "ts": "2026-11-09T15:33:24.900Z",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 1,
+        "attempt": 0,
+        "sealed": "bb85d4a0b65710ca541249fd7800c9c1bab1cad8c85610ed40173f10b724f624",
+        "chars": 1116
+      },
+      "prevHash": "454fb7e3c5564a4d637d3406b7018471a3fc4569e6c85fe74c4b403a9804a13b",
+      "hash": "8b2909326e5d160e58df9c9608e76ef4f4eec97e0b68f91c1b8c433ae7c35ff5"
+    },
+    {
+      "seq": 4,
+      "ts": "2026-11-09T15:33:24.923Z",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 1,
+        "attempt": 0,
+        "sealed": "4ff044c81bc457b2865c8264f7a8f5b79d6a74d61eb540162ef67e3d2196f7b6",
+        "chars": 1109
+      },
+      "prevHash": "8b2909326e5d160e58df9c9608e76ef4f4eec97e0b68f91c1b8c433ae7c35ff5",
+      "hash": "9224b9c4d881f18785a2b738307344708ae2d7cbc1feee5389d44ffdc7e53ab8"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-11-09T15:33:27.256Z",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 1,
+        "attempt": 0,
+        "sealed": "3a2674f07916a1fc689ea7ecc96c02728d2b4a4aeab4b89c0aaa8bfa06014ec6",
+        "chars": 72
+      },
+      "prevHash": "9224b9c4d881f18785a2b738307344708ae2d7cbc1feee5389d44ffdc7e53ab8",
+      "hash": "aa6ba07faaddaf4784cdd6d6a4d0cd421dc47e63282bbb33e490b33e65e33947"
+    },
+    {
+      "seq": 6,
+      "ts": "2026-11-09T15:33:27.256Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "price": 0.94,
+        "quantity": 500,
+        "round": 1
+      },
+      "prevHash": "aa6ba07faaddaf4784cdd6d6a4d0cd421dc47e63282bbb33e490b33e65e33947",
+      "hash": "f50878fc8504fa60d1b0f64c0b74a62b65d34a3229e818f231b0379eb9405e12"
+    },
+    {
+      "seq": 7,
+      "ts": "2026-11-09T15:33:27.313Z",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 1,
+        "attempt": 0,
+        "sealed": "229721d3a7d7ed4086c84df7e813c4d994fc60600378953fb521110f444b13ca",
+        "chars": 216
+      },
+      "prevHash": "f50878fc8504fa60d1b0f64c0b74a62b65d34a3229e818f231b0379eb9405e12",
+      "hash": "2ccba36c51360a310720be23bd7ccf3b1c9f910a4316dfe1eee2c704ac6f85c7"
+    },
+    {
+      "seq": 8,
+      "ts": "2026-11-09T15:33:27.313Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "price": 0.9,
+        "quantity": 500,
+        "round": 1
+      },
+      "prevHash": "2ccba36c51360a310720be23bd7ccf3b1c9f910a4316dfe1eee2c704ac6f85c7",
+      "hash": "04365c5bd806e6711b4756f5251240ea9f5d5c98a4e7fb4ea2d28a1e866a406e"
+    },
+    {
+      "seq": 9,
+      "ts": "2026-11-09T15:33:27.313Z",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "round": 1,
+        "bid": 0.9,
+        "ask": 0.94,
+        "status": "open"
+      },
+      "prevHash": "04365c5bd806e6711b4756f5251240ea9f5d5c98a4e7fb4ea2d28a1e866a406e",
+      "hash": "fe027d95c73bc12037a85627586c42067ffd65a2df737ec2bfb60e7dc649fc16"
+    },
+    {
+      "seq": 10,
+      "ts": "2026-11-09T15:33:27.313Z",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 2,
+        "attempt": 0,
+        "sealed": "53f7005e432e150e41fe82b10798f9cef1e65e6aae0398c9c4409b33e0dbac21",
+        "chars": 1166
+      },
+      "prevHash": "fe027d95c73bc12037a85627586c42067ffd65a2df737ec2bfb60e7dc649fc16",
+      "hash": "b043e14900ca7700bb2facdd3f91df5d0b1a2674ccafbe94e3d5acaac84a8000"
+    },
+    {
+      "seq": 11,
+      "ts": "2026-11-09T15:33:27.314Z",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 2,
+        "attempt": 0,
+        "sealed": "3a845b253a473ab454d9558e1a854d7cd7cee7d50a3a8c8270acd7dc7613ddab",
+        "chars": 1159
+      },
+      "prevHash": "b043e14900ca7700bb2facdd3f91df5d0b1a2674ccafbe94e3d5acaac84a8000",
+      "hash": "9c68d83651cc38d07c912d434f65ffbf5608da7e0994179d24ef7538f8a976dc"
+    },
+    {
+      "seq": 12,
+      "ts": "2026-11-09T15:33:28.859Z",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 2,
+        "attempt": 0,
+        "sealed": "5b6664e2455bfd923260f86acffcc30742220954a89e6086864559598a5cbbfc",
+        "chars": 223
+      },
+      "prevHash": "9c68d83651cc38d07c912d434f65ffbf5608da7e0994179d24ef7538f8a976dc",
+      "hash": "3fb637790dd36f19c84dd8490c48d6c2fad45497e61d455745c608095de55908"
+    },
+    {
+      "seq": 13,
+      "ts": "2026-11-09T15:33:28.859Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "price": 0.91,
+        "quantity": 500,
+        "round": 2
+      },
+      "prevHash": "3fb637790dd36f19c84dd8490c48d6c2fad45497e61d455745c608095de55908",
+      "hash": "cac3b6bab1eaa4af1d53f4c506b32a7edeeae7c85250b49aa87cd0d66e56ad22"
+    },
+    {
+      "seq": 14,
+      "ts": "2026-11-09T15:33:29.445Z",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 2,
+        "attempt": 0,
+        "sealed": "0f4b6dba66f74bc265344e3920b484ecbfe847ff24dec36786dbedef8658fc09",
+        "chars": 184
+      },
+      "prevHash": "cac3b6bab1eaa4af1d53f4c506b32a7edeeae7c85250b49aa87cd0d66e56ad22",
+      "hash": "cedeb812641e2ccf3aeece01dd48a4f2c9dbeb3008b318efbaf5c79cd16cc53d"
+    },
+    {
+      "seq": 15,
+      "ts": "2026-11-09T15:33:29.445Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "price": 0.93,
+        "quantity": 500,
+        "round": 2
+      },
+      "prevHash": "cedeb812641e2ccf3aeece01dd48a4f2c9dbeb3008b318efbaf5c79cd16cc53d",
+      "hash": "4904ffff36f6725f03343f696019b2f4ef37a2b2792f1c28f1f8eea9d227f059"
+    },
+    {
+      "seq": 16,
+      "ts": "2026-11-09T15:33:29.445Z",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "round": 2,
+        "bid": 0.91,
+        "ask": 0.93,
+        "status": "open"
+      },
+      "prevHash": "4904ffff36f6725f03343f696019b2f4ef37a2b2792f1c28f1f8eea9d227f059",
+      "hash": "0b27759d2fbb14b291a2e8e55aef5ac676027fa8346b6d521d53c255d4611ae7"
+    },
+    {
+      "seq": 17,
+      "ts": "2026-11-09T15:33:29.445Z",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 3,
+        "attempt": 0,
+        "sealed": "6a3d4bf3bde9fcf73ec3cc02cc1dec8c25f3f9c456e245ef670d30694d032a4b",
+        "chars": 1209
+      },
+      "prevHash": "0b27759d2fbb14b291a2e8e55aef5ac676027fa8346b6d521d53c255d4611ae7",
+      "hash": "9afb08b60f906dce8fc45d20995ea09e102e70da160de6edcb583820792f1a96"
+    },
+    {
+      "seq": 18,
+      "ts": "2026-11-09T15:33:29.446Z",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 3,
+        "attempt": 0,
+        "sealed": "cc405048653f5b3f8e07c1b8663c42ad0814fcbdd4471ceeedf47497cbca607d",
+        "chars": 1200
+      },
+      "prevHash": "9afb08b60f906dce8fc45d20995ea09e102e70da160de6edcb583820792f1a96",
+      "hash": "c6cb60eeb2938292c2f5a04222a6469c6263d36c753ecb73fb6de952045b5e9d"
+    },
+    {
+      "seq": 19,
+      "ts": "2026-11-09T15:33:31.092Z",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "round": 3,
+        "attempt": 0,
+        "sealed": "961baffa9a27868d696a564dedaab0d4bdd939a2e944e729fe68560983af4e04",
+        "chars": 177
+      },
+      "prevHash": "c6cb60eeb2938292c2f5a04222a6469c6263d36c753ecb73fb6de952045b5e9d",
+      "hash": "0ea3509dc53ee12b63c9c96763a8be26d1c2d8a93b62d511327088088b07ccec"
+    },
+    {
+      "seq": 20,
+      "ts": "2026-11-09T15:33:31.092Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "price": 0.92,
+        "quantity": 500,
+        "round": 3
+      },
+      "prevHash": "0ea3509dc53ee12b63c9c96763a8be26d1c2d8a93b62d511327088088b07ccec",
+      "hash": "352fb11cf6fbfbd8fb46b77fb9d4364bbc71837fcc7ec8fc546f1010ba643654"
+    },
+    {
+      "seq": 21,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "round": 3,
+        "attempt": 0,
+        "sealed": "9870fd9437f8d625687c328cf3e1039a83bed31f49b8b54f958d2dcf19774ed3",
+        "chars": 233
+      },
+      "prevHash": "352fb11cf6fbfbd8fb46b77fb9d4364bbc71837fcc7ec8fc546f1010ba643654",
+      "hash": "1f6828c8e2d915c3201495a038d21eb43c4eedb36dd7116f934b47a2360add8d"
+    },
+    {
+      "seq": 22,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "price": 0.92,
+        "quantity": 500,
+        "round": 3
+      },
+      "prevHash": "1f6828c8e2d915c3201495a038d21eb43c4eedb36dd7116f934b47a2360add8d",
+      "hash": "2845e8cfea1a2da32cb8a215fe5372e7e24bc5af060941d754abda8be2374ff2"
+    },
+    {
+      "seq": 23,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "round": 3,
+        "bid": 0.92,
+        "ask": 0.92,
+        "status": "closed"
+      },
+      "prevHash": "2845e8cfea1a2da32cb8a215fe5372e7e24bc5af060941d754abda8be2374ff2",
+      "hash": "60e5f93b2b5c1c191164beb17df10f941029b5f8ac21bfd19ffcff8aa6ea523d"
+    },
+    {
+      "seq": 24,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "deal.closed",
+      "actor": "referee",
+      "payload": {
+        "unitPrice": 0.92,
+        "total": 460,
+        "round": 3,
+        "rule": "midpoint of crossing bid and ask"
+      },
+      "prevHash": "60e5f93b2b5c1c191164beb17df10f941029b5f8ac21bfd19ffcff8aa6ea523d",
+      "hash": "f6db70911b6a5a02d9238fdd2e508c7401421e25a01103952692267dc33580ca"
+    },
+    {
+      "seq": 25,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "reveal",
+      "actor": "buyer",
+      "payload": {
+        "side": "buyer",
+        "dealId": "deal_77ea0d964036",
+        "limit": "0.920000",
+        "salt": "883f427327c4393cb8c9e4a79ef27974f429239df8ce881b114c06541ae1d504"
+      },
+      "prevHash": "f6db70911b6a5a02d9238fdd2e508c7401421e25a01103952692267dc33580ca",
+      "hash": "470a5951ba8322f2ac1d15fd248a8dcb1c807435dc7921557e248110d3e847c5"
+    },
+    {
+      "seq": 26,
+      "ts": "2026-11-09T15:33:31.370Z",
+      "kind": "reveal",
+      "actor": "seller",
+      "payload": {
+        "side": "seller",
+        "dealId": "deal_77ea0d964036",
+        "limit": "0.880000",
+        "salt": "fff6a4cf371c943091871923550259ca7df895a3c4568eb259f55e566b8eeebb"
+      },
+      "prevHash": "470a5951ba8322f2ac1d15fd248a8dcb1c807435dc7921557e248110d3e847c5",
+      "hash": "02f4e651a923771f07220afe41cf1d5db65731bc1df2c6b97bdc1e5e264c3f60"
+    },
+    {
+      "seq": 27,
+      "ts": "2026-11-09T15:33:31.412Z",
+      "kind": "settle.session",
+      "actor": "settlement",
+      "payload": {
+        "session": {
+          "provider": "kite-passport",
+          "mode": "mock",
+          "sessionId": "mock_sess_2d9d1e9fa2ce8b8b",
+          "dealId": "deal_77ea0d964036",
+          "taskSummary": "Pay 460.000000 USDC for 500 x X tokens (Sealed deal deal_77ea0d964036). One payment only.",
+          "asset": "USDC",
+          "maxAmountPerTx": "460.000000",
+          "maxTotalAmount": "460.000000",
+          "ttlSeconds": 600,
+          "createdAt": "2026-11-09T15:33:31.370Z",
+          "expiresAt": "2026-11-09T15:43:31.370Z",
+          "payee": "seller (demo)"
+        },
+        "delegation": {
+          "scheme": "MOCK: EIP-191 signature by a throwaway demo key (stands in for a Kite passkey approval)",
+          "signer": "0xbD731220B938fecC628Ba45DA73A7D9115F7c64b",
+          "signature": "0x71742d6ac7698869a99da464df5518667c6d1853918d5eabe50ccd4564f54afb01e54ecf1ee6610902da9f4d3b2df91be3bf3fdb217c2e1c47b506801017f4e71c",
+          "message": "{\"asset\":\"USDC\",\"createdAt\":\"2026-11-09T15:33:31.370Z\",\"dealId\":\"deal_77ea0d964036\",\"expiresAt\":\"2026-11-09T15:43:31.370Z\",\"maxAmountPerTx\":\"460.000000\",\"maxTotalAmount\":\"460.000000\",\"mode\":\"mock\",\"payee\":\"seller (demo)\",\"provider\":\"kite-passport\",\"sessionId\":\"mock_sess_2d9d1e9fa2ce8b8b\",\"taskSummary\":\"Pay 460.000000 USDC for 500 x X tokens (Sealed deal deal_77ea0d964036). One payment only.\",\"ttlSeconds\":600}"
+        },
+        "label": "MOCK settlement. No money moved. Session, caps and checks mirror Kite Passport; the signature is from a throwaway demo key."
+      },
+      "prevHash": "02f4e651a923771f07220afe41cf1d5db65731bc1df2c6b97bdc1e5e264c3f60",
+      "hash": "4f301e43992d27f215151972b612a468b9b43d3138997bf4f07ed2d2d270ea56"
+    },
+    {
+      "seq": 28,
+      "ts": "2026-11-09T15:33:31.412Z",
+      "kind": "settle.payment",
+      "actor": "settlement",
+      "payload": {
+        "label": "Pay the agreed amount",
+        "amount": "460.000000",
+        "ok": true,
+        "code": "settled_mock",
+        "ref": "mock_tx_1097e8df5cca2a3f239fc105",
+        "mode": "mock"
+      },
+      "prevHash": "4f301e43992d27f215151972b612a468b9b43d3138997bf4f07ed2d2d270ea56",
+      "hash": "3d0918c8f617f09875af418d4432bdbe269ceb39bd88bd23103a6dbbd37b74fa"
+    },
+    {
+      "seq": 29,
+      "ts": "2026-11-09T15:33:31.412Z",
+      "kind": "settle.enforcement",
+      "actor": "settlement",
+      "payload": {
+        "attempts": [
+          {
+            "label": "Try to pay 0.01 more than agreed",
+            "amount": "460.010000",
+            "ok": false,
+            "code": "session_rule_exceeded"
+          },
+          {
+            "label": "Try a second payment after settling",
+            "amount": "0.010000",
+            "ok": false,
+            "code": "session_total_exceeded"
+          }
+        ],
+        "mode": "mock"
+      },
+      "prevHash": "3d0918c8f617f09875af418d4432bdbe269ceb39bd88bd23103a6dbbd37b74fa",
+      "hash": "9253a816a69c9e913abef088e9390024e99fd8d6569685b0b348a5b6f0e776ab"
+    }
+  ],
+  "finalHash": "9253a816a69c9e913abef088e9390024e99fd8d6569685b0b348a5b6f0e776ab",
+  "settlement": {
+    "mode": "mock",
+    "live": false,
+    "label": "MOCK settlement. No money moved. Session, caps and checks mirror Kite Passport; the signature is from a throwaway demo key.",
+    "session": {
+      "provider": "kite-passport",
+      "mode": "mock",
+      "sessionId": "mock_sess_2d9d1e9fa2ce8b8b",
+      "dealId": "deal_77ea0d964036",
+      "taskSummary": "Pay 460.000000 USDC for 500 x X tokens (Sealed deal deal_77ea0d964036). One payment only.",
+      "asset": "USDC",
+      "maxAmountPerTx": "460.000000",
+      "maxTotalAmount": "460.000000",
+      "ttlSeconds": 600,
+      "createdAt": "2026-11-09T15:33:31.370Z",
+      "expiresAt": "2026-11-09T15:43:31.370Z",
+      "payee": "seller (demo)"
+    },
+    "delegation": {
+      "scheme": "MOCK: EIP-191 signature by a throwaway demo key (stands in for a Kite passkey approval)",
+      "signer": "0xbD731220B938fecC628Ba45DA73A7D9115F7c64b",
+      "signature": "0x71742d6ac7698869a99da464df5518667c6d1853918d5eabe50ccd4564f54afb01e54ecf1ee6610902da9f4d3b2df91be3bf3fdb217c2e1c47b506801017f4e71c",
+      "message": "{\"asset\":\"USDC\",\"createdAt\":\"2026-11-09T15:33:31.370Z\",\"dealId\":\"deal_77ea0d964036\",\"expiresAt\":\"2026-11-09T15:43:31.370Z\",\"maxAmountPerTx\":\"460.000000\",\"maxTotalAmount\":\"460.000000\",\"mode\":\"mock\",\"payee\":\"seller (demo)\",\"provider\":\"kite-passport\",\"sessionId\":\"mock_sess_2d9d1e9fa2ce8b8b\",\"taskSummary\":\"Pay 460.000000 USDC for 500 x X tokens (Sealed deal deal_77ea0d964036). One payment only.\",\"ttlSeconds\":600}"
+    },
+    "payment": {
+      "label": "Pay the agreed amount",
+      "amount": "460.000000",
+      "ok": true,
+      "code": "settled_mock",
+      "ref": "mock_tx_1097e8df5cca2a3f239fc105"
+    },
+    "enforcement": [
+      {
+        "label": "Try to pay 0.01 more than agreed",
+        "amount": "460.010000",
+        "ok": false,
+        "code": "session_rule_exceeded"
+      },
+      {
+        "label": "Try a second payment after settling",
+        "amount": "0.010000",
+        "ok": false,
+        "code": "session_total_exceeded"
+      }
+    ]
+  },
+  "anchor": {
+    "status": "not_anchored",
+    "reason": "Not anchored yet. The anchor contract is written but not deployed; deploying needs the owner's approval and a little gas.",
+    "plannedChain": "Kite AI testnet (chain 2368), then Kite mainnet (chain 2366)"
+  }
+}
