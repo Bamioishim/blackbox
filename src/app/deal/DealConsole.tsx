@@ -127,7 +127,7 @@ export function DealConsole() {
         <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,3fr)", gap: 14, alignItems: "start" }}>
           <Field label="Your spending limit (USDC total, private)"><input type="number" min={0.01} step="0.01" value={budget} onChange={(e) => setBudget(Number(e.target.value))} /></Field>
           <p className="muted" style={{ fontSize: 13, margin: "22px 0 14px" }}>
-            Set by you, separate from any price. It becomes the Kite Passport session cap (max_total_amount = max_amount_per_tx = your limit) and is committed as a hash before the first offer.
+            Set by you, separate from any price. The demo mirrors this as the intended Kite Passport session cap (max_total_amount = max_amount_per_tx = your limit) and commits it as a hash before the first offer. No Passport session is created and no funds move in this deployment.
             Your agent can&apos;t bid past it, and settle refuses any payment above it ({ceiling && quantity ? `ceiling x quantity = ${Math.round(ceiling * quantity * 100) / 100}` : ""}).
           </p>
         </div>
