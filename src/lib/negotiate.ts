@@ -70,7 +70,12 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
       priv({ side, round: r, kind: "prompt", text: promptText, sealed: pSeal });
 
       let reply: string;
-      try { reply = await llm(sys, usr, turnSchema(compromised)); } catch (e) { reply = `ERROR: ${(e as Error).message}`; }
+      try { reply = await llm(sys, usr, turnSchema(compromised)); }
+      catch (e) {
+        // Infrastructure failure is not an agent move: stop the deal instead of logging fake blocks.
+        log("note", "system", { side, round: r, error: `model call failed: ${(e as Error).message}` });
+        throw new Error(`SERV Reasoning call failed (${(e as Error).message}). Deal stopped, nothing settled.`);
+      }
       const rSalt = randomHex(16);
       const rSeal = sealContent(reply, rSalt);
       log("response", `${side}-agent`, { side, round: r, attempt, sealed: rSeal, chars: reply.length });

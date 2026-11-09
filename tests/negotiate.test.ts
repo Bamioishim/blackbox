@@ -87,3 +87,9 @@ describe("end to end with a scripted model", () => {
     expect(r.outcome.unitPrice).toBe(0.9);
   });
 });
+
+describe("model outage", () => {
+  it("stops the deal with a clear error instead of logging fake blocks", async () => {
+    await expect(negotiate(INPUT, () => {}, async () => { throw new Error("SERV Reasoning returned 401"); })).rejects.toThrow(/Deal stopped/);
+  });
+});
