@@ -10,6 +10,7 @@ import { LogView } from "@/components/LogView";
 import { ReceiptCard } from "@/components/ReceiptCard";
 import { Ticket } from "@/components/Ticket";
 import { RefusalScene } from "@/components/RefusalScene";
+import { IdentityPanel } from "@/components/IdentityPanel";
 
 type Style = "patient" | "balanced" | "eager";
 const spring = { type: "spring" as const, stiffness: 200, damping: 24 };
@@ -47,6 +48,7 @@ export function DealConsole() {
   const [sStyle, setSStyle] = useState<Style>("patient");
   const [rounds, setRounds] = useState(6);
   const [attack, setAttack] = useState(true);
+  const [budget, setBudget] = useState(475);
 
   const [running, setRunning] = useState(false);
   const [entries, setEntries] = useState<LogEntry[]>([]);
@@ -65,7 +67,7 @@ export function DealConsole() {
     try {
       const res = await fetch("/api/negotiate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, maxRounds: rounds, attackMode: attack }),
+        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, maxRounds: rounds, attackMode: attack, budget }),
       });
       if (!res.ok || !res.body) { setError((await res.json().catch(() => ({})))?.error ?? `Request failed (${res.status})`); return; }
       const reader = res.body.getReader();
@@ -122,6 +124,13 @@ export function DealConsole() {
           <Field label="Seller floor (private)"><input type="number" step="0.001" value={floor} onChange={(e) => setFloor(Number(e.target.value))} /></Field>
           <Field label="Rounds"><input type="number" min={2} max={10} value={rounds} onChange={(e) => setRounds(Number(e.target.value))} /></Field>
         </div>
+        <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,3fr)", gap: 14, alignItems: "start" }}>
+          <Field label="Your spending limit (USDC total, private)"><input type="number" min={0.01} step="0.01" value={budget} onChange={(e) => setBudget(Number(e.target.value))} /></Field>
+          <p className="muted" style={{ fontSize: 13, margin: "22px 0 14px" }}>
+            Set by you, separate from any price. It becomes the Kite Passport session cap (max_total_amount = max_amount_per_tx = your limit) and is committed as a hash before the first offer.
+            Your agent can&apos;t bid past it, and settle refuses any payment above it ({ceiling && quantity ? `ceiling x quantity = ${Math.round(ceiling * quantity * 100) / 100}` : ""}).
+          </p>
+        </div>
         <div className="terms-grid terms-2" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) minmax(0,1.3fr) auto", gap: 14, alignItems: "end" }}>
           <Field label="Buyer's agent"><StylePick value={bStyle} onChange={setBStyle} /></Field>
           <Field label="Seller's agent"><StylePick value={sStyle} onChange={setSStyle} /></Field>
@@ -143,6 +152,7 @@ export function DealConsole() {
               {entries.length ? `round ${Math.min(lastRound + 1, chart.maxRounds)} · ${entries.length} log entries · ${blockedCount + attacks.filter((a) => a.kind === "offer.rejected").length} refused` : running ? "sealing limits..." : "waiting"}
             </span>
           </div>
+          <IdentityPanel agents={entries.filter((e) => e.kind === "agent.identity").map((e) => ({ side: String(e.payload.side), runtimeKey: String(e.payload.runtimeKey), agentRef: String(e.payload.agentRef) }))} sessionId={entries.find((e) => e.kind === "mandate.open")?.payload.sessionId as string | undefined} />
           <AnimatePresence>
             {attack && attacks.length === 0 && (
               <motion.div key="sim" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring}

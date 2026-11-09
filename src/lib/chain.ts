@@ -5,7 +5,8 @@ export const GENESIS = "0".repeat(64);
 export type EntryKind =
   | "deal.open" | "commit" | "prompt" | "response" | "offer.accepted" | "offer.blocked"
   | "offer.rejected" | "guard" | "round.closed" | "deal.closed" | "deal.no_deal" | "reveal"
-  | "settle.session" | "settle.payment" | "settle.enforcement" | "note";
+  | "settle.session" | "settle.payment" | "settle.enforcement" | "note"
+  | "agent.identity" | "mandate.open";
 
 export type LogEntry = {
   seq: number;

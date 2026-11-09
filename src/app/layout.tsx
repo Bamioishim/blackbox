@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="stat"><span className="hud">Rounds</span><span className="v">{r?.outcome.round ?? "-"} / {r?.terms.maxRounds ?? "-"}</span></div>
           <div className="stat"><span className="hud">Final price</span><span className="v">{r?.outcome.unitPrice != null ? `${r.outcome.unitPrice} USDC` : "no deal"}</span></div>
           <div className="stat"><span className="hud">Entries verified</span><span className="v">{passed} / {audit.length}</span></div>
-          <div className="stat"><span className="hud">Payment</span><span className="v" style={{ color: "var(--wax)" }}>Mock</span></div>
+          <div className="stat"><span className="hud">Payment</span><span className="v" style={{ color: "#f2b84b" }}>Simulated</span></div>
           <Tabs />
         </div>
       </body>

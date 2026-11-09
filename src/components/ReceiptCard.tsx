@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Receipt } from "@/lib/receipt";
 import { Seal } from "./Seal";
 import { CopyHash } from "./CopyHash";
+import { KITE_OWNER } from "@/lib/identity";
 
 function Row({ k, v, mono = true }: { k: string; v: React.ReactNode; mono?: boolean }) {
   return (
@@ -32,15 +33,19 @@ export function ReceiptCard({ r }: { r: Receipt }) {
       <Row k="Deal" v={r.dealId} />
       <Row k="Terms" v={`${r.terms.quantity} ${r.terms.item}`} mono={false} />
       {r.outcome.status === "closed" && <Row k="Total" v={`${r.outcome.total} USDC, closed in round ${r.outcome.round}`} />}
+      {r.budget && <Row k="Your limit" v={`${r.budget.limit} USDC (set before any offer, caps Kite session ${r.budget.sessionId})`} />}
+      <Row k="Owner" v={`Kite Passport ${r.identity?.owner.account ?? KITE_OWNER.account} · payer ${r.identity?.owner.wallet.evm ?? KITE_OWNER.wallet.evm}`} />
+      {r.identity?.agents.map((a) => <Row key={a.side} k={`${a.side} agent`} v={<>{a.agentRef} · {a.runtimeKey}<br /><span className="muted" style={{ fontFamily: "var(--font-geist-sans)" }}>signs every offer; not yet bound to a Kite agent DID</span></>} />)}
       {s && (
         <>
-          <Row k="Settlement" v={<><span className="tag mock">{s.live ? s.mode : "mock"}</span> <span style={{ fontFamily: "var(--font-geist-sans)" }}>{s.label}</span></>} />
+          {!s.live && <div className="sim-banner" role="status" style={{ marginTop: 12 }}>SIMULATED — no real funds moved{s.fallback ? ` (fallback: ${s.fallback.reason})` : ""}</div>}
+          <Row k="Settlement" v={<><span className="tag mock">{s.live ? s.mode : "simulated"}</span> <span style={{ fontFamily: "var(--font-geist-sans)" }}>{s.label}</span></>} />
           <Row k="Session" v={s.session.sessionId} />
-          <Row k="Caps" v={`per payment ${s.session.maxAmountPerTx} · total ${s.session.maxTotalAmount} ${s.session.asset}`} />
+          <Row k="Caps" v={`per payment ${s.session.maxAmountPerTx} · total ${s.session.maxTotalAmount} ${s.session.asset}${s.session.capSource === "user-budget" ? " (= your limit)" : " (= deal total)"}`} />
           <Row k="Expires" v={`${s.session.expiresAt} (${Math.round(s.session.ttlSeconds / 60)} min)`} />
           <Row k="Delegation" v={<>{s.delegation.signer}<br /><span className="muted">{s.delegation.signature.slice(0, 42)}...</span></>} />
-          <Row k="Payment" v={`${s.payment.amount} USDC · ${s.payment.code} · ${s.payment.ref ?? ""}${s.live ? "" : " (mock ref, not a chain tx)"}`} />
-          {s.enforcement.map((e) => <Row key={e.label} k="Rail check" v={`${e.label}: refused, ${e.code}`} />)}
+          <Row k="Payment" v={s.live && s.payment.ref ? `${s.payment.amount} USDC · ${s.payment.code} · tx ${s.payment.ref}` : `${s.payment.amount} USDC · ${s.payment.code}${s.payment.ref ? ` · simulation ref ${s.payment.ref} (not a transaction)` : ""}`} />
+          {s.enforcement.map((e) => <Row key={e.label} k="Rail check" v={`${e.label}: refused, ${e.code}${e.rule ? ` (${e.rule})` : ""}`} />)}
         </>
       )}
       <Row k="Final hash" v={<CopyHash value={r.finalHash} label="final hash" />} />

@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     sellerStyle: STYLES.includes(body.sellerStyle as Style) ? (body.sellerStyle as Style) : "balanced",
     maxRounds: Math.round(num(body.maxRounds, 2, 10) ?? 6),
     attackMode: Boolean(body.attackMode),
+    budget: num(body.budget, 0.01, 1_000_000_000) ?? undefined,
   };
   // Small guard so a public preview can't burn the SERV credits.
   const now = Date.now();

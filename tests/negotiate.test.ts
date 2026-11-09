@@ -37,9 +37,15 @@ describe("end to end with a scripted model", () => {
     const beforeReveal = r.log.slice(0, r.log.findIndex((e) => e.kind === "reveal"));
     expect(JSON.stringify(beforeReveal)).not.toContain("0.92");
     expect(r.settlement?.live).toBe(false);
-    expect(r.settlement?.session.maxTotalAmount).toBe("450.000000");
-    expect(r.settlement?.session.maxAmountPerTx).toBe("450.000000");
-    expect(r.settlement?.enforcement.map((x) => x.code)).toEqual(["session_rule_exceeded", "session_total_exceeded"]);
+    // no budget given: defaults to ceiling x quantity, and the session cap is that limit, not the deal price
+    expect(r.settlement?.session.maxTotalAmount).toBe("460.000000");
+    expect(r.settlement?.session.maxAmountPerTx).toBe("460.000000");
+    expect(r.settlement?.session.capSource).toBe("user-budget");
+    expect(r.settlement?.enforcement.map((x) => x.code)).toEqual(["over_agreed_total", "deal_already_settled", "session_total_exceeded"]);
+    expect(r.settlement?.simulated).toBe(true);
+    expect(r.settlement?.label).toContain("SIMULATED — no real funds moved");
+    expect(r.settlement?.payment.code).toBe("simulated_no_funds_moved");
+    expect(r.settlement?.payment.ref).toMatch(/^sim_/);
     expect(r.anchor.status).toBe("not_anchored");
     const checks = await verifyReceipt(r);
     const failed = checks.filter((c) => c.ok === false);
@@ -97,5 +103,41 @@ describe("end to end with a scripted model", () => {
 describe("model outage", () => {
   it("stops the deal with a clear error instead of logging fake blocks", async () => {
     await expect(negotiate(INPUT, () => {}, async () => { throw new Error("SERV Reasoning returned 401"); })).rejects.toThrow(/Deal stopped/);
+  });
+
+  it("user-set spending limit: committed before offers, caps the Kite session, guards the buyer, verifies", async () => {
+    const notes: StreamEvent[] = [];
+    // budget 440 for 500 units = 0.88/unit max, below the 0.92 ceiling, so the limit (not the ceiling) binds
+    const r = await negotiate({ ...INPUT, attackMode: false, budget: 440 }, (e) => notes.push(e), fakeLlm());
+    expect(r.budget?.limit).toBe("440.000000");
+    const mIdx = r.log.findIndex((e) => e.kind === "mandate.open");
+    const firstOffer = r.log.findIndex((e) => e.kind.startsWith("offer."));
+    expect(mIdx).toBeGreaterThan(-1);
+    expect(mIdx).toBeLessThan(firstOffer);
+    // the limit itself stays hidden until settlement
+    expect(JSON.stringify(r.log.slice(0, r.log.findIndex((e) => e.kind === "settle.session")))).not.toContain("440.000000");
+    if (r.outcome.status === "closed") {
+      expect(r.outcome.total!).toBeLessThanOrEqual(440);
+      expect(r.settlement?.session.maxTotalAmount).toBe("440.000000");
+    }
+    const checks = await verifyReceipt(r);
+    expect(checks.filter((c) => c.ok === false)).toEqual([]);
+    expect(checks.find((c) => c.id === "agent-sigs")?.ok).toBe(true);
+  });
+
+  it("every accepted offer is signed by its agent; a forged signature fails", async () => {
+    const r = await negotiate({ ...INPUT, attackMode: false }, () => {}, fakeLlm());
+    const ids = r.log.filter((e) => e.kind === "agent.identity");
+    expect(ids.map((e) => e.payload.side)).toEqual(["buyer", "seller"]);
+    expect(String(ids[0].payload.runtimeKey)).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(JSON.stringify(r.log)).not.toContain("@");
+    expect(r.identity?.owner.wallet.evm).toBe("0x39A6C46b79b6cA43c8cd0B5D4f713C06e4B00f4D");
+    // swap the buyer's signature onto a seller offer: signature check must fail (chain check fails too)
+    const t = structuredClone(r);
+    const offers = t.log.filter((e) => e.kind === "offer.accepted");
+    const b = offers.find((e) => e.payload.side === "buyer")!, s = offers.find((e) => e.payload.side === "seller")!;
+    s.payload.agentSig = b.payload.agentSig;
+    const checks = await verifyReceipt(t);
+    expect(checks.find((c) => c.id === "agent-sigs")?.ok).toBe(false);
   });
 });

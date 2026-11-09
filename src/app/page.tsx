@@ -15,13 +15,14 @@ const STEPS = [
   ["A referee, not a model", "Plain deterministic code sits between the agents. It accepts exactly {price, quantity, round}. Anything else is dropped and logged as blocked: non-schema content. An agent can't leak what the table won't carry."],
   ["Close at the crossing", "When the buyer's bid meets the seller's ask, the referee closes the deal at the midpoint. No retreating offers, no extra rounds."],
   ["Reveal and check", "Both sides reveal limit and salt. Anyone can hash them, match the commitments, and see that the price sits inside both limits."],
-  ["Pay through a capped session", "Settlement opens a one-off Kite Passport-style session: per-payment cap and total cap both equal the agreed amount, ten-minute expiry. The rail refuses anything more. In this build the payment is a mock."],
+  ["Pay inside your own limit", "Before the haggle you set a spending limit. It becomes the cap on a Kite Passport spending session and is committed as a hash before the first offer. Your agent can't bid past it; settle pays exactly the agreed total, once, and refuses anything above your limit. In this build the payment is SIMULATED: no real funds move."],
 ];
 
 const STATUS: [string, string, string][] = [
   ["Live", "Both agents negotiate on SERV Reasoning", "Real model calls, structured output, every prompt and reply hashed into the log."],
   ["Live", "Referee, commit-reveal, hash chain, verifier", "Deterministic, tested, and re-runnable in your browser on any receipt."],
-  ["Mock", "Payment through Kite Passport", "Same session shape and refusal codes as Kite's docs, signed by a throwaway key. No money moves. The real adapter is sketched in the repo."],
+  ["Live", "Agent identity and your spending limit", "Each agent signs every offer with its own key; the owner is a Kite Passport account. Your limit is committed before any offer and checked by the verifier."],
+  ["Simulated", "Payment through Kite Passport", "SIMULATED — no real funds moved. Same session shape and refusal codes as Kite's docs, signed by a throwaway key, ref is not a transaction. The real adapter is in the repo, waiting on USDC funding and a passkey approval."],
   ["Not yet", "Onchain anchor of the final hash", "The contract is written. Deploying it needs approval and a little gas on Kite's chain."],
 ];
 
@@ -71,7 +72,7 @@ export default function Home() {
         <p className="hud" data-reveal>(02) Three proofs, not three claims</p>
         <div className="proofs" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", borderTop: "1px solid var(--rule)", marginTop: 14 }}>
           {[
-            ["Decisions move money", `Each agent decision (open, counter, accept, walk) moves a transaction ticket. This run: ${ds.length} decisions, ending ${closed ? `at ${closed.total} USDC through settle(deal)` : "with no deal"}. Payment is a labelled mock.`, "/deal", "Watch a live deal"],
+            ["Decisions move money", `Each agent decision (open, counter, accept, walk) moves a transaction ticket. This run: ${ds.length} decisions, ending ${closed ? `at ${closed.total} USDC through settle(deal)` : "with no deal"}. Payment is SIMULATED, no real funds moved.`, "/deal", "Watch a live deal"],
             ["Judges verify, not trust", `Drop any receipt into the verifier: it re-hashes ${audit.length} entries, re-runs the referee on ${ruleChecks} of them, and checks both sealed limits. Or run npm run verify offline.`, r ? `/verify?id=${r.dealId}` : "/verify", "Verify this deal"],
             ["Rule-breaks get stopped", `${attacks.length} simulated rule-break${attacks.length === 1 ? "" : "s"} in this run, each refused by plain code with the rule shown, while the haggle carries on.`, "#attack", "See the refusals"],
           ].map(([t, d, href, cta], i) => (

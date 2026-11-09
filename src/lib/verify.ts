@@ -6,7 +6,8 @@ import { replay, initialState, judge, closeRound, type RefereeState, type Side }
 import type { Offer } from "./schema";
 import { roundsFromLog, type Receipt } from "./receipt";
 import { REFEREE_HASH } from "./referee-hash.generated";
-import type { SessionIntent, Delegation, PaymentAttempt } from "./settle";
+import { checkBudgetReveal, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
+import { offerMessage, type AgentIdentity } from "./identity";
 
 export type Check = { id: string; label: string; ok: boolean | null; detail: string };
 
@@ -87,30 +88,70 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     checks.push({ id: "within", label: "Price sits inside both limits", ok, detail: `${s ? Number(s.limit) : "?"} <= ${closed.unitPrice} <= ${b ? Number(b.limit) : "?"}` });
   }
 
-  // 5. Settlement
-  const sessE = find(log, "settle.session")[0]?.payload as { session?: SessionIntent; delegation?: Delegation } | undefined;
-  const payE = find(log, "settle.payment")[0]?.payload as unknown as PaymentAttempt | undefined;
+  // 5. Agent identity: every accepted offer carries its agent's signature (newer receipts).
+  const ids = find(log, "agent.identity").map((e) => e.payload as unknown as AgentIdentity);
+  if (ids.length) {
+    const offers = find(log, "offer.accepted").map((e) => e.payload as { side: Side; price: number; quantity: number; round: number; agent?: string; agentSig?: string });
+    let bad = 0;
+    for (const o of offers) {
+      const id = ids.find((x) => x.side === o.side);
+      let ok = false;
+      try {
+        ok = !!id && o.agent === id.runtimeKey && !!o.agentSig &&
+          (await verifyMessage({ address: id.runtimeKey as `0x${string}`, message: offerMessage({ dealId: r.dealId, side: o.side, price: o.price, quantity: o.quantity, round: o.round }), signature: o.agentSig as `0x${string}` }));
+      } catch { ok = false; }
+      if (!ok) bad++;
+    }
+    const ok = ids.length === 2 && bad === 0;
+    checks.push({
+      id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok,
+      detail: ok ? `${offers.length} offers. buyer agent ${ids.find((x) => x.side === "buyer")?.runtimeKey}, seller agent ${ids.find((x) => x.side === "seller")?.runtimeKey}. Owner: Kite Passport ${ids[0].owner?.account}. Keys not yet bound to a Kite agent DID.` : `${bad} offer(s) not signed by the agent identity logged at deal open.`,
+    });
+  } else {
+    checks.push({ id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok: null, detail: "Older receipt: recorded before agents signed their offers." });
+  }
+
+  // 6. Settlement
+  const sessE = find(log, "settle.session")[0]?.payload as { session?: SessionIntent; delegation?: Delegation; budgetReveal?: BudgetReveal; simulated?: boolean } | undefined;
+  const payE = find(log, "settle.payment")[0]?.payload as unknown as (PaymentAttempt & { mode?: string; simulated?: boolean }) | undefined;
+  const mandE = find(log, "mandate.open")[0]?.payload as { budgetCommitment?: BudgetCommitment } | undefined;
+  const commitBeforeOffers = (() => {
+    const m = log.findIndex((e) => e.kind === "mandate.open");
+    const firstOffer = log.findIndex((e) => e.kind.startsWith("offer."));
+    return m !== -1 && (firstOffer === -1 || m < firstOffer);
+  })();
   if (!closed) {
-    checks.push({ id: "caps", label: "Payment session capped at the deal amount", ok: null, detail: "No deal, nothing to settle." });
+    checks.push({ id: "caps", label: "Payment session capped", ok: null, detail: "No deal, nothing to settle." });
   } else if (!sessE?.session) {
-    checks.push({ id: "caps", label: "Payment session capped at the deal amount", ok: false, detail: "No settlement session in the log." });
+    checks.push({ id: "caps", label: "Payment session capped", ok: false, detail: "No settlement session in the log." });
   } else {
     const ss = sessE.session;
+    const sim = ss.mode === "mock" || payE?.mode === "mock" || sessE.simulated === true;
     const total = Number(closed.total).toFixed(6);
     const ttl = (Date.parse(ss.expiresAt) - Date.parse(ss.createdAt)) / 1000;
-    const capsOk = ss.maxTotalAmount === total && ss.maxAmountPerTx === total && ttl > 0 && ttl <= 900;
-    checks.push({ id: "caps", label: "Payment session capped at the deal amount", ok: capsOk, detail: `per-tx ${ss.maxAmountPerTx}, total ${ss.maxTotalAmount}, expires after ${Math.round(ttl / 60)} min. Deal total ${total}.` });
+    if (mandE?.budgetCommitment) {
+      const rv = sessE.budgetReveal;
+      const revealOk = !!rv && checkBudgetReveal(mandE.budgetCommitment, rv);
+      const within = !!rv && Number(total) <= Number(rv.budget) + 1e-9;
+      const capsOk = revealOk && ss.maxTotalAmount === rv!.budget && ss.maxAmountPerTx === rv!.budget && ttl > 0 && ttl <= 900;
+      checks.push({ id: "budget", label: "Your spending limit was set before any offer", ok: revealOk && commitBeforeOffers, detail: revealOk ? `Limit ${rv!.budget} USDC, committed at deal open, revealed at settlement, hashes to its commitment.` : "Revealed limit does not match the commitment made at deal open." });
+      checks.push({ id: "caps", label: "Payment session capped at your spending limit", ok: capsOk, detail: `per-tx ${ss.maxAmountPerTx}, total ${ss.maxTotalAmount}, expires after ${Math.round(ttl / 60)} min. Your limit ${rv?.budget ?? "?"}.` });
+      checks.push({ id: "within-budget", label: "Deal total stays inside your spending limit", ok: within, detail: `${total} <= ${rv?.budget ?? "?"} USDC` });
+    } else {
+      const capsOk = ss.maxTotalAmount === total && ss.maxAmountPerTx === total && ttl > 0 && ttl <= 900;
+      checks.push({ id: "caps", label: "Payment session capped at the deal amount", ok: capsOk, detail: `per-tx ${ss.maxAmountPerTx}, total ${ss.maxTotalAmount}, expires after ${Math.round(ttl / 60)} min. Deal total ${total}. (Older receipt: no user-set spending limit.)` });
+    }
     let sigOk = false;
     try {
       const d = sessE.delegation!;
       sigOk = d.message === canonical(ss) && (await verifyMessage({ address: d.signer as `0x${string}`, message: d.message, signature: d.signature as `0x${string}` }));
     } catch { sigOk = false; }
-    checks.push({ id: "delegation", label: "Session delegation signature valid", ok: sigOk, detail: (ss.mode === "mock" ? "MOCK key. " : "") + (sigOk ? `Signed by ${sessE.delegation?.signer}` : "Signature does not match the session.") });
+    checks.push({ id: "delegation", label: "Session delegation signature valid", ok: sigOk, detail: (sim ? "SIMULATED: throwaway demo key, not a Kite passkey. " : "") + (sigOk ? `Signed by ${sessE.delegation?.signer}` : "Signature does not match the session.") });
     const payOk = !!payE && payE.ok && payE.amount === total;
-    checks.push({ id: "payment", label: ss.mode === "mock" ? "Payment (mock)" : "Payment", ok: payOk, detail: payE ? `${payE.amount} USDC, ${payE.code}${ss.mode === "mock" ? ". No money moved." : ""}` : "No payment entry." });
+    checks.push({ id: "payment", label: sim ? "Payment — SIMULATED, no real funds moved" : "Payment", ok: payOk, detail: payE ? `${payE.amount} USDC, ${payE.code}${sim ? ". SIMULATED — no real funds moved; the ref is not a transaction." : ""}` : "No payment entry." });
   }
 
-  // 6. Anchor
+  // 7. Anchor
   if (r.anchor?.status === "anchored") {
     const a = r.anchor;
     if (opts.onchain) {

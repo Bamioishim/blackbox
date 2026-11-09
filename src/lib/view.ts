@@ -32,8 +32,10 @@ export function describe(e: LogEntry): string {
     case "deal.closed": return `Deal closed at ${p.unitPrice} per unit, ${p.total} USDC total, round ${p.round}.`;
     case "deal.no_deal": return `No deal after ${p.rounds} rounds.`;
     case "reveal": return `${p.side} revealed ${p.side === "buyer" ? "ceiling" : "floor"} ${Number(p.limit)}`;
-    case "settle.session": { const s = p.session as Record<string, unknown>; return `Payment session ${s.sessionId}: per-tx cap ${s.maxAmountPerTx}, total cap ${s.maxTotalAmount}, expires ${String(s.expiresAt).slice(11, 19)} UTC${s.mode === "mock" ? " (mock)" : ""}`; }
-    case "settle.payment": return `Payment ${p.amount} USDC: ${p.code}`;
+    case "agent.identity": return `${p.side} agent ${p.agentRef}: runtime key ${p.runtimeKey}, owned by Kite Passport ${(p.owner as { account?: string })?.account ?? "?"} (signs every offer; not yet bound to a Kite agent DID)`;
+    case "mandate.open": return `Owner set a spending limit before any offer (committed ${String((p.budgetCommitment as { commitment?: string })?.commitment ?? "").slice(0, 12)}...). It caps Kite Passport session ${p.sessionId}${p.simulated ? " (SIMULATED)" : ""}.`;
+    case "settle.session": { const s = p.session as Record<string, unknown>; const rv = p.budgetReveal as { budget?: string } | undefined; return `Payment session ${s.sessionId}: per-tx cap ${s.maxAmountPerTx}, total cap ${s.maxTotalAmount}${rv ? ` (= your spending limit ${rv.budget}, revealed)` : ""}, expires ${String(s.expiresAt).slice(11, 19)} UTC${s.mode === "mock" ? " — SIMULATED" : ""}`; }
+    case "settle.payment": return `Payment ${p.amount} USDC: ${p.code}${p.mode === "mock" ? " — SIMULATED, no real funds moved" : ""}`;
     case "settle.enforcement": return `Rail checks: ${(p.attempts as { label: string; code: string }[]).map((a) => `${a.label.toLowerCase()} -> ${a.code}`).join("; ")}`;
     default: return e.kind;
   }
@@ -84,7 +86,9 @@ export function decisions(log: LogEntry[]): Decision[] {
 export type Ticket = {
   quantity: number; item: string; bid: number | null; ask: number | null; spread: number | null;
   unitPrice: number | null; total: number | null; status: "waiting" | "negotiating" | "agreed" | "settled-mock" | "settled-live" | "no-deal" | "stopped";
-  settlement: { mode: string; live: boolean; code: string; ref?: string; sessionId?: string; cap?: string; explorer?: string } | null;
+  settlement: { mode: string; live: boolean; ok: boolean; code: string; ref?: string; sessionId?: string; cap?: string; explorer?: string; fallback?: string } | null;
+  budget: { committed: boolean; limit: string | null } ;
+  agents: { side: string; runtimeKey: string; agentRef: string }[];
   round: number;
 };
 
@@ -96,7 +100,10 @@ export function ticket(log: LogEntry[], stopped = false): Ticket {
   const closed = log.find((e) => e.kind === "deal.closed")?.payload as { unitPrice: number; total: number } | undefined;
   const noDeal = log.some((e) => e.kind === "deal.no_deal");
   const sess = log.find((e) => e.kind === "settle.session")?.payload as { session?: { sessionId: string; maxTotalAmount: string } } | undefined;
-  const pay = log.find((e) => e.kind === "settle.payment")?.payload as { code: string; ref?: string; mode: string; explorer?: string } | undefined;
+  const pay = log.find((e) => e.kind === "settle.payment")?.payload as { code: string; ok?: boolean; ref?: string; mode: string; explorer?: string } | undefined;
+  const sessP = log.find((e) => e.kind === "settle.session")?.payload as { budgetReveal?: { budget: string }; fallback?: { reason: string } } | undefined;
+  const mand = log.some((e) => e.kind === "mandate.open");
+  const agents = log.filter((e) => e.kind === "agent.identity").map((e) => ({ side: String(e.payload.side), runtimeKey: String(e.payload.runtimeKey), agentRef: String(e.payload.agentRef) }));
   const bid = lastRc?.bid ?? null, ask = lastRc?.ask ?? null;
   const live = !!pay && pay.mode !== "mock" && /settled/.test(pay.code) && !/mock/.test(pay.code);
   return {
@@ -104,7 +111,9 @@ export function ticket(log: LogEntry[], stopped = false): Ticket {
     spread: bid !== null && ask !== null ? Math.round((ask - bid) * 1e6) / 1e6 : null,
     unitPrice: closed?.unitPrice ?? null, total: closed?.total ?? null,
     status: pay ? (live ? "settled-live" : "settled-mock") : closed ? "agreed" : noDeal ? "no-deal" : stopped ? "stopped" : log.length ? "negotiating" : "waiting",
-    settlement: pay ? { mode: pay.mode, live, code: pay.code, ref: pay.ref, sessionId: sess?.session?.sessionId, cap: sess?.session?.maxTotalAmount, explorer: pay.explorer } : null,
+    settlement: pay ? { mode: pay.mode, live, ok: pay.ok !== false, code: pay.code, ref: pay.ref, sessionId: sess?.session?.sessionId, cap: sess?.session?.maxTotalAmount, explorer: pay.explorer, fallback: sessP?.fallback?.reason } : null,
+    budget: { committed: mand, limit: sessP?.budgetReveal?.budget ?? null },
+    agents,
     round: rc.length,
   };
 }

@@ -4,7 +4,7 @@ import type { LogEntry } from "@/lib/chain";
 import { decisions, ticket } from "@/lib/view";
 
 const STATUS: Record<string, string> = {
-  waiting: "Waiting", negotiating: "Negotiating", agreed: "Agreed / settling", "settled-mock": "Settled (mock)", "settled-live": "Settled on Kite", "no-deal": "No deal / nothing paid", stopped: "Stopped / nothing paid",
+  waiting: "Waiting", negotiating: "Negotiating", agreed: "Agreed / settling", "settled-mock": "SIMULATED / no funds moved", "settled-live": "Settled on Kite", "no-deal": "No deal / nothing paid", stopped: "Stopped / nothing paid",
 };
 const f = (n: number | null, d = 4) => (n === null ? "-" : Number(n.toFixed(d)).toString());
 
@@ -41,18 +41,30 @@ export function Ticket({ log, stopped = false }: { log: LogEntry[]; stopped?: bo
           </AnimatePresence>
         </ol>
       </div>
+      <div style={{ borderTop: "1px solid var(--rule)", padding: "10px 14px 4px" }}>
+        <span className="label">Your spending limit</span>
+        <div className="mono" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
+          {t.budget.limit ? (
+            <div><span style={{ color: "var(--ink)" }}>{t.budget.limit}</span> USDC · deal {t.total ?? "-"} · headroom {t.total !== null ? f(Number(t.budget.limit) - t.total, 2) : "-"}</div>
+          ) : t.budget.committed ? (
+            <div>sealed <span className="muted">(set by you, committed before the first offer, revealed at settlement)</span></div>
+          ) : <div className="muted">set in the terms; caps the Kite Passport session</div>}
+        </div>
+      </div>
       <div style={{ borderTop: "1px solid var(--rule)", padding: "10px 14px 12px" }}>
         <span className="label">settle(deal)</span>
         {s ? (
           <div className="mono" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.7 }}>
-            <div><span className={`tag ${s.live ? "" : "mock"}`}>{s.live ? `live / ${s.mode}` : "mock / no money moved"}</span></div>
+            {s.live ? <div><span className="tag">live / {s.mode}</span></div> : (
+              <div className="sim-banner" role="status">SIMULATED — no real funds moved{s.fallback ? ` (fallback: ${s.fallback})` : ""}</div>
+            )}
             <div>session <span className="muted">{s.sessionId}</span></div>
-            <div>cap per-tx = total = <span style={{ color: "var(--ink)" }}>{s.cap}</span> USDC</div>
-            <div>payment <span style={{ color: "var(--ink)" }}>{s.code}</span></div>
-            <div>{s.live && s.explorer ? <a href={s.explorer} target="_blank" rel="noreferrer">tx {s.ref}</a> : <>ref <span className="muted">{s.ref}</span> (mock ref, not a chain tx)</>}</div>
+            <div>session cap = <span style={{ color: "var(--ink)" }}>{s.cap}</span> USDC{t.budget.limit ? " (your limit)" : ""}</div>
+            <div>payment <span style={{ color: s.ok ? "var(--ink)" : "var(--wax)" }}>{s.code}</span></div>
+            <div>{s.live && s.explorer ? <a href={s.explorer} target="_blank" rel="noreferrer">tx {s.ref}</a> : s.ref ? <>simulation ref <span className="muted">{s.ref}</span> (not a transaction, nothing onchain)</> : <span className="muted">nothing paid</span>}</div>
           </div>
         ) : (
-          <p className="muted" style={{ fontSize: 13, margin: "6px 0 0" }}>{t.status === "no-deal" || t.status === "stopped" ? "Not called. No deal, nothing paid." : "Runs once the referee closes the deal: a one-off Kite-style session capped at exactly the agreed total."}</p>
+          <p className="muted" style={{ fontSize: 13, margin: "6px 0 0" }}>{t.status === "no-deal" || t.status === "stopped" ? "Not called. No deal, nothing paid." : "Runs once the referee closes the deal: pays exactly the agreed total, once, through a Kite-style session capped at your spending limit."}</p>
         )}
       </div>
     </div>
