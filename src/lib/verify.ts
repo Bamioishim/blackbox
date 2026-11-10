@@ -51,9 +51,18 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     detail: refOk ? publishedRefereeHash : `Receipt says ${r.referee?.hash ?? "nothing"}, this site publishes ${publishedRefereeHash}.`,
   });
 
-  // 3. Enforce the current Blackbox protocol hard three-round ceiling on marked receipts.
-  const dealOpen = find(log, "deal.open")[0]?.payload as { maxRounds?: number; roundPolicy?: string } | undefined;
-  if (dealOpen?.roundPolicy === "blackbox/max-3") {
+  // 3. Verify each side's requested rounds and the effective lower limit.
+  const dealOpen = find(log, "deal.open")[0]?.payload as { maxRounds?: number; buyerMaxRounds?: number; sellerMaxRounds?: number; roundPolicy?: string } | undefined;
+  if (dealOpen?.roundPolicy === "blackbox/mutual-min-3") {
+    const closedRound = find(log, "deal.closed")[0]?.payload as { round?: number } | undefined;
+    const roundEvents = find(log, "round.closed");
+    const noDeal = r.outcome?.status === "no_deal";
+    const buyerRounds = Number(dealOpen.buyerMaxRounds);
+    const sellerRounds = Number(dealOpen.sellerMaxRounds);
+    const expectedRounds = Math.min(buyerRounds, sellerRounds, 3);
+    const policyOk = [buyerRounds, sellerRounds].every((n) => Number.isInteger(n) && n >= 1 && n <= 3) && dealOpen.maxRounds === expectedRounds && roundEvents.length >= 1 && roundEvents.length <= expectedRounds && (noDeal ? roundEvents.length === expectedRounds : Number(closedRound?.round) === roundEvents.length && Number(closedRound?.round) <= expectedRounds);
+    checks.push({ id: "round-policy", label: "Negotiation obeyed both round limits", ok: policyOk, detail: policyOk ? `Buyer requested ${buyerRounds}, seller requested ${sellerRounds}; lower limit ${expectedRounds}. Recorded ${roundEvents.length} round(s).` : `Buyer=${dealOpen.buyerMaxRounds}, seller=${dealOpen.sellerMaxRounds}, effective=${dealOpen.maxRounds}, recorded=${roundEvents.length}, closedRound=${closedRound?.round ?? "none"}.` });
+  } else if (dealOpen?.roundPolicy === "blackbox/max-3") {
     const closedRound = find(log, "deal.closed")[0]?.payload as { round?: number } | undefined;
     const roundEvents = find(log, "round.closed");
     const noDeal = r.outcome?.status === "no_deal";
