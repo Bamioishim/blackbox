@@ -37,13 +37,15 @@ export type StreamEvent =
 type Emit = (e: StreamEvent) => void;
 
 export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall = callServ): Promise<Receipt> {
+  // Blackbox protocol policy: every negotiation has at most three rounds.
+  const maxRounds = 3;
   const dealId = "deal_" + randomHex(6);
   const chain = new HashChain();
   const log = (...a: Parameters<HashChain["append"]>) => { const e = chain.append(...a); emit({ t: "log", entry: e }); return e; };
   const priv = (note: PrivateNote) => emit({ t: "private", note });
 
-  const terms: DealTerms = { item: input.item, quantity: input.quantity, asset: "USDC", referencePrice: input.referencePrice, maxRounds: input.maxRounds, attackMode: input.attackMode };
-  log("deal.open", "system", { dealId, ...terms, model: SERV_MODEL, refereeHash: REFEREE_HASH });
+  const terms: DealTerms = { item: input.item, quantity: input.quantity, asset: "USDC", referencePrice: input.referencePrice, maxRounds, attackMode: input.attackMode };
+  log("deal.open", "system", { dealId, ...terms, roundPolicy: "blackbox/max-3", model: SERV_MODEL, refereeHash: REFEREE_HASH });
 
   // Who is at the table: each agent gets its own runtime key for this deal and signs every offer it makes.
   const agents = { buyer: mintAgent("buyer"), seller: mintAgent("seller") };
@@ -73,8 +75,8 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   log("commit", "seller", { ...sc.commitment });
 
   const ctx: Record<Side, AgentContext> = {
-    buyer: { side: "buyer", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds: input.maxRounds, limit: Math.min(input.buyerCeiling, Math.floor((budget / input.quantity) * 1e4) / 1e4), style: input.buyerStyle },
-    seller: { side: "seller", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds: input.maxRounds, limit: input.sellerFloor, style: input.sellerStyle },
+    buyer: { side: "buyer", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds, limit: Math.min(input.buyerCeiling, Math.floor((budget / input.quantity) * 1e4) / 1e4), style: input.buyerStyle },
+    seller: { side: "seller", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds, limit: input.sellerFloor, style: input.sellerStyle },
   };
   const history: { round: number; buyer: number | null; seller: number | null }[] = [];
   let state: RefereeState = initialState();
@@ -158,7 +160,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         }
       }
 
-      const v = judge(s, { quantity: input.quantity, maxRounds: input.maxRounds }, side, candidate);
+      const v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
       if (v.accepted) {
         const agentSig = await agents[side].signOffer({ dealId, side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round });
         log("offer.accepted", "referee", { side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round, agent: agents[side].identity.runtimeKey, agentSig });
@@ -180,7 +182,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   while (state.status === "open") {
     const [b, s] = await Promise.all([turn("buyer", state), turn("seller", state)]);
     const r = state.round;
-    state = closeRound(state, { quantity: input.quantity, maxRounds: input.maxRounds }, b, s);
+    state = closeRound(state, { quantity: input.quantity, maxRounds }, b, s);
     history.push({ round: r, buyer: b?.price ?? null, seller: s?.price ?? null });
     log("round.closed", "referee", { round: r, bid: state.bid, ask: state.ask, status: state.status });
   }
@@ -191,7 +193,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
     total = round6(state.price * input.quantity);
     log("deal.closed", "referee", { unitPrice: state.price, total, round: state.closedRound, rule: "midpoint of crossing bid and ask" });
   } else {
-    log("deal.no_deal", "referee", { rounds: input.maxRounds });
+    log("deal.no_deal", "referee", { rounds: maxRounds, policy: "blackbox/max-3" });
   }
   log("reveal", "buyer", { ...bc.reveal });
   log("reveal", "seller", { ...sc.reveal });
