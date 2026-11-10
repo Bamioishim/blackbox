@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         client.readContract({ address: contract, abi: erc20Abi, functionName: "symbol" }).catch(() => ""),
       ]);
       const requested = parseUnits(quantity, Number(decimals));
-      if (requested <= 0n || requested > balance) return Response.json({ error: "Wallet balance is lower than the quantity requested." }, { status: 409 });
+      if (requested <= BigInt(0) || requested > balance) return Response.json({ error: "Wallet balance is lower than the quantity requested." }, { status: 409 });
       verifiedQuantity = Number(requested) / 10 ** Number(decimals);
       name = String(tokenName); symbol = String(tokenSymbol); unit = symbol || "tokens";
     } else {
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       const standard = String(body?.standard || "ERC-721");
       if (standard === "ERC-1155") {
         const balance = await client.readContract({ address: contract, abi: erc1155Abi, functionName: "balanceOf", args: [wallet, BigInt(tokenId)] });
-        if (balance <= 0n) return Response.json({ error: "This wallet does not own that NFT quantity." }, { status: 409 });
+        if (balance <= BigInt(0)) return Response.json({ error: "This wallet does not own that NFT quantity." }, { status: 409 });
         verifiedQuantity = Number(balance); name = String(body?.name || "ERC-1155 NFT"); unit = "units";
       } else {
         const owner = await client.readContract({ address: contract, abi: erc721Abi, functionName: "ownerOf", args: [BigInt(tokenId)] });
