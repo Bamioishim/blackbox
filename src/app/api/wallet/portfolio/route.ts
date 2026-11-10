@@ -1,7 +1,5 @@
 import { isAddress } from "viem";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(req: Request) {
   const address = new URL(req.url).searchParams.get("address") || "";
   if (!isAddress(address)) return Response.json({ error: "Enter a valid EVM address." }, { status: 400 });
