@@ -116,7 +116,7 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
     };
     const t0 = performance.now();
     const draw = (t: number) => {
-      if (!drag && !reduce) yaw = -0.35 + Math.sin((t - t0) / 9000) * 0.35;
+      if (!drag && !reduce) yaw = -0.35 + Math.sin((t - t0) / 9000) * 0.43;
       ctx.clearRect(0, 0, w, h);
       for (const q of pts) {
         const [x, y, f] = project(q.p);
