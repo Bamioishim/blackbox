@@ -109,7 +109,7 @@ export function DealConsole() {
       </div>
       <h1 className="display" style={{ fontSize: "clamp(40px, 5.4vw, 72px)", margin: "26px 0 12px", maxWidth: 980 }}>Agents decide. <span className="dim">The ticket moves.</span></h1>
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
-        Every counter, accept or walk changes a real transaction ticket, and the deal ends in a call to settle(deal).
+        Every counter, accept or walk changes the transaction ticket. A crossing closes the deal; three rounds without overlap produce a verifiable no-deal receipt.
         You hold both seats in this demo; the table between them only carries price, quantity and round.
       </p>
 
