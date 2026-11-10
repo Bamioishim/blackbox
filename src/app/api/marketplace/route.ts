@@ -41,7 +41,7 @@ export async function POST(req:Request) {
     RETURNING id,asset_type,symbol,name,unit,chain,metadata
   )
   INSERT INTO bb_listings(seller_id,asset_id,quantity,floor_price,currency,max_rounds,expires_at,reference_price,exclusive,partial_fills,asset_snapshot)
-  SELECT ${user.id},id,${quantity},${floor},'USD',${rounds},${expiry?.toISOString()??null},${b?.referencePrice===undefined?null:reference},true,false,
+  SELECT ${user.id},id,${quantity},${floor},'USDC',${rounds},${expiry?.toISOString()??null},${b?.referencePrice===undefined?null:reference},true,false,
     jsonb_build_object('asset_type',asset_type,'symbol',symbol,'name',name,'unit',unit,'chain',chain,'metadata',metadata)
   FROM reserved RETURNING id,status,quantity,max_rounds,expires_at`;
   if(!rows.length) return Response.json({error:"That quantity is not available in your portfolio. Reduce it or add the asset first."},{status:409});
