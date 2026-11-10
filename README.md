@@ -30,11 +30,11 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 ## How it works
 
 1. **Seal the limits.** The buyer's ceiling and the seller's floor are committed as `sha256(canonical({side, dealId, limit, salt}))` before any offer.
-2. **Haggle in sealed rounds.** Each agent runs on SERV Reasoning (`gpt-5.4-mini`, structured output) with only its own owner's goals in its system prompt. Each round both sides submit one offer at the same time. An agent sees past prices, never the other side's words. Its free-text reasoning goes to its owner's console only.
+2. **Haggle in at most three sealed rounds.** The protocol hard-caps every negotiation at three rounds; the UI cannot raise it and the API ignores client attempts to request more. Each agent runs on SERV Reasoning (`gpt-5.4-mini`, structured output) with only its own owner's goals in its system prompt. Each round both sides submit one offer at the same time. An agent sees past prices, never the other side's words. Its free-text reasoning goes to its owner's console only.
 3. **A referee, not a model.** [`src/lib/referee.ts`](src/lib/referee.ts) and [`src/lib/schema.ts`](src/lib/schema.ts) are plain deterministic code. They accept exactly `{price, quantity, round}`. Anything else is dropped and logged as `blocked: non-schema content`. Bids can't go down and asks can't go up. When bid >= ask, the deal closes at the midpoint.
 4. **Owner guard.** Before an offer reaches the table, the owner's side checks it against the owner's own limit and asks the agent again if it slips. So the crossing price always sits inside both limits.
 5. **Reveal.** After close, both sides reveal limit and salt. Anyone can check them against the commitments and confirm the price is inside both.
-6. **Settlement (simulated).** `settle(deal)` records the intended Kite Passport session shape, your spending cap (15-minute expiry), and the exact agreed total. It does not create a Passport session or transfer USDC. The receipt labels this as simulated and shows the refusal checks above.
+6. **No-deal or settlement.** If the offers do not cross within three rounds, Blackbox closes as `no_deal`, writes a verifiable receipt, and never calls settlement. If they cross, settlement (currently simulated) records the intended Kite Passport session shape. `settle(deal)` records the intended Kite Passport session shape, your spending cap (15-minute expiry), and the exact agreed total. It does not create a Passport session or transfer USDC. The receipt labels this as simulated and shows the refusal checks above.
 7. **Record everything.** Every prompt, reply, offer, block, reveal and settlement step is a log entry whose hash includes the previous entry's hash. Prompts and replies are logged as salted hashes so the public log can't be brute-forced for the limits.
 8. **Verify.** `/verify` takes a deal ID or receipt JSON and, in the browser, re-hashes the chain, re-runs the referee on the logged offers, checks the commit-reveal, the price, the caps and the delegation signature. A tamper toggle edits one offer to show the check turning red.
 
@@ -46,6 +46,7 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 | --- | --- |
 | Agents on SERV Reasoning | Live |
 | Referee, commit-reveal, hash chain, verifier | Live, unit tested |
+| Three-round maximum | Live: hard-capped in the negotiation engine and API; marked receipts are checked by the verifier |
 | Your spending limit | Live: committed before offers, enforced by the guard and the session caps, checked by the verifier |
 | Agent identity | Live: per-deal agent keys sign every offer, verified. Not yet bound to Kite agent DIDs (needs Kite onboarding) |
 | Payment via Kite Passport | **SIMULATED — no real funds moved.** The receipt mirrors the intended session cap and refusal checks, but the delegation is signed by a throwaway key and the `sim_…` ref is not a transaction. Live settlement is not implemented. Kite's published docs currently provide CLI/agent-skill flows and state that there is no public HTTP API reference for app backends. The old server-side CLI attempt has been disabled; `SETTLE_MODE=kite` now safely falls back to an explicitly labelled simulation. A real integration needs a Kite-supported server/hosted-agent handoff and a verifiable transaction hash. [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
@@ -71,7 +72,7 @@ Put together: right code (fingerprint) + untouched inputs (hash chain, signature
 
 ## Scope
 
-One deal type today: a fixed quantity of one item, negotiated on **price**. Quantity is fixed by the terms and the referee refuses any offer that changes it. That keeps the referee small enough to read and re-run in a browser. More terms (delivery date, quantity tiers) would mean widening the offer schema and the closing rule, which changes the published referee hash; that's the next step, not something this build claims. What carries over unchanged to any deal type: commit-reveal of private limits, the schema-only table, the hash-chained record, agent signatures, the user's spending limit and the replay verifier.
+One deal type today: a fixed quantity of one item, negotiated on **price**, with a hard maximum of **three rounds**. Quantity is fixed by the terms and the referee refuses any offer that changes it. That keeps the referee small enough to read and re-run in a browser. More terms (delivery date, quantity tiers) would mean widening the offer schema and the closing rule, which changes the published referee hash; that's the next step, not something this build claims. What carries over unchanged to any deal type: commit-reveal of private limits, the schema-only table, the hash-chained record, agent signatures, the user's spending limit and the replay verifier.
 
 ## Hard questions
 
