@@ -53,7 +53,9 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   log("deal.open", "system", { dealId, ...terms, buyerMaxRounds, sellerMaxRounds, roundPolicy: "blackbox/mutual-min-3", model: SERV_MODEL, refereeHash: REFEREE_HASH });
 
   // Who is at the table: each agent gets its own runtime key for this deal and signs every offer it makes.
-  const buyerOwner = input.buyerOwner ?? KITE_OWNER;\n  const sellerOwner = input.sellerOwner ?? KITE_OWNER;\n  const agents = { buyer: mintAgent("buyer", buyerOwner), seller: mintAgent("seller", sellerOwner) };
+  const buyerOwner = input.buyerOwner ?? KITE_OWNER;
+  const sellerOwner = input.sellerOwner ?? KITE_OWNER;
+  const agents = { buyer: mintAgent("buyer", buyerOwner), seller: mintAgent("seller", sellerOwner) };
   log("agent.identity", "buyer-agent", { ...agents.buyer.identity });
   log("agent.identity", "seller-agent", { ...agents.seller.identity });
 
