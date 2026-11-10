@@ -356,3 +356,5 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
 
 .wallet-add { border:1px solid var(--rule-2); background:transparent; color:var(--wax); border-radius:5px; padding:5px 9px; cursor:pointer; font-size:11px; }
 .wallet-add:disabled { opacity:.45; cursor:wait; }
+
+body { padding-bottom: 0; }
