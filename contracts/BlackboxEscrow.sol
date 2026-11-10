@@ -145,16 +145,24 @@ contract BlackboxEscrow {
     }
 
     /// @notice Either party may cancel before settlement. Expired trades may be cancelled by anyone.
-    function cancel(bytes32 tradeId) external nonReentrant {
+    function cancel(bytes32 tradeId, address cancelledBy, uint64 deadline, bytes calldata signature) external nonReentrant {
         Trade storage t = trades[tradeId];
         if (t.buyer == address(0)) revert InvalidTrade();
         if (t.status != Status.Open) revert InvalidState();
-        if (msg.sender != t.buyer && msg.sender != t.seller && block.timestamp < t.expiresAt) revert Unauthorized();
+        if (cancelledBy != t.buyer && cancelledBy != t.seller) revert Unauthorized();
+        if (msg.sender != cancelledBy || block.timestamp > deadline) revert Unauthorized();
+
+        // The referee only signs this while the negotiation is still cancellable.
+        // Once it signs an agreement, it must never issue a cancellation authorization.
+        bytes32 payload = keccak256(abi.encode(
+            block.chainid, address(this), tradeId, cancelledBy, t.nonce, deadline, keccak256("BLACKBOX_CANCEL")
+        ));
+        if (_recover(_toEthSignedMessageHash(payload), signature) != refereeSigner) revert InvalidSignature();
 
         t.status = Status.Cancelled;
         _safeTransfer(t.paymentToken, t.buyer, t.maxPayment);
         if (t.assetFunded) _releaseAsset(t, t.seller);
-        emit TradeCancelled(tradeId, msg.sender);
+        emit TradeCancelled(tradeId, cancelledBy);
     }
 
     function _releaseAsset(Trade storage t, address to) private {
