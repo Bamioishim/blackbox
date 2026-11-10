@@ -11,7 +11,7 @@ const out = outIdx > -1 ? process.argv[outIdx + 1] : null;
 const t0 = Date.now();
 const privates: unknown[] = [];
 const r = await negotiate(
-  { item: "X tokens", quantity: 500, referencePrice: 0.9, buyerCeiling: 0.92, sellerFloor: 0.88, buyerStyle: "balanced", sellerStyle: "patient", maxRounds: 6, attackMode: attack },
+  { item: "X tokens", quantity: 500, referencePrice: 0.9, buyerCeiling: 0.92, sellerFloor: 0.88, buyerStyle: "balanced", sellerStyle: "patient", buyerMaxRounds: 3, sellerMaxRounds: 3, attackMode: attack },
   (e) => {
     if (e.t === "log") {
       const p = e.entry.payload as Record<string, unknown>;
