@@ -23,7 +23,7 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 
 The verifier checks that the limit was committed before any offer, that the reveal matches the commitment, that the session caps equal your limit, and that the deal total sits inside it.
 
-**Agent identity.** The owner is a Kite Passport account (`user_01a1c106…c299ddce5a17`, Passport wallet `0x39A6C46b79b6cA43c8cd0B5D4f713C06e4B00f4D` on EVM, `ABVbrFkJoTEtBHvh7AiSBH11HLo5XbwSU9vJoUajZahN` on Solana). The account email is never shown. Each deal mints one secp256k1 runtime key per agent, the same key type Kite Passport binds to an agent (`kpass agent init` / `kpass agent bind`). Both keys are logged in `agent.identity` entries at deal open, every accepted offer carries its agent's EIP-191 signature, and the verifier checks each one ("Every offer is signed by its own agent's key"). The identity panel on `/deal` and the receipt show the owner, both agent keys and the session id.
+**Agent identity.** Each deal mints one secp256k1 runtime key per agent. Both keys are logged in `agent.identity` entries at deal open, every accepted offer carries its agent's EIP-191 signature, and the verifier checks each one. The identity panel and receipt show the owner, both agent keys and the session id.
 
 What this is not yet: the agent keys are **not bound to registered Kite agent DIDs**. Registering them (`kpass agent create --kind buyer|seller`) needs the owner to claim an identifier and finish Kite onboarding, which hasn't been done. Every identity record says "not yet bound".
 
@@ -120,12 +120,22 @@ The preview branch now includes `/marketplace`, alongside the original private-d
 
 - Accounts use email + password sessions. Seller and buyer accounts are separate; both agent identities are recorded independently in marketplace receipts.
 - Users create a portfolio of tokens, NFTs, trading cards and other assets. A listing must reference an asset row owned by the signed-in seller, and its quantity must fit the unreserved portfolio balance. Listing inventory is reserved; withdrawals and expiries release it.
-- Portfolio entries added manually are **unverified inventory records**, not proof of wallet ownership or physical possession. Wallet-based ownership verification is not implemented yet.
+- Manual portfolio entries are **unverified inventory records**, not proof of wallet ownership or physical possession. EVM wallet holdings can now be viewed on Base and imported after a wallet signature plus a live onchain balance/ownership check (ERC-20, ERC-721 and ERC-1155).
 - Listings are exclusive and fixed-quantity (no partial fills). Buyers can search by asset name or symbol. Public listing cards never return the seller's private floor.
 - Seller limits stay in the database. The buyer supplies a ceiling, total spending limit and 1–3 round preference. Both sides default to 3; the lower limit applies. A buyer's first mandate is reused on later attempts against the same listing.
 - The buyer queues the negotiation; the server runs both agents after the response, so the seller does not need to be online and the buyer can leave the page. The negotiation status and receipt are stored in Postgres.
 - Successful negotiations become **Deal reached**, not **Settled**. Kite payment is still simulated and no token, NFT or collectible is transferred by this preview. The asset remains reserved so it cannot be listed twice. A real settlement adapter must verify transfer before marking a listing Settled or moving portfolio ownership.
 - Listings can optionally expire. Expiry and seller withdrawal release the reserved quantity. No-deal listings reopen for another attempt.
+
+
+### EVM wallets and escrow status
+
+- Wallet support is independent of Kite. The current wallet panel supports injected EVM wallets and local import of a private key or recovery phrase. Imported secrets remain in browser memory only, are not sent to Blackbox, and are cleared on disconnect or reload. The export action copies only locally imported recovery material; connected wallet private keys cannot be exported by a dapp.
+- Wallet portfolio discovery currently targets **Base mainnet (chain ID 8453)**. Token and NFT holdings are read through Base Blockscout. Importing an asset requires an EIP-191 signature tied to the signed-in Blackbox account and a server-side live contract check. The backend does not receive the wallet secret.
+- WalletConnect protocol support and additional EVM networks are not wired yet. Base is the first supported network, not a claim of universal multichain coverage.
+- `contracts/BlackboxEscrow.sol` is an initial EVM escrow implementation for ERC-20, ERC-721 and ERC-1155 assets. The buyer deposits the payment cap and the seller deposits the asset before negotiation; a referee-signed agreement can then atomically pay the seller, refund unused buyer funds and release the asset. Cancellation requires referee authorization so the backend can refuse cancellation after agreement.
+- **The escrow contract is source-only, not deployed, audited or connected to the marketplace yet.** Current marketplace outcomes remain **Deal reached**, never **Settled**. No real asset or payment transfer occurs in this deployment. Before enabling live settlement, Blackbox still needs a deployed contract, secured referee signer, approval/deposit workflow, relayer integration, contract tests and an independent security review.
+- Kite-specific wallet custody and settlement work is paused. The existing SERV negotiation/referee/receipt pipeline remains separate from wallet and settlement infrastructure.
 
 ### Completion emails
 
