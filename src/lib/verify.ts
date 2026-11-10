@@ -57,7 +57,7 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     const closedRound = find(log, "deal.closed")[0]?.payload as { round?: number } | undefined;
     const roundEvents = find(log, "round.closed");
     const noDeal = r.outcome?.status === "no_deal";
-    const policyOk = dealOpen.maxRounds === 3 && roundEvents.length >= 1 && roundEvents.length <= 3 && (noDeal ? roundEvents.length === 3 : closedRound?.round === roundEvents.length && closedRound.round <= 3);
+    const policyOk = dealOpen.maxRounds === 3 && roundEvents.length >= 1 && roundEvents.length <= 3 && (noDeal ? roundEvents.length === 3 : Number(closedRound?.round) === roundEvents.length && Number(closedRound?.round) <= 3);
     checks.push({ id: "round-policy", label: "Negotiation obeyed the three-round maximum", ok: policyOk, detail: policyOk ? `${roundEvents.length} round(s) recorded; protocol maximum is 3.` : `Recorded maxRounds=${dealOpen.maxRounds}, rounds=${roundEvents.length}, closedRound=${closedRound?.round ?? "none"}.` });
   }
 
