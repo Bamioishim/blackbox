@@ -15,7 +15,7 @@
     "verify": "tsx scripts/verify.mts"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.2",
+    "@neondatabase/serverless": "^1.2.0",
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.8.0",
     "geist": "^1.9.2",
