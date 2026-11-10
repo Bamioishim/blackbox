@@ -82,7 +82,7 @@ export function WalletPanel({ onAdded }: { onAdded?: () => void }) {
         `tokenId:${tokenId}`,
         `quantity:${quantity}`,
         `timestamp:${timestamp}`
-      ].join("\\n");
+      ].join("\n");
       let signature: string;
       if (secret) {
         const account = importMode === "seed"
