@@ -353,3 +353,6 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
 .wallet-empty,.wallet-source { color:var(--muted); font-size:11px; }
 .wallet-source { margin:14px 0 0; }
 @media(max-width:760px) { .wallet-import-form { grid-template-columns:1fr; } .wallet-warning { grid-column:auto; } }
+
+.wallet-add { border:1px solid var(--rule-2); background:transparent; color:var(--wax); border-radius:5px; padding:5px 9px; cursor:pointer; font-size:11px; }
+.wallet-add:disabled { opacity:.45; cursor:wait; }
