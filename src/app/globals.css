@@ -585,3 +585,27 @@ body { padding-bottom: 0; }
   font-size: 15px;
   font-weight: 500;
 }
+
+/* Keep mono restricted to actual deal data, not decorative labels. */
+.landing .mono,
+.landing .landing-section-label,
+.landing .landing-kicker,
+.landing .landing-note,
+.landing .landing-cloud-hint,
+.landing .landing-tape-head,
+.landing .landing-tape-foot {
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.landing .landing-tape-row b,
+.landing .landing-receipt b,
+.landing .callout {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
