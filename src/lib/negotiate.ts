@@ -25,6 +25,8 @@ export type NegotiateInput = {
   attackMode: boolean;
   /** Owner-set spending limit for the whole deal, in USDC. Becomes the Kite session cap. */
   budget?: number;
+  buyerOwner?: AgentOwner;
+  sellerOwner?: AgentOwner;
 };
 
 export type PrivateNote = { side: Side; round: number; kind: "prompt" | "reply" | "reasoning" | "guard"; text: string; sealed?: string };
