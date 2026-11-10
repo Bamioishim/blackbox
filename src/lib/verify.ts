@@ -124,7 +124,7 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     const ok = ids.length === 2 && bad === 0;
     checks.push({
       id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok,
-      detail: ok ? `${offers.length} offers. buyer agent ${ids.find((x) => x.side === "buyer")?.runtimeKey}, seller agent ${ids.find((x) => x.side === "seller")?.runtimeKey}. Owner: Kite Passport ${ids[0].owner?.account}. Keys not yet bound to a Kite agent DID.` : `${bad} offer(s) not signed by the agent identity logged at deal open.`,
+      detail: ok ? `${offers.length} offers. buyer agent ${ids.find((x) => x.side === "buyer")?.runtimeKey}, seller agent ${ids.find((x) => x.side === "seller")?.runtimeKey}. Owners: ${ids[0].owner?.provider ?? "unknown"} ${ids[0].owner?.account}. Runtime keys are not yet bound to Kite agent DIDs.` : `${bad} offer(s) not signed by the agent identity logged at deal open.`,
     });
   } else {
     checks.push({ id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok: null, detail: "Older receipt: recorded before agents signed their offers." });
