@@ -67,7 +67,7 @@ export function WalletPanel({ onAdded }: { onAdded?: () => void }) {
       const contractAddress = type === "token"
         ? String(item.token?.address_hash || "")
         : String(item.token?.address_hash || item.token_address_hash || item.token?.address || "");
-      const tokenId = type === "nft" ? String(item.id || item.token_id || "") : "";
+      const tokenId = type === "nft" ? String(item.token_id || item.id || "") : "";
       const standard = type === "token" ? "ERC-20" : String(item.token_type || "ERC-721");
       const quantity = type === "token" ? tokenValue(item) : "1";
       if (!isAddress(contractAddress)) throw new Error("This asset is missing a valid contract address.");
