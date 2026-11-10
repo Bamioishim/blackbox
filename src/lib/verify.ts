@@ -51,6 +51,15 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     detail: refOk ? publishedRefereeHash : `Receipt says ${r.referee?.hash ?? "nothing"}, this site publishes ${publishedRefereeHash}.`,
   });
 
+  // 3. Enforce the current Blackbox protocol hard three-round ceiling on marked receipts.
+  const dealOpen = find(log, "deal.open")[0]?.payload as { maxRounds?: number; roundPolicy?: string } | undefined;
+  if (dealOpen?.roundPolicy === "blackbox/max-3") {
+    const closedRound = find(log, "deal.closed")[0]?.payload as { round?: number } | undefined;
+    const roundEvents = find(log, "round.closed");
+    const policyOk = dealOpen.maxRounds === 3 && roundEvents.length <= 3 && (closedRound?.round == null || closedRound.round <= 3);
+    checks.push({ id: "round-policy", label: "Negotiation obeyed the three-round maximum", ok: policyOk, detail: policyOk ? `${roundEvents.length} round(s) recorded; protocol maximum is 3.` : `Recorded maxRounds=${dealOpen.maxRounds}, rounds=${roundEvents.length}, closedRound=${closedRound?.round ?? "none"}.` });
+  }
+
   // 3. Replay the referee on the logged offers
   const open = find(log, "deal.open")[0]?.payload as { quantity?: number; maxRounds?: number } | undefined;
   const closed = find(log, "deal.closed")[0]?.payload as { unitPrice?: number; round?: number; total?: number } | undefined;
