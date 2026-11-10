@@ -44,7 +44,7 @@ export default function Home() {
     <section className="landing-how" id="how">
       <div className="landing-section-head"><div className="landing-section-label mono">How it works</div><h2 className="display">From private limits<br/>to a verifiable proof.</h2></div>
       <div className="landing-steps">{steps.map(step => <article className="landing-step" key={step.title}>
-        <div><h3>{step.title}</h3><p>{step.body}</p></div><span className="landing-step-arrow">↗︎</span>
+        <div><h3>{step.title}</h3><p>{step.body}</p></div>
       </article>)}</div>
     </section>
 
