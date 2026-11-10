@@ -329,3 +329,27 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
   .home-shortcuts a,.home-shortcuts a+a { padding:16px 0; border-left:0; }
   .home-copy h1 { font-size:clamp(48px,13vw,70px); }
 }
+
+
+.wallet-panel { border:1px solid var(--rule-2); border-radius:10px; padding:18px; background:rgba(255,255,255,.018); }
+.wallet-head { display:flex; justify-content:space-between; align-items:center; gap:14px; }
+.wallet-quiet { background:transparent; color:var(--ink-2); border:1px solid var(--rule-2); border-radius:6px; padding:9px 12px; cursor:pointer; font-size:12px; }
+.wallet-import { margin-top:12px; }
+.wallet-import-form { display:grid; grid-template-columns:minmax(0,180px) 1fr auto; gap:9px; margin-top:12px; align-items:start; }
+.wallet-warning { grid-column:1/-1; color:#c5a87c; font-size:11px; margin:0; line-height:1.5; }
+.wallet-address { display:flex; justify-content:space-between; gap:12px; margin-top:16px; padding:10px 12px; border:1px solid var(--rule); color:var(--ink-2); font:11px var(--font-geist-mono),monospace; }
+.wallet-message,.wallet-error { font-size:12px; margin:10px 0 0; }
+.wallet-message { color:#a6c7a4; }
+.wallet-error { color:#e98b7e; }
+.wallet-holdings { margin-top:14px; }
+.wallet-balance { display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--rule); color:var(--muted); font-size:13px; }
+.wallet-balance b { color:var(--ink); font-size:18px; font-weight:500; }
+.wallet-subhead { display:flex; justify-content:space-between; margin:18px 0 6px; color:var(--muted); font:10px var(--font-geist-mono),monospace; letter-spacing:.13em; }
+.wallet-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--rule); }
+.wallet-row span { display:flex; flex-direction:column; min-width:0; }
+.wallet-row b { font-size:13px; font-weight:500; }
+.wallet-row small { color:var(--muted); font-size:11px; }
+.wallet-row strong { font:12px var(--font-geist-mono),monospace; font-weight:400; }
+.wallet-empty,.wallet-source { color:var(--muted); font-size:11px; }
+.wallet-source { margin:14px 0 0; }
+@media(max-width:760px) { .wallet-import-form { grid-template-columns:1fr; } .wallet-warning { grid-column:auto; } }
