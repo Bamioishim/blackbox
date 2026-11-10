@@ -456,3 +456,29 @@ body { padding-bottom: 0; }
   .landing .landing-tape-head,.landing .landing-tape-row { grid-template-columns:minmax(90px,1fr) minmax(110px,1.3fr) 48px; gap:8px; }
   .landing .landing-tape-row { font-size:11px; }
 }
+
+
+/* Editorial display typography from the supplied reference. */
+.landing .display,
+.landing .display h1,
+.landing .display h2 {
+  font-family: "Bodoni Moda", "Didot", "Bodoni MT", "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -.045em;
+  line-height: .98;
+  font-optical-sizing: auto;
+}
+.landing .landing-hero-title {
+  font-size: clamp(52px, 6.1vw, 88px);
+  line-height: .96;
+  letter-spacing: -.055em;
+}
+.landing-intro h2,.landing-section-head h2,.landing-recorder h2,
+.landing-use h2,.landing-faq h2,.landing-final h2 {
+  font-family: "Bodoni Moda", "Didot", "Bodoni MT", "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -.045em;
+}
+@media(max-width:900px) {
+  .landing .landing-hero-title { font-size:clamp(48px,10vw,76px); }
+}
