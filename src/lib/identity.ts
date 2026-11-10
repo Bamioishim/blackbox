@@ -24,12 +24,14 @@ export const KITE_OWNER = {
   backend: "passport.prod.gokite.ai",
 };
 
+export type AgentOwner = { provider: "kite-passport" | "blackbox-account"; account: string; wallet: { evm: string; solana: string }; backend: string };
+
 export type AgentIdentity = {
   side: Side;
   agentRef: string;
   runtimeKey: string; // address of this deal's runtime key
   keyScheme: "secp256k1 / EIP-191";
-  owner: typeof KITE_OWNER;
+  owner: AgentOwner;
   binding: { status: "unbound"; note: string };
 };
 
@@ -40,14 +42,14 @@ export function offerMessage(o: OfferSigPayload): string {
   return canonical({ scheme: "blackbox-offer/1", ...o });
 }
 
-export function mintAgent(side: Side): AgentSigner {
+export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSigner {
   const account = privateKeyToAccount(generatePrivateKey());
   const identity: AgentIdentity = {
     side,
     agentRef: `blackbox-${side}`,
     runtimeKey: account.address,
     keyScheme: "secp256k1 / EIP-191",
-    owner: KITE_OWNER,
+    owner,
     binding: {
       status: "unbound",
       note: "Per-deal runtime key, the key type Kite Passport binds to an agent. Not yet bound to a registered Kite agent DID (needs the owner to finish Kite onboarding).",

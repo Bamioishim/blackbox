@@ -33,8 +33,8 @@ export function ReceiptCard({ r }: { r: Receipt }) {
       <Row k="Deal" v={r.dealId} />
       <Row k="Terms" v={`${r.terms.quantity} ${r.terms.item}`} mono={false} />
       {r.outcome.status === "closed" && <Row k="Total" v={`${r.outcome.total} USDC, closed in round ${r.outcome.round}`} />}
-      {r.budget && <Row k="Your limit" v={`${r.budget.limit} USDC (set before any offer, caps Kite session ${r.budget.sessionId})`} />}
-      <Row k="Owner" v={`Kite Passport ${r.identity?.owner.account ?? KITE_OWNER.account} · payer ${r.identity?.owner.wallet.evm ?? KITE_OWNER.wallet.evm}`} />
+      {r.budget && <Row k="Your limit" v={`${r.budget.limit} USDC (committed before any offer; session ${r.budget.sessionId})`} />}
+      <Row k="Buyer account" v={`${r.identity?.owner.provider ?? "Kite Passport"} · ${r.identity?.owner.account ?? KITE_OWNER.account}`} />\n      {r.identity?.counterparty && <Row k="Seller account" v={`${r.identity.counterparty.provider} · ${r.identity.counterparty.account}`} />}
       {r.identity?.agents.map((a) => <Row key={a.side} k={`${a.side} agent`} v={<>{a.agentRef} · {a.runtimeKey}<br /><span className="muted" style={{ fontFamily: "var(--font-geist-sans)" }}>signs every offer; not yet bound to a Kite agent DID</span></>} />)}
       {s && (
         <>

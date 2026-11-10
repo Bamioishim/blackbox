@@ -7,7 +7,7 @@ import type { Offer } from "./schema";
 import { callServ, extractJson, systemPrompt, userPrompt, turnSchema, INJECTION, SERV_MODEL, type AgentContext, type Style, type LlmCall } from "./agents";
 import { getSettler } from "./settle-server";
 import { commitBudget, SESSION_TTL_SECONDS, type Mandate } from "./settle";
-import { mintAgent, KITE_OWNER } from "./identity";
+import { mintAgent, KITE_OWNER, type AgentOwner } from "./identity";
 import { getAnchorer } from "./anchor-evm";
 import { REFEREE_HASH, REFEREE_FILES } from "./referee-hash.generated";
 import type { Receipt, DealTerms } from "./receipt";
@@ -20,10 +20,13 @@ export type NegotiateInput = {
   sellerFloor: number;
   buyerStyle: Style;
   sellerStyle: Style;
-  maxRounds: number;
+  buyerMaxRounds: number;
+  sellerMaxRounds: number;
   attackMode: boolean;
   /** Owner-set spending limit for the whole deal, in USDC. Becomes the Kite session cap. */
   budget?: number;
+  buyerOwner?: AgentOwner;
+  sellerOwner?: AgentOwner;
 };
 
 export type PrivateNote = { side: Side; round: number; kind: "prompt" | "reply" | "reasoning" | "guard"; text: string; sealed?: string };
@@ -37,16 +40,22 @@ export type StreamEvent =
 type Emit = (e: StreamEvent) => void;
 
 export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall = callServ): Promise<Receipt> {
+  // Each owner chooses 1–3 rounds. The table uses the lower request, never above 3.
+  const buyerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.buyerMaxRounds)));
+  const sellerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.sellerMaxRounds)));
+  const maxRounds = Math.min(buyerMaxRounds, sellerMaxRounds);
   const dealId = "deal_" + randomHex(6);
   const chain = new HashChain();
   const log = (...a: Parameters<HashChain["append"]>) => { const e = chain.append(...a); emit({ t: "log", entry: e }); return e; };
   const priv = (note: PrivateNote) => emit({ t: "private", note });
 
-  const terms: DealTerms = { item: input.item, quantity: input.quantity, asset: "USDC", referencePrice: input.referencePrice, maxRounds: input.maxRounds, attackMode: input.attackMode };
-  log("deal.open", "system", { dealId, ...terms, model: SERV_MODEL, refereeHash: REFEREE_HASH });
+  const terms: DealTerms = { item: input.item, quantity: input.quantity, asset: "USDC", referencePrice: input.referencePrice, maxRounds, attackMode: input.attackMode };
+  log("deal.open", "system", { dealId, ...terms, buyerMaxRounds, sellerMaxRounds, roundPolicy: "blackbox/mutual-min-3", model: SERV_MODEL, refereeHash: REFEREE_HASH });
 
   // Who is at the table: each agent gets its own runtime key for this deal and signs every offer it makes.
-  const agents = { buyer: mintAgent("buyer"), seller: mintAgent("seller") };
+  const buyerOwner = input.buyerOwner ?? KITE_OWNER;
+  const sellerOwner = input.sellerOwner ?? KITE_OWNER;
+  const agents = { buyer: mintAgent("buyer", buyerOwner), seller: mintAgent("seller", sellerOwner) };
   log("agent.identity", "buyer-agent", { ...agents.buyer.identity });
   log("agent.identity", "seller-agent", { ...agents.seller.identity });
 
@@ -56,7 +65,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   const bud = commitBudget(dealId, budget);
   const mandate: Mandate = { sessionId: "sim_sess_" + randomHex(8), createdAt: new Date().toISOString(), ttlSeconds: SESSION_TTL_SECONDS, budget, budgetReveal: bud.reveal };
   log("mandate.open", "buyer", {
-    owner: KITE_OWNER.account, payer: KITE_OWNER.wallet.evm, sessionId: mandate.sessionId, mode: "mock",
+    owner: buyerOwner.account, payer: buyerOwner.wallet.evm, sessionId: mandate.sessionId, mode: "mock",
     budgetCommitment: bud.commitment,
     policy: "Kite Passport spending session: max_total_amount = max_amount_per_tx = the owner's spending limit",
     ttlSeconds: mandate.ttlSeconds, createdAt: mandate.createdAt,
@@ -73,8 +82,8 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   log("commit", "seller", { ...sc.commitment });
 
   const ctx: Record<Side, AgentContext> = {
-    buyer: { side: "buyer", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds: input.maxRounds, limit: Math.min(input.buyerCeiling, Math.floor((budget / input.quantity) * 1e4) / 1e4), style: input.buyerStyle },
-    seller: { side: "seller", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds: input.maxRounds, limit: input.sellerFloor, style: input.sellerStyle },
+    buyer: { side: "buyer", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds, limit: Math.min(input.buyerCeiling, Math.floor((budget / input.quantity) * 1e4) / 1e4), style: input.buyerStyle },
+    seller: { side: "seller", item: input.item, quantity: input.quantity, referencePrice: input.referencePrice, maxRounds, limit: input.sellerFloor, style: input.sellerStyle },
   };
   const history: { round: number; buyer: number | null; seller: number | null }[] = [];
   let state: RefereeState = initialState();
@@ -158,7 +167,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         }
       }
 
-      const v = judge(s, { quantity: input.quantity, maxRounds: input.maxRounds }, side, candidate);
+      const v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
       if (v.accepted) {
         const agentSig = await agents[side].signOffer({ dealId, side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round });
         log("offer.accepted", "referee", { side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round, agent: agents[side].identity.runtimeKey, agentSig });
@@ -180,7 +189,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   while (state.status === "open") {
     const [b, s] = await Promise.all([turn("buyer", state), turn("seller", state)]);
     const r = state.round;
-    state = closeRound(state, { quantity: input.quantity, maxRounds: input.maxRounds }, b, s);
+    state = closeRound(state, { quantity: input.quantity, maxRounds }, b, s);
     history.push({ round: r, buyer: b?.price ?? null, seller: s?.price ?? null });
     log("round.closed", "referee", { round: r, bid: state.bid, ask: state.ask, status: state.status });
   }
@@ -191,7 +200,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
     total = round6(state.price * input.quantity);
     log("deal.closed", "referee", { unitPrice: state.price, total, round: state.closedRound, rule: "midpoint of crossing bid and ask" });
   } else {
-    log("deal.no_deal", "referee", { rounds: input.maxRounds });
+    log("deal.no_deal", "referee", { rounds: maxRounds, policy: "blackbox/max-3" });
   }
   log("reveal", "buyer", { ...bc.reveal });
   log("reveal", "seller", { ...sc.reveal });
@@ -199,7 +208,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   if (state.status === "closed" && state.price !== null && total !== null) {
     settlement = await getSettler().settle({
       dealId, item: input.item, quantity: input.quantity, unitPrice: state.price, total, asset: "USDC",
-      payee: "seller (demo)", payer: KITE_OWNER.wallet.evm, mandate,
+      payee: sellerOwner.account, payer: buyerOwner.wallet.evm, mandate,
     });
     const sim = !settlement.live;
     log("settle.session", "settlement", { session: settlement.session, delegation: settlement.delegation, label: settlement.label, budgetReveal: bud.reveal, simulated: sim, ...(settlement.fallback ? { fallback: settlement.fallback } : {}) });
@@ -218,7 +227,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
     commitments: [bc.commitment, sc.commitment], reveals: [bc.reveal, sc.reveal],
     outcome: { status: state.status === "closed" ? "closed" : "no_deal", unitPrice: state.price, total, round: state.closedRound },
     log: chain.entries, finalHash, settlement, anchor,
-    identity: { owner: KITE_OWNER, agents: [agents.buyer.identity, agents.seller.identity] },
+    identity: { owner: buyerOwner, counterparty: sellerOwner, agents: [agents.buyer.identity, agents.seller.identity] },
     budget: { limit: bud.reveal.budget, commitment: bud.commitment.commitment, sessionId: mandate.sessionId },
   };
   emit({ t: "receipt", receipt });

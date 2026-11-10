@@ -8,7 +8,7 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 
 ## Three proofs
 
-1. **Decisions move a real transaction.** Every agent decision (open, counter, accept, hold, walk) updates a live transaction ticket (bid/ask, spread, total) and the deal ends in `settle(deal)`. Settlement is **SIMULATED** today and says so on the ticket, the receipt, the log and the verifier: `SIMULATED — no real funds moved`. The payment code is `simulated_no_funds_moved` and the ref (`sim_…`) is never shown as a transaction or a link.
+1. **Decisions move a real transaction.** Every agent decision (open, counter, accept, hold, walk) updates a live transaction ticket (bid/ask, spread, total). A deal either closes into a settlement attempt or, after the agreed round limit without overlap, a `no_deal` receipt. Settlement is **SIMULATED** today and says so on the ticket, the receipt, the log and the verifier: `SIMULATED — no real funds moved`. The payment code is `simulated_no_funds_moved` and the ref (`sim_…`) is never shown as a transaction or a link.
 2. **Judges verify, not trust.** `/verify` takes a deal ID or a dropped receipt JSON and re-hashes every entry, re-runs the referee on each offer, refusal, round and close, and checks the commit-reveal, all in the browser with a per-entry HASH/RULE pass/fail. Offline: `npm run verify -- public/deals/<deal>.json --entries` (exit 0 = holds up). The shipped tampered deal fails at entry #44.
 3. **Rule-breaks get stopped on screen.** Attack mode (simulated) has a test harness inject a prompt-injection message from the seller's side and push the buyer's bid backwards in round 2. The referee refuses both (`blocked: non-schema content`, `rejected: buyer bid moved backwards`), the UI shows the offending message, the code rule that fired and a REJECTED stamp, and the negotiation continues.
 
@@ -17,9 +17,9 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 **Your spending limit.** Before the deal starts you type a spending limit (total USDC) on `/deal`. It is separate from the prices and from your private ceiling, and it does four things:
 
 1. It is committed as `sha256(canonical({kind:"budget", dealId, budget, salt}))` in a `mandate.open` log entry **before the first offer**, so the seller can't read it but you can't change it later.
-2. It becomes the cap on the Kite Passport spending session: `payment_policy.max_total_amount = max_amount_per_tx = your limit` ([`kiteDelegation()`](src/lib/settle.ts) builds the exact delegation JSON for `kpass session create --separate --delegation …`). Kite's backend refuses anything past it with `session_total_exceeded` / `session_rule_exceeded`.
+2. It mirrors the intended Kite Passport spending-session cap: `payment_policy.max_total_amount = max_amount_per_tx = your limit`. This is enforced by Blackbox's demo guard only; no Passport session is created and Kite's backend does not enforce it in the deployed demo.
 3. Your own guard holds back any bid whose total would pass it, so your agent can't agree to a deal you can't pay.
-4. At settlement the limit is revealed, and settle pays **exactly the agreed total, once**. The receipt shows three refused attempts: 0.01 over the agreed total (`over_agreed_total`), a second payment (`deal_already_settled`), and spending past your limit (`session_total_exceeded`). If the deal total were above your limit, settle refuses to pay at all (tested in `tests/settle.test.ts`).
+4. At the simulated settlement step the limit is revealed, and the demo checks that the agreed total is within it. No USDC is transferred. The receipt shows three simulated refusal checks: 0.01 over the agreed total (`over_agreed_total`), a second payment (`deal_already_settled`), and spending past your limit (`session_total_exceeded`).
 
 The verifier checks that the limit was committed before any offer, that the reveal matches the commitment, that the session caps equal your limit, and that the deal total sits inside it.
 
@@ -30,11 +30,11 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 ## How it works
 
 1. **Seal the limits.** The buyer's ceiling and the seller's floor are committed as `sha256(canonical({side, dealId, limit, salt}))` before any offer.
-2. **Haggle in sealed rounds.** Each agent runs on SERV Reasoning (`gpt-5.4-mini`, structured output) with only its own owner's goals in its system prompt. Each round both sides submit one offer at the same time. An agent sees past prices, never the other side's words. Its free-text reasoning goes to its owner's console only.
+2. **Haggle in up to three sealed rounds.** Buyer and seller each choose a maximum from 1–3 rounds (both default to 3). Blackbox uses the lower setting, so either side can shorten the negotiation but neither can extend it beyond three rounds. The API validates both settings server-side. Each agent runs on SERV Reasoning (`gpt-5.4-mini`, structured output) with only its own owner's goals in its system prompt. Each round both sides submit one offer at the same time. An agent sees past prices, never the other side's words. Its free-text reasoning goes to its owner's console only.
 3. **A referee, not a model.** [`src/lib/referee.ts`](src/lib/referee.ts) and [`src/lib/schema.ts`](src/lib/schema.ts) are plain deterministic code. They accept exactly `{price, quantity, round}`. Anything else is dropped and logged as `blocked: non-schema content`. Bids can't go down and asks can't go up. When bid >= ask, the deal closes at the midpoint.
 4. **Owner guard.** Before an offer reaches the table, the owner's side checks it against the owner's own limit and asks the agent again if it slips. So the crossing price always sits inside both limits.
 5. **Reveal.** After close, both sides reveal limit and salt. Anyone can check them against the commitments and confirm the price is inside both.
-6. **Settle inside your limit.** `settle(deal)` pays through a session shaped like a Kite Passport spending session whose caps are your spending limit (15-minute expiry), and only for exactly the agreed total, once. The receipt shows the session, caps, expiry and signed delegation, plus the refused attempts above.
+6. **No-deal or settlement.** If the offers do not cross within the effective round limit (the lower of the buyer's and seller's settings), Blackbox closes as `no_deal`, writes a verifiable receipt, and never calls settlement. If they cross, `settle(deal)` records the intended Kite Passport session shape, your spending cap (15-minute expiry), and the exact agreed total. Settlement is currently simulated. It does not create a Passport session or transfer USDC. The receipt labels this as simulated and shows the refusal checks above.
 7. **Record everything.** Every prompt, reply, offer, block, reveal and settlement step is a log entry whose hash includes the previous entry's hash. Prompts and replies are logged as salted hashes so the public log can't be brute-forced for the limits.
 8. **Verify.** `/verify` takes a deal ID or receipt JSON and, in the browser, re-hashes the chain, re-runs the referee on the logged offers, checks the commit-reveal, the price, the caps and the delegation signature. A tamper toggle edits one offer to show the check turning red.
 
@@ -46,9 +46,10 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 | --- | --- |
 | Agents on SERV Reasoning | Live |
 | Referee, commit-reveal, hash chain, verifier | Live, unit tested |
+| Mutual round limits | Live: each side chooses 1–3 (default 3); the lower limit is enforced server-side and checked by the verifier |
 | Your spending limit | Live: committed before offers, enforced by the guard and the session caps, checked by the verifier |
 | Agent identity | Live: per-deal agent keys sign every offer, verified. Not yet bound to Kite agent DIDs (needs Kite onboarding) |
-| Payment via Kite Passport | **SIMULATED — no real funds moved.** Same session shape and refusal codes as Kite's docs; the delegation is signed by a throwaway key; the ref is not a transaction. `src/lib/settle-kite.ts` builds the real `kpass session create --separate` call with your limit as the cap. It is off in the deployed app: it needs USDC in the Passport wallet and the owner's passkey approval. If it is switched on (`SETTLE_MODE=kite`) and can't confirm a payment, settlement falls back to the simulation and says `SIMULATED — no real funds moved (fallback: <reason>)` everywhere. |
+| Payment via Kite Passport | **SIMULATED — no real funds moved.** The receipt mirrors the intended session cap and refusal checks, but the delegation is signed by a throwaway key and the `sim_…` ref is not a transaction. Live settlement is not implemented. Kite's published docs currently provide CLI/agent-skill flows and state that there is no public HTTP API reference for app backends. The old server-side CLI attempt has been disabled; `SETTLE_MODE=kite` now safely falls back to an explicitly labelled simulation. A real integration needs a Kite-supported server/hosted-agent handoff and a verifiable transaction hash. [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
 | Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
 | Deal lookup by ID | Recorded deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Deals you run are kept in your browser. No server database. |
 
@@ -71,7 +72,7 @@ Put together: right code (fingerprint) + untouched inputs (hash chain, signature
 
 ## Scope
 
-One deal type today: a fixed quantity of one item, negotiated on **price**. Quantity is fixed by the terms and the referee refuses any offer that changes it. That keeps the referee small enough to read and re-run in a browser. More terms (delivery date, quantity tiers) would mean widening the offer schema and the closing rule, which changes the published referee hash; that's the next step, not something this build claims. What carries over unchanged to any deal type: commit-reveal of private limits, the schema-only table, the hash-chained record, agent signatures, the user's spending limit and the replay verifier.
+One deal type today: a fixed quantity of one item, negotiated on **price**, with each side choosing **one to three rounds** (default three); the lower setting applies. Quantity is fixed by the terms and the referee refuses any offer that changes it. That keeps the referee small enough to read and re-run in a browser. More terms (delivery date, quantity tiers) would mean widening the offer schema and the closing rule, which changes the published referee hash; that's the next step, not something this build claims. What carries over unchanged to any deal type: commit-reveal of private limits, the schema-only table, the hash-chained record, agent signatures, the user's spending limit and the replay verifier.
 
 ## Hard questions
 
@@ -102,7 +103,7 @@ Latest outputs are in [`test-output/`](test-output/).
 - `src/lib/chain.ts`: hash-chained log
 - `src/lib/agents.ts`, `src/lib/negotiate.ts`: SERV agents and the negotiation loop
 - `src/lib/identity.ts`: owner identity (Kite Passport) and per-deal agent keys that sign offers
-- `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, Kite delegation builder and the SIMULATED settler; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: real `kpass` adapter (off)
+- `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, intended Kite delegation shape and the SIMULATED settler; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: guarded placeholder that refuses unsupported server-side CLI execution
 - `src/lib/anchor.ts`, `anchor-evm.ts`, `contracts/BlackboxAnchor.sol`, `scripts/anchor.mjs`: pluggable anchoring (off until deployed)
 - `src/lib/verify.ts`: the checks the public verifier runs
 
@@ -111,3 +112,30 @@ Latest outputs are in [`test-output/`](test-output/).
 Preview builds come from the `preview` branch. `main` is the production branch on Vercel, so merging to `main` ships production.
 
 Recorded deals made before the spending limit and agent signatures were added still verify; their receipts show "older receipt" for those two checks.
+
+
+## Marketplace and portfolio mode
+
+The preview branch now includes `/marketplace`, alongside the original private-deal flow.
+
+- Accounts use email + password sessions. Seller and buyer accounts are separate; both agent identities are recorded independently in marketplace receipts.
+- Users create a portfolio of tokens, NFTs, trading cards and other assets. A listing must reference an asset row owned by the signed-in seller, and its quantity must fit the unreserved portfolio balance. Listing inventory is reserved; withdrawals and expiries release it.
+- Portfolio entries added manually are **unverified inventory records**, not proof of wallet ownership or physical possession. Wallet-based ownership verification is not implemented yet.
+- Listings are exclusive and fixed-quantity (no partial fills). Buyers can search by asset name or symbol. Public listing cards never return the seller's private floor.
+- Seller limits stay in the database. The buyer supplies a ceiling, total spending limit and 1–3 round preference. Both sides default to 3; the lower limit applies. A buyer's first mandate is reused on later attempts against the same listing.
+- The buyer queues the negotiation; the server runs both agents after the response, so the seller does not need to be online and the buyer can leave the page. The negotiation status and receipt are stored in Postgres.
+- Successful negotiations become **Deal reached**, not **Settled**. Kite payment is still simulated and no token, NFT or collectible is transferred by this preview. The asset remains reserved so it cannot be listed twice. A real settlement adapter must verify transfer before marking a listing Settled or moving portfolio ownership.
+- Listings can optionally expire. Expiry and seller withdrawal release the reserved quantity. No-deal listings reopen for another attempt.
+
+### Completion emails
+
+When a negotiation reaches a deal, Blackbox attempts to email both participants with the asset, quantity, agreed unit price and total, deal ID, receipt hash and verifier link. Configure these Vercel Preview environment variables for branch `preview`:
+
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (a sender/domain verified in Resend)
+
+If either variable is absent, email delivery is skipped. The UI and receipt continue to show the settlement as simulated. Email addresses are not verified during account registration in this preview.
+
+### Marketplace database
+
+The Preview deployment uses Neon Postgres (`DATABASE_URL`, Preview target, Git branch `preview`). The marketplace tables are `bb_users`, `bb_assets`, `bb_listings`, `bb_negotiations`, `bb_notifications` and `bb_portfolio_events`. Private conditions and receipts are server-side data; public listing responses omit the seller floor.

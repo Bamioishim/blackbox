@@ -2,7 +2,7 @@ import type { LogEntry } from "./chain";
 import type { Commitment, Reveal } from "./commit";
 import type { Settlement } from "./settle";
 import type { AnchorRecord } from "./anchor";
-import type { AgentIdentity, KITE_OWNER } from "./identity";
+import type { AgentIdentity, AgentOwner } from "./identity";
 
 export type DealTerms = {
   item: string;
@@ -28,7 +28,7 @@ export type Receipt = {
   settlement: Settlement | null;
   anchor: AnchorRecord;
   /** Who was at the table (newer receipts). */
-  identity?: { owner: typeof KITE_OWNER; agents: AgentIdentity[] };
+  identity?: { owner: AgentOwner; counterparty?: AgentOwner; agents: AgentIdentity[] };
   /** The owner's spending limit (newer receipts). Committed in the log at deal open, revealed at settlement. */
   budget?: { limit: string; commitment: string; sessionId: string };
   /** Set only on the deliberately tampered example shipped in public/deals. */

@@ -23,7 +23,8 @@ export async function POST(req: Request) {
     sellerFloor: num(body.sellerFloor, 0.0001, 1_000_000) ?? 0.88,
     buyerStyle: STYLES.includes(body.buyerStyle as Style) ? (body.buyerStyle as Style) : "balanced",
     sellerStyle: STYLES.includes(body.sellerStyle as Style) ? (body.sellerStyle as Style) : "balanced",
-    maxRounds: Math.round(num(body.maxRounds, 2, 10) ?? 6),
+    buyerMaxRounds: Math.min(3, Math.max(1, Math.floor(num(body.buyerMaxRounds, 1, 3) ?? 3))),
+    sellerMaxRounds: Math.min(3, Math.max(1, Math.floor(num(body.sellerMaxRounds, 1, 3) ?? 3))),
     attackMode: Boolean(body.attackMode),
     budget: num(body.budget, 0.01, 1_000_000_000) ?? undefined,
   };

@@ -46,9 +46,11 @@ export function DealConsole() {
   const [floor, setFloor] = useState(0.88);
   const [bStyle, setBStyle] = useState<Style>("balanced");
   const [sStyle, setSStyle] = useState<Style>("patient");
-  const [rounds, setRounds] = useState(6);
   const [attack, setAttack] = useState(true);
   const [budget, setBudget] = useState(475);
+  const [buyerMaxRounds, setBuyerMaxRounds] = useState(3);
+  const [sellerMaxRounds, setSellerMaxRounds] = useState(3);
+  const effectiveRounds = Math.min(buyerMaxRounds, sellerMaxRounds);
 
   const [running, setRunning] = useState(false);
   const [entries, setEntries] = useState<LogEntry[]>([]);
@@ -67,7 +69,7 @@ export function DealConsole() {
     try {
       const res = await fetch("/api/negotiate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, maxRounds: rounds, attackMode: attack, budget }),
+        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, buyerMaxRounds, sellerMaxRounds, attackMode: attack, budget }),
       });
       if (!res.ok || !res.body) { setError((await res.json().catch(() => ({})))?.error ?? `Request failed (${res.status})`); return; }
       const reader = res.body.getReader();
@@ -110,7 +112,7 @@ export function DealConsole() {
       </div>
       <h1 className="display" style={{ fontSize: "clamp(40px, 5.4vw, 72px)", margin: "26px 0 12px", maxWidth: 980 }}>Agents decide. <span className="dim">The ticket moves.</span></h1>
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
-        Every counter, accept or walk changes a real transaction ticket, and the deal ends in a call to settle(deal).
+        Every counter, accept or walk changes the transaction ticket. A crossing closes the deal; three rounds without overlap produce a verifiable no-deal receipt.
         You hold both seats in this demo; the table between them only carries price, quantity and round.
       </p>
 
@@ -122,12 +124,16 @@ export function DealConsole() {
           <Field label="Reference"><input type="number" step="0.001" value={ref} onChange={(e) => setRef(Number(e.target.value))} /></Field>
           <Field label="Buyer ceiling (private)"><input type="number" step="0.001" value={ceiling} onChange={(e) => setCeiling(Number(e.target.value))} /></Field>
           <Field label="Seller floor (private)"><input type="number" step="0.001" value={floor} onChange={(e) => setFloor(Number(e.target.value))} /></Field>
-          <Field label="Rounds"><input type="number" min={2} max={10} value={rounds} onChange={(e) => setRounds(Number(e.target.value))} /></Field>
+          <Field label="Buyer max rounds"><select value={buyerMaxRounds} onChange={(e) => setBuyerMaxRounds(Number(e.target.value))}><option value={1}>1 round</option><option value={2}>2 rounds</option><option value={3}>3 rounds</option></select></Field>
+          <Field label="Seller max rounds"><select value={sellerMaxRounds} onChange={(e) => setSellerMaxRounds(Number(e.target.value))}><option value={1}>1 round</option><option value={2}>2 rounds</option><option value={3}>3 rounds</option></select></Field>
         </div>
         <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,3fr)", gap: 14, alignItems: "start" }}>
           <Field label="Your spending limit (USDC total, private)"><input type="number" min={0.01} step="0.01" value={budget} onChange={(e) => setBudget(Number(e.target.value))} /></Field>
           <p className="muted" style={{ fontSize: 13, margin: "22px 0 14px" }}>
-            Set by you, separate from any price. It becomes the Kite Passport session cap (max_total_amount = max_amount_per_tx = your limit) and is committed as a hash before the first offer.
+            Effective limit: <b>{effectiveRounds} {effectiveRounds === 1 ? "round" : "rounds"}</b> (the lower of the buyer and seller settings; neither can exceed 3). Both default to 3, and you can lower either side before starting.
+          </p>
+          <p className="muted" style={{ fontSize: 13, margin: "0 0 14px" }}>
+            Set by you, separate from any price. The demo mirrors this as the intended Kite Passport session cap (max_total_amount = max_amount_per_tx = your limit) and commits it as a hash before the first offer. No Passport session is created and no funds move in this deployment.
             Your agent can&apos;t bid past it, and settle refuses any payment above it ({ceiling && quantity ? `ceiling x quantity = ${Math.round(ceiling * quantity * 100) / 100}` : ""}).
           </p>
         </div>
@@ -163,7 +169,7 @@ export function DealConsole() {
             )}
           </AnimatePresence>
           <div className="panel" style={{ marginTop: 14, padding: "14px 16px 12px" }}>
-            <OfferChart rounds={chart.rounds} maxRounds={chart.maxRounds || rounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} flags={chart.flags} />
+            <OfferChart rounds={chart.rounds} maxRounds={effectiveRounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} flags={chart.flags} />
           </div>
 
           {attacks.map((a, i) => <RefusalScene key={a.seq} log={entries} entry={a} n={i + 1} />)}

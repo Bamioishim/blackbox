@@ -58,7 +58,8 @@ export default function Home() {
             and the whole record replays in your browser.
           </p>
           <div style={{ display: "flex", gap: 26, marginTop: 30, flexWrap: "wrap", alignItems: "center" }}>
-            <Link href="/deal" className="btn primary"><span>Open a deal</span><span className="arrow">&rarr;</span></Link>
+            <Link href="/marketplace" className="btn primary"><span>Explore marketplace</span><span className="arrow">&rarr;</span></Link>
+            <Link href="/deal" className="link-hud">Open a private deal ↗</Link>
             <Link href={r ? `/verify?id=${r.dealId}` : "/verify"} className="link-hud">Verify a recorded deal ↗</Link>
           </div>
         </div>
