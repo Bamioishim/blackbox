@@ -46,7 +46,6 @@ export function DealConsole() {
   const [floor, setFloor] = useState(0.88);
   const [bStyle, setBStyle] = useState<Style>("balanced");
   const [sStyle, setSStyle] = useState<Style>("patient");
-  const [rounds, setRounds] = useState(6);
   const [attack, setAttack] = useState(true);
   const [budget, setBudget] = useState(475);
 
@@ -67,7 +66,7 @@ export function DealConsole() {
     try {
       const res = await fetch("/api/negotiate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, maxRounds: rounds, attackMode: attack, budget }),
+        body: JSON.stringify({ item, quantity, referencePrice: ref, buyerCeiling: ceiling, sellerFloor: floor, buyerStyle: bStyle, sellerStyle: sStyle, maxRounds: 3, attackMode: attack, budget }),
       });
       if (!res.ok || !res.body) { setError((await res.json().catch(() => ({})))?.error ?? `Request failed (${res.status})`); return; }
       const reader = res.body.getReader();
@@ -122,7 +121,7 @@ export function DealConsole() {
           <Field label="Reference"><input type="number" step="0.001" value={ref} onChange={(e) => setRef(Number(e.target.value))} /></Field>
           <Field label="Buyer ceiling (private)"><input type="number" step="0.001" value={ceiling} onChange={(e) => setCeiling(Number(e.target.value))} /></Field>
           <Field label="Seller floor (private)"><input type="number" step="0.001" value={floor} onChange={(e) => setFloor(Number(e.target.value))} /></Field>
-          <Field label="Rounds"><input type="number" min={2} max={10} value={rounds} onChange={(e) => setRounds(Number(e.target.value))} /></Field>
+          <Field label="Maximum rounds"><div className="mono" style={{ border: "1px solid var(--rule-2)", padding: "9px 10px", minHeight: 39 }}>3 rounds · fixed protocol limit</div></Field>
         </div>
         <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,3fr)", gap: 14, alignItems: "start" }}>
           <Field label="Your spending limit (USDC total, private)"><input type="number" min={0.01} step="0.01" value={budget} onChange={(e) => setBudget(Number(e.target.value))} /></Field>
@@ -163,7 +162,7 @@ export function DealConsole() {
             )}
           </AnimatePresence>
           <div className="panel" style={{ marginTop: 14, padding: "14px 16px 12px" }}>
-            <OfferChart rounds={chart.rounds} maxRounds={chart.maxRounds || rounds} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} flags={chart.flags} />
+            <OfferChart rounds={chart.rounds} maxRounds={3} reveal={chart.reveal} price={chart.price} closedRound={chart.closedRound} blockedRounds={chart.blockedRounds} flags={chart.flags} />
           </div>
 
           {attacks.map((a, i) => <RefusalScene key={a.seq} log={entries} entry={a} n={i + 1} />)}
