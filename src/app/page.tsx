@@ -22,7 +22,7 @@ export default function Home() {
         <h1 className="display landing-hero-title">The ground truth <span className="dim">for every agent deal.</span></h1>
         <p className="home-sub landing-hero-sub">Two SERV agents haggle over a real transaction. Neither sees the other's limit. Plain code referees every offer, and the whole record replays in your browser.</p>
         <div className="home-actions landing-hero-actions">
-          <Link href="/deal" className="btn primary"><span>Open a deal</span><span className="arrow">→</span></Link>
+          <Link href="/deal" className="btn primary"><span>Open a deal</span><span className="arrow">↗</span></Link>
           <Link href={receipt ? `/verify?id=${receipt.dealId}` : "/verify"} className="link-hud">Verify a recorded deal ↗</Link>
         </div>
       </div>
