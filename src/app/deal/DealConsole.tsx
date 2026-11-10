@@ -111,13 +111,10 @@ export function DealConsole() {
         <div className="figlabel" style={{ textAlign: "right" }}>{running ? "Rec. live" : receipt ? receipt.dealId : "Idle"}<span>{entries.length} entries hashed</span></div>
       </div>
       <h1 className="display" style={{ fontSize: "clamp(40px, 5.4vw, 72px)", margin: "26px 0 12px", maxWidth: 980 }}>Agents decide. <span className="dim">The ticket moves.</span></h1>
-      <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
-        Every counter, accept or walk changes the transaction ticket. A crossing closes the deal; three rounds without overlap produce a verifiable no-deal receipt.
-        You hold both seats in this demo; the table between them only carries price, quantity and round.
-      </p>
+      <p className="muted" style={{ maxWidth: 620, marginTop: 0 }}>Set the terms for a private negotiation. Your limits stay sealed while the agents work.</p>
 
       <form onSubmit={(e) => { e.preventDefault(); if (!running) start(); }} className="panel" style={{ padding: "14px 16px 6px", marginTop: 30 }}>
-        <p className="hud" style={{ margin: "0 0 12px" }}>Field report 00 / <b>terms</b> <span style={{ marginLeft: 10 }}>limits are committed as hashes before the first offer</span></p>
+        <p className="hud" style={{ margin: "0 0 12px" }}>Deal terms</p>
         <div className="terms-grid" style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0,1fr))", gap: 14 }}>
           <Field label="What"><input value={item} maxLength={40} onChange={(e) => setItem(e.target.value)} /></Field>
           <Field label="Quantity"><input type="number" min={1} value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} /></Field>
@@ -179,30 +176,9 @@ export function DealConsole() {
           </AnimatePresence>
 
           <div className="panel" style={{ marginTop: 28 }}>
-          <div className="panel-head" style={{ padding: "0 14px" }}><div style={{ display: "flex", gap: 0 }}>
-            {([["public", "Public log"], ["buyer", "Buyer's console"], ["seller", "Seller's console"]] as const).map(([k, l]) => (
-              <button key={k} className="log-tab" onClick={() => setTab(k)} style={{ border: 0, background: "none", font: "inherit", fontFamily: "var(--font-geist-mono)", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", padding: "12px 0 10px", marginRight: 22, cursor: "pointer", color: tab === k ? "var(--ink)" : "var(--muted)", borderBottom: tab === k ? "2px solid var(--wax)" : "2px solid transparent" }}>{l}</button>
-            ))}
-          </div>
-          <span className="hud" style={{ alignSelf: "center" }}>Field report 03</span></div>
+          <div className="panel-head" style={{ padding: "10px 14px" }}><span className="hud">Deal activity</span></div>
           <div style={{ maxHeight: 420, overflow: "auto", padding: "0 6px" }} data-lenis-prevent>
-            {tab === "public" ? (
-              entries.length ? <LogView entries={entries} /> : <p className="muted" style={{ padding: "18px 0" }}>Every prompt, reply, offer and event lands here, each one hashed with the one before it.</p>
-            ) : (
-              <div>
-                <label className="muted" style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, padding: "10px 0" }}>
-                  <input type="checkbox" checked={showPrompts} onChange={(e) => setShowPrompts(e.target.checked)} style={{ width: 16 }} /> show full prompts and raw replies
-                </label>
-                <p className="muted" style={{ fontSize: 13.5, marginTop: 0 }}>Only this owner sees this. The public log holds a salted hash of each item.</p>
-                {sideNotes(tab).map((n, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={spring}
-                    style={{ borderLeft: `3px solid ${n.kind === "guard" ? "var(--wax)" : "var(--rule)"}`, padding: "8px 12px", margin: "8px 0", background: "rgba(233,230,223,.03)" }}>
-                    <span className="label">round {n.round} · {n.kind}</span>
-                    <pre style={{ whiteSpace: "pre-wrap", margin: "4px 0 0", fontFamily: n.kind === "reasoning" || n.kind === "guard" ? "var(--font-geist-sans)" : "var(--font-geist-mono)", fontSize: n.kind === "reasoning" ? 15 : 12.5 }}>{n.text}</pre>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            {entries.length ? <LogView entries={entries} /> : <p className="muted" style={{ padding: "18px 0" }}>Deal activity will appear here.</p>}
           </div>
           </div>
 
