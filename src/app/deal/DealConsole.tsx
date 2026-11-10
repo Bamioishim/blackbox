@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { LogEntry } from "@/lib/chain";
 import type { Receipt } from "@/lib/receipt";
-import type { PrivateNote, StreamEvent } from "@/lib/negotiate";
+import type { StreamEvent } from "@/lib/negotiate";
 import { chartData, saveLocal } from "@/lib/view";
 import { OfferChart } from "@/components/OfferChart";
 import { LogView } from "@/components/LogView";
@@ -54,17 +54,14 @@ export function DealConsole() {
 
   const [running, setRunning] = useState(false);
   const [entries, setEntries] = useState<LogEntry[]>([]);
-  const [notes, setNotes] = useState<PrivateNote[]>([]);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"buyer" | "seller" | "public">("public");
-  const [showPrompts, setShowPrompts] = useState(false);
   const liveRef = useRef<HTMLDivElement>(null);
 
   const chart = useMemo(() => chartData(entries), [entries]);
 
   async function start() {
-    setRunning(true); setEntries([]); setNotes([]); setReceipt(null); setError(null);
+    setRunning(true); setEntries([]); setReceipt(null); setError(null);
     setTimeout(() => liveRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     try {
       const res = await fetch("/api/negotiate", {
@@ -85,7 +82,6 @@ export function DealConsole() {
           if (!line.trim()) continue;
           const ev = JSON.parse(line) as StreamEvent;
           if (ev.t === "log") setEntries((p) => [...p, ev.entry]);
-          else if (ev.t === "private") setNotes((p) => [...p, ev.note]);
           else if (ev.t === "receipt") { setReceipt(ev.receipt); saveLocal(ev.receipt); }
           else if (ev.t === "error") setError(ev.message);
         }
@@ -97,7 +93,6 @@ export function DealConsole() {
     }
   }
 
-  const sideNotes = (side: "buyer" | "seller") => notes.filter((n) => n.side === side && (showPrompts || n.kind === "reasoning" || n.kind === "guard"));
   const blockedCount = entries.filter((e) => e.kind === "offer.blocked").length;
   const lastRound = entries.filter((e) => e.kind === "round.closed").length;
 
