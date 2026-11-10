@@ -5,7 +5,6 @@ import { chartData } from "@/lib/view";
 
 type V3 = [number, number, number];
 type Pt = { p: V3; a: number; c: 0 | 1 | 2 | 3; s?: number }; // 0 ink, 1 grey, 2 accent, 3 faint
-type Anchor = { id: string; p: V3; flag: string; text: string };
 
 /** Seeded PRNG so the cloud is identical on every load. */
 function rng(seed: number) {
@@ -18,10 +17,9 @@ function rng(seed: number) {
  */
 export function PointCloud({ receipt }: { receipt: Receipt }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const layer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const cv = canvas.current!, ly = layer.current!;
+    const cv = canvas.current!;
     const ctx = cv.getContext("2d")!;
     const rand = rng(7);
     const d = chartData(receipt.log);
@@ -73,19 +71,16 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
     };
     track("buyer", 0, 0.08); track("seller", 1, -0.08);
     if (d.reveal) for (const [lim, z] of [[d.reveal.buyer, 0], [d.reveal.seller, 0]] as const) for (let i = 0; i < 160; i++) if (i % 2) pts.push({ p: [-W * 0.95 + (i / 160) * W * 1.9, Y(lim), z + Math.sin(i) * 0.3], a: 0.35, c: 2 });
-    const anchors: Anchor[] = [];
     if (d.price != null && d.closedRound != null) {
       const sp: V3 = [X(d.closedRound), Y(d.price), 0];
       for (let i = 0; i < 260; i++) { const r = Math.pow(rand(), 2) * 0.12, a = rand() * 6.283, b = rand() * 3.14; pts.push({ p: [sp[0] + r * Math.cos(a) * Math.sin(b), sp[1] + r * Math.cos(b), sp[2] + r * Math.sin(a) * Math.sin(b)], a: 0.9, c: 2 }); }
       const inside = d.reveal ? d.price <= d.reveal.buyer && d.price >= d.reveal.seller : null;
-      anchors.push({ id: "settle", p: [sp[0], sp[1] + 0.06, 0], flag: "", text: `Settled ${d.price}${inside === null ? "" : inside ? " · inside both limits" : " · outside limits"}` });
     }
     d.flags.forEach((f, i) => {
       const bidHere = d.rounds.find((r) => r.round === f.round);
       const pr = bidHere?.seller?.price ?? bidHere?.buyer?.price ?? (lo + hi) / 2;
       const p: V3 = [X(f.round) + i * 0.22, Math.min(H * 1.15, Y(pr) + 0.24 + i * 0.36), 0];
       for (let k = 0; k < 120; k++) pts.push({ p: [p[0] + (rand() - 0.5) * 0.02, p[1] - rand() * (p[1] + H), p[2]], a: 0.5, c: 2 });
-      anchors.push({ id: `f${i}`, p, flag: `Flag-0${i + 1}`, text: `${f.label} · R${f.round}` });
     });
     // Keep the point-cloud visualization clean: no floating text labels.
 
@@ -116,18 +111,6 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
         const s = q.s ? q.s * f : q.c === 2 ? 1.6 : 1.1 * f;
         ctx.fillRect(x, y, s, s);
       }
-      const boxes: { l: number; r: number; t: number; b: number }[] = [];
-      anchors.forEach((a, i) => {
-        const [x, y] = project(a.p);
-        const ew = els[i].offsetWidth, eh = els[i].offsetHeight, hw = ew / 2;
-        const cx = Math.max(hw + 2, Math.min(w - hw - 2, x));
-        let top = Math.max(eh + 2, y - 8);
-        // keep callouts from stacking on top of each other
-        for (let pass = 0; pass < 3; pass++) for (const o of boxes) if (cx - hw < o.r && cx + hw > o.l && top - eh < o.b && top > o.t) top = o.t - 3;
-        top = Math.max(eh + 2, top);
-        boxes.push({ l: cx - hw, r: cx + hw, t: top - eh, b: top });
-        els[i].style.left = `${cx}px`; els[i].style.top = `${top}px`;
-      });
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
@@ -141,7 +124,6 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <canvas ref={canvas} style={{ width: "100%", height: "100%", display: "block", cursor: "grab", touchAction: "pan-y pinch-zoom" }} aria-label="Recorded negotiation drawn as a point cloud: bids and asks converge inside the box, flags mark refused offers" role="img" />
-      <div ref={layer} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} />
     </div>
   );
 }
