@@ -16,7 +16,7 @@ export async function POST(req:Request,{params}:{params:Promise<{id:string}>}) {
   if(!locked.length) return Response.json({error:"This listing is unavailable, expired, or belongs to you."},{status:409});
   const listing=locked[0] as Record<string,any>;
   try {
-    const prior=await sql`SELECT buyer_ceiling,buyer_max_rounds,result FROM bb_negotiations WHERE listing_id=${id}::uuid AND buyer_id=${buyer.id} ORDER BY created_at DESC LIMIT 1`;
+    const prior=await sql`SELECT buyer_ceiling,buyer_max_rounds,buyer_budget,result FROM bb_negotiations WHERE listing_id=${id}::uuid AND buyer_id=${buyer.id} ORDER BY created_at DESC LIMIT 1`;
     const old=prior[0] as Record<string,any>|undefined;
     const effectiveCeiling=old?Number(old.buyer_ceiling):ceiling;
     const effectiveRounds=old?Number(old.buyer_max_rounds):buyerRounds;
@@ -25,8 +25,8 @@ export async function POST(req:Request,{params}:{params:Promise<{id:string}>}) {
     const asset=listing.asset_snapshot as Record<string,any>;
     const qty=Number(listing.quantity);
     const eff=Math.min(effectiveRounds,Number(listing.max_rounds),3);
-    const inserted=await sql`INSERT INTO bb_negotiations(listing_id,buyer_id,seller_id,asset_snapshot,quantity,buyer_ceiling,buyer_max_rounds,seller_floor,seller_max_rounds,effective_rounds,status)
-      VALUES(${id}::uuid,${buyer.id},${sellerUser.id},${JSON.stringify(asset)}::jsonb,${qty},${effectiveCeiling},${effectiveRounds},${Number(listing.floor_price)},${Number(listing.max_rounds)},${eff},'Running') RETURNING id`;
+    const inserted=await sql`INSERT INTO bb_negotiations(listing_id,buyer_id,seller_id,asset_snapshot,quantity,buyer_ceiling,buyer_max_rounds,buyer_budget,seller_floor,seller_max_rounds,effective_rounds,status)
+      VALUES(${id}::uuid,${buyer.id},${sellerUser.id},${JSON.stringify(asset)}::jsonb,${qty},${effectiveCeiling},${effectiveRounds},${old?Number(old.buyer_budget??budget):budget},${Number(listing.floor_price)},${Number(listing.max_rounds)},${eff},'Running') RETURNING id`;
     const negotiationId=String((inserted[0] as {id:string}).id);
     const receipt=await negotiate({
       item:String(asset.name??asset.symbol??"Asset"),
