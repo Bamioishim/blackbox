@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { LogoMark } from "./Logo";
 
 export const TABS = [
-  { href: "/deal", label: "Negotiate", n: "01" },
-  { href: "/verify", label: "Verify", n: "02" },
-  { href: "/#attack", label: "Attack", n: "03" },
-  { href: "/verify#archive", label: "Archive", n: "04" },
+  { href: "/marketplace", label: "Marketplace", n: "01" },
+  { href: "/deal", label: "Negotiate", n: "02" },
+  { href: "/verify", label: "Verify", n: "03" },
+  { href: "/#attack", label: "Attack", n: "04" },
+  { href: "/verify#archive", label: "Archive", n: "05" },
 ];
 
 export function Nav() {
