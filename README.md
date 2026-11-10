@@ -112,3 +112,30 @@ Latest outputs are in [`test-output/`](test-output/).
 Preview builds come from the `preview` branch. `main` is the production branch on Vercel, so merging to `main` ships production.
 
 Recorded deals made before the spending limit and agent signatures were added still verify; their receipts show "older receipt" for those two checks.
+
+
+## Marketplace and portfolio mode
+
+The preview branch now includes `/marketplace`, alongside the original private-deal flow.
+
+- Accounts use email + password sessions. Seller and buyer accounts are separate; both agent identities are recorded independently in marketplace receipts.
+- Users create a portfolio of tokens, NFTs, trading cards and other assets. A listing must reference an asset row owned by the signed-in seller, and its quantity must fit the unreserved portfolio balance. Listing inventory is reserved; withdrawals and expiries release it.
+- Portfolio entries added manually are **unverified inventory records**, not proof of wallet ownership or physical possession. Wallet-based ownership verification is not implemented yet.
+- Listings are exclusive and fixed-quantity (no partial fills). Buyers can search by asset name or symbol. Public listing cards never return the seller's private floor.
+- Seller limits stay in the database. The buyer supplies a ceiling, total spending limit and 1–3 round preference. Both sides default to 3; the lower limit applies. A buyer's first mandate is reused on later attempts against the same listing.
+- The buyer queues the negotiation; the server runs both agents after the response, so the seller does not need to be online and the buyer can leave the page. The negotiation status and receipt are stored in Postgres.
+- Successful negotiations become **Deal reached**, not **Settled**. Kite payment is still simulated and no token, NFT or collectible is transferred by this preview. The asset remains reserved so it cannot be listed twice. A real settlement adapter must verify transfer before marking a listing Settled or moving portfolio ownership.
+- Listings can optionally expire. Expiry and seller withdrawal release the reserved quantity. No-deal listings reopen for another attempt.
+
+### Completion emails
+
+When a negotiation reaches a deal, Blackbox attempts to email both participants with the asset, quantity, agreed unit price and total, deal ID, receipt hash and verifier link. Configure these Vercel Preview environment variables for branch `preview`:
+
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (a sender/domain verified in Resend)
+
+If either variable is absent, email delivery is skipped. The UI and receipt continue to show the settlement as simulated. Email addresses are not verified during account registration in this preview.
+
+### Marketplace database
+
+The Preview deployment uses Neon Postgres (`DATABASE_URL`, Preview target, Git branch `preview`). The marketplace tables are `bb_users`, `bb_assets`, `bb_listings`, `bb_negotiations`, `bb_notifications` and `bb_portfolio_events`. Private conditions and receipts are server-side data; public listing responses omit the seller floor.
