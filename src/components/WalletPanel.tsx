@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { formatUnits, isAddress } from "viem";
+import { formatUnits, isAddress, stringToHex } from "viem";
 import { base } from "viem/chains";
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
 
@@ -13,7 +13,7 @@ type Portfolio = {
 const field: React.CSSProperties = { width: "100%", padding: 10, background: "#111", border: "1px solid var(--rule-2)", color: "var(--ink)", borderRadius: 6 };
 const action: React.CSSProperties = { border: "1px solid var(--wax)", background: "var(--wax)", color: "#111", borderRadius: 6, padding: "10px 14px", cursor: "pointer", fontWeight: 600 };
 
-export function WalletPanel() {
+export function WalletPanel({ onAdded }: { onAdded?: () => void }) {
   const [address, setAddress] = useState("");
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [secret, setSecret] = useState("");
@@ -60,6 +60,60 @@ export function WalletPanel() {
     } catch (e) { setError("That private key or recovery phrase is not valid."); }
   }
 
+  async function addAsset(type: "token" | "nft", item: any) {
+    if (!portfolio) return;
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const contractAddress = type === "token"
+        ? String(item.token?.address_hash || "")
+        : String(item.token?.address_hash || item.token_address_hash || item.token?.address || "");
+      const tokenId = type === "nft" ? String(item.id || item.token_id || "") : "";
+      const standard = type === "token" ? "ERC-20" : String(item.token_type || "ERC-721");
+      const quantity = type === "token" ? tokenValue(item) : "1";
+      if (!isAddress(contractAddress)) throw new Error("This asset is missing a valid contract address.");
+      const timestamp = Date.now();
+      const message = [
+        "Blackbox wallet asset import",
+        "user:pending",
+        "chain:8453",
+        `wallet:${address.toLowerCase()}`,
+        `type:${type}`,
+        `contract:${contractAddress.toLowerCase()}`,
+        `tokenId:${tokenId}`,
+        `quantity:${quantity}`,
+        `timestamp:${timestamp}`
+      ].join("\\n");
+      let signature: string;
+      if (secret) {
+        const account = importMode === "seed"
+          ? mnemonicToAccount(secret.trim())
+          : privateKeyToAccount((secret.trim().startsWith("0x") ? secret.trim() : "0x" + secret.trim()) as `0x${string}`);
+        // The server binds the signature to the signed-in Blackbox account. Fetch the challenge first.
+        const challengeRes = await fetch("/api/portfolio/wallet/challenge");
+        const challenge = await challengeRes.json();
+        if (!challengeRes.ok) throw new Error(challenge.error || "Sign in to add wallet assets.");
+        const signedMessage = message.replace("user:pending", `user:${challenge.userId}`);
+        signature = await account.signMessage({ message: signedMessage });
+        const result = await fetch("/api/portfolio/wallet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ walletAddress: address, contractAddress, assetType: type, tokenId, quantity, timestamp, signature, standard, name: item.name || item.token?.name, symbol: item.symbol || item.token?.symbol }) });
+        const data = await result.json();
+        if (!result.ok) throw new Error(data.error || "Could not add this asset.");
+      } else {
+        if (!window.ethereum) throw new Error("Reconnect the wallet to sign the ownership proof.");
+        const challengeRes = await fetch("/api/portfolio/wallet/challenge");
+        const challenge = await challengeRes.json();
+        if (!challengeRes.ok) throw new Error(challenge.error || "Sign in to add wallet assets.");
+        const signedMessage = message.replace("user:pending", `user:${challenge.userId}`);
+        signature = String(await window.ethereum.request({ method: "personal_sign", params: [stringToHex(signedMessage), address] }));
+        const result = await fetch("/api/portfolio/wallet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ walletAddress: address, contractAddress, assetType: type, tokenId, quantity, timestamp, signature, standard, name: item.name || item.token?.name, symbol: item.symbol || item.token?.symbol }) });
+        const data = await result.json();
+        if (!result.ok) throw new Error(data.error || "Could not add this asset.");
+      }
+      setMessage("Ownership verified and asset added to your portfolio.");
+      onAdded?.();
+    } catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
   async function exportSecret() {
     if (!secret) return;
     try { await navigator.clipboard.writeText(secret); setMessage("Recovery material copied. Keep it offline and private."); }
@@ -96,9 +150,9 @@ export function WalletPanel() {
     {portfolio && <div className="wallet-holdings">
       <div className="wallet-balance"><span>Native balance</span><b>{Number(formatUnits(BigInt(portfolio.native.balance || "0"), 18)).toFixed(5)} ETH</b></div>
       <div className="wallet-subhead">TOKENS <span>{portfolio.tokens.length}</span></div>
-      {portfolio.tokens.length ? portfolio.tokens.map((item, i) => <div className="wallet-row" key={item.token?.address_hash || i}><span><b>{tokenName(item)}</b><small>{tokenSymbol(item)}</small></span><strong>{Number(tokenValue(item)).toLocaleString(undefined,{maximumFractionDigits:6})}</strong></div>) : <p className="wallet-empty">No token balances found.</p>}
+      {portfolio.tokens.length ? portfolio.tokens.map((item, i) => <div className="wallet-row" key={item.token?.address_hash || i}><span><b>{tokenName(item)}</b><small>{tokenSymbol(item)}</small></span><strong>{Number(tokenValue(item)).toLocaleString(undefined,{maximumFractionDigits:6})}</strong><button type="button" className="wallet-add" disabled={busy} onClick={() => addAsset("token",item)}>Add</button></div>) : <p className="wallet-empty">No token balances found.</p>}
       <div className="wallet-subhead">NFTS <span>{portfolio.nfts.length}</span></div>
-      {portfolio.nfts.length ? portfolio.nfts.slice(0, 12).map((item, i) => <div className="wallet-row" key={item.id || i}><span><b>{item.name || item.token?.name || "NFT"}</b><small>#{item.id || item.token_id || "—"}</small></span><strong>{item.token_type || "NFT"}</strong></div>) : <p className="wallet-empty">No NFTs found on Base.</p>}
+      {portfolio.nfts.length ? portfolio.nfts.slice(0, 12).map((item, i) => <div className="wallet-row" key={item.id || i}><span><b>{item.name || item.token?.name || "NFT"}</b><small>#{item.id || item.token_id || "—"}</small></span><strong>{item.token_type || "NFT"}</strong><button type="button" className="wallet-add" disabled={busy} onClick={() => addAsset("nft",item)}>Add</button></div>) : <p className="wallet-empty">No NFTs found on Base.</p>}
       <p className="wallet-source">Portfolio data from {portfolio.source}. Read-only. Assets have not been escrowed or transferred.</p>
       {secret && <button type="button" className="wallet-quiet" onClick={exportSecret}>Copy imported recovery material</button>}
     </div>}
