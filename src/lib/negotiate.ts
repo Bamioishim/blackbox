@@ -20,7 +20,8 @@ export type NegotiateInput = {
   sellerFloor: number;
   buyerStyle: Style;
   sellerStyle: Style;
-  maxRounds: number;
+  buyerMaxRounds: number;
+  sellerMaxRounds: number;
   attackMode: boolean;
   /** Owner-set spending limit for the whole deal, in USDC. Becomes the Kite session cap. */
   budget?: number;
@@ -37,15 +38,17 @@ export type StreamEvent =
 type Emit = (e: StreamEvent) => void;
 
 export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall = callServ): Promise<Receipt> {
-  // Blackbox protocol policy: every negotiation has at most three rounds.
-  const maxRounds = 3;
+  // Each owner chooses 1–3 rounds. The table uses the lower request, never above 3.
+  const buyerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.buyerMaxRounds)));
+  const sellerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.sellerMaxRounds)));
+  const maxRounds = Math.min(buyerMaxRounds, sellerMaxRounds);
   const dealId = "deal_" + randomHex(6);
   const chain = new HashChain();
   const log = (...a: Parameters<HashChain["append"]>) => { const e = chain.append(...a); emit({ t: "log", entry: e }); return e; };
   const priv = (note: PrivateNote) => emit({ t: "private", note });
 
   const terms: DealTerms = { item: input.item, quantity: input.quantity, asset: "USDC", referencePrice: input.referencePrice, maxRounds, attackMode: input.attackMode };
-  log("deal.open", "system", { dealId, ...terms, roundPolicy: "blackbox/max-3", model: SERV_MODEL, refereeHash: REFEREE_HASH });
+  log("deal.open", "system", { dealId, ...terms, buyerMaxRounds, sellerMaxRounds, roundPolicy: "blackbox/mutual-min-3", model: SERV_MODEL, refereeHash: REFEREE_HASH });
 
   // Who is at the table: each agent gets its own runtime key for this deal and signs every offer it makes.
   const agents = { buyer: mintAgent("buyer"), seller: mintAgent("seller") };
