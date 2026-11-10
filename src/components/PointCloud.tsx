@@ -87,15 +87,7 @@ export function PointCloud({ receipt }: { receipt: Receipt }) {
       for (let k = 0; k < 120; k++) pts.push({ p: [p[0] + (rand() - 0.5) * 0.02, p[1] - rand() * (p[1] + H), p[2]], a: 0.5, c: 2 });
       anchors.push({ id: `f${i}`, p, flag: `Flag-0${i + 1}`, text: `${f.label} · R${f.round}` });
     });
-    // HTML callouts
-    ly.innerHTML = "";
-    const els = anchors.map((a) => {
-      const el = document.createElement("div");
-      el.className = "callout";
-      el.innerHTML = a.flag ? `<b>${a.flag.toUpperCase()}</b>${a.text}` : `<b>SETTLE</b>${a.text}`;
-      ly.appendChild(el);
-      return el;
-    });
+    // Keep the point-cloud visualization clean: no floating text labels.
 
     const pitch = 0.42;
     let yaw = -0.35, drag: { x: number; yaw: number } | null = null, raf = 0, w = 0, h = 0;
