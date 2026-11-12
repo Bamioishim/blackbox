@@ -609,3 +609,73 @@ body { padding-bottom: 0; }
   letter-spacing: normal;
   text-transform: none;
 }
+
+
+/* Marketplace listing form and asset picker. */
+.market-split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; margin-top: 16px; }
+.list-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.list-form-picker { grid-column: 1 / -1; }
+.asset-picker { display: grid; gap: 8px; }
+.asset-picker-empty { margin: 0; color: var(--muted); font-size: 13px; }
+.asset-pick {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--rule-2);
+  color: var(--ink);
+  font: inherit;
+}
+.asset-pick:hover { border-color: var(--ink-2); }
+.asset-pick.is-selected { border-color: var(--wax); background: var(--wax-soft); }
+.asset-pick.is-disabled,
+.asset-pick:disabled { opacity: .45; cursor: not-allowed; }
+.asset-pick-main, .asset-pick-qty { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.asset-pick-qty { text-align: right; flex: 0 0 auto; }
+.asset-pick-main b, .asset-pick-qty b { font-weight: 600; font-size: 14px; }
+.asset-pick-main small, .asset-pick-qty small { color: var(--muted); font-size: 11px; }
+.landing-cloud-ui {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  pointer-events: none;
+}
+.landing-cloud-caption {
+  margin: 0;
+  color: var(--ink-2);
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 28ch;
+}
+@media (max-width: 800px) {
+  .market-split, .list-form { grid-template-columns: 1fr; }
+}
+@media (hover: none), (pointer: coarse) {
+  .landing-cloud-hint { display: none; }
+}
+@media (max-width: 600px) {
+  .asset-pick { min-height: 60px; padding: 14px; }
+  .landing-cloud-caption { font-size: 13px; max-width: 22ch; }
+}
+
+.landing-cloud-ui .landing-cloud-hint {
+  position: static;
+  right: auto;
+  bottom: auto;
+  font-size: 12px;
+  letter-spacing: normal;
+  text-transform: none;
+}

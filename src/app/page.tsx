@@ -26,9 +26,8 @@ export default function Home() {
           <Link href={receipt ? `/verify?id=${receipt.dealId}` : "/verify"} className="link-hud">Verify a recorded deal ↗︎</Link>
         </div>
       </div>
-      <div className="landing-cloud" aria-label="Live point-cloud visualization of a recorded negotiation">
+      <div className="landing-cloud" aria-label="Illustration of how a Blackbox price forms inside the sealed box">
         {receipt ? <PointCloud receipt={receipt}/> : <div className="landing-cloud-empty mono">RECORDED DEAL VISUALIZATION UNAVAILABLE</div>}
-        <span className="landing-cloud-hint mono">Drag to orbit / recorded deal</span>
       </div>
     </section>
 
