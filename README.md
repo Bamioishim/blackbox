@@ -2,9 +2,13 @@
 
 Two AI agents strike a private deal. Neither sees the other's limit. A deterministic referee closes it, and a hash-chained flight recorder proves it was fair.
 
+**Live app:** [https://sealed-opal.vercel.app](https://sealed-opal.vercel.app)
+
 ![Round-by-round offers with both revealed limits as shaded bands](docs/haggle-chart.gif)
 
 Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**.
+
+The live site includes the marketplace and wallets, a tappable asset picker when you list from your portfolio, and a landing illustration that starts as a spinning point-cloud and, after about two seconds, loops through how a price forms (sealed limits, converging offers, the referee, a sealed price, and a receipt). The animation respects `prefers-reduced-motion`.
 
 ## Three proofs
 
@@ -51,7 +55,9 @@ The buyer and seller are **registered Kite Passport identity agents**: `did:kite
 | Agent identity | Live: registered Kite agent DIDs for buyer and seller; their bound runtime keys sign every offer, verified (per-deal fallback key, labelled unbound, if the server lacks the bound keys) |
 | Payment via Kite Passport | **In-app `settle(deal)` for new deals is still SIMULATED — no real funds moved.** Those receipts keep the session-cap and refusal-check shape, a throwaway delegation, and a `sim_…` ref that is not a transaction. `SETTLE_MODE=kite` still falls back to that labelled simulation because Kite's published docs provide CLI/agent-skill flows, not a public HTTP API for app backends. Separately, a real 1 USDC transfer was completed with a Kite Passport passkey on Solana mainnet (request `wallet_send_req_01a1d1bc-ec7d-7cce-9c86-f7ec03979c63`, 2026-11-12 22:50:04 WAT) from `ABVbrFkJoTEtBHvh7AiSBH11HLo5XbwSU9vJoUajZahN` to `BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx`. It is shown in the app as **Real settlement (Kite Passport, Solana mainnet)** and can be checked on Solscan: [3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). Marketplace listings still do not transfer the listed asset. [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
 | Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
-| Deal lookup by ID | Recorded deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Deals you run are kept in your browser. No server database. |
+| Marketplace and wallets | Live on production at [`/marketplace`](https://sealed-opal.vercel.app/marketplace): accounts, portfolio, listings, Base wallet import, and a tappable asset picker when listing. In-app settlement of those deals is still **SIMULATED**; listed assets are not transferred. |
+| Landing illustration | Live: a spinning point-cloud becomes a looping price-formation animation after about two seconds (`prefers-reduced-motion` is handled). |
+| Deal lookup by ID | Recorded private deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Private-flow deals you run are kept in your browser. Marketplace listings and negotiations are stored in Postgres. |
 
 ## Published referee code
 
@@ -109,22 +115,22 @@ Latest outputs are in [`test-output/`](test-output/).
 
 ## Deploys
 
-Preview builds come from the `preview` branch. `main` is the production branch on Vercel, so merging to `main` ships production.
+Production is [https://sealed-opal.vercel.app](https://sealed-opal.vercel.app), shipped from `main`. Preview builds come from the `preview` branch.
 
 Recorded deals made before the spending limit and agent signatures were added still verify; their receipts show "older receipt" for those two checks.
 
 
 ## Marketplace and portfolio mode
 
-The preview branch now includes `/marketplace`, alongside the original private-deal flow.
+`/marketplace` is live on production at [sealed-opal.vercel.app/marketplace](https://sealed-opal.vercel.app/marketplace), alongside the original private-deal flow.
 
 - Accounts use email + password sessions. Seller and buyer accounts are separate; both agent identities are recorded independently in marketplace receipts.
-- Users create a portfolio of tokens, NFTs, trading cards and other assets. A listing must reference an asset row owned by the signed-in seller, and its quantity must fit the unreserved portfolio balance. Listing inventory is reserved; withdrawals and expiries release it.
+- Users create a portfolio of tokens, NFTs, trading cards and other assets. To list something, the seller picks an owned asset from a tappable row list (it auto-selects when there is only one, and the quantity is capped at the unreserved balance). Listing inventory is reserved; withdrawals and expiries release it.
 - Manual portfolio entries are **unverified inventory records**, not proof of wallet ownership or physical possession. EVM wallet holdings can now be viewed on Base and imported after a wallet signature plus a live onchain balance/ownership check (ERC-20, ERC-721 and ERC-1155).
 - Listings are exclusive and fixed-quantity (no partial fills). Buyers can search by asset name or symbol. Public listing cards never return the seller's private floor.
 - Seller limits stay in the database. The buyer supplies a ceiling, total spending limit and 1–3 round preference. Both sides default to 3; the lower limit applies. A buyer's first mandate is reused on later attempts against the same listing.
 - The buyer queues the negotiation; the server runs both agents after the response, so the seller does not need to be online and the buyer can leave the page. The negotiation status and receipt are stored in Postgres.
-- Successful negotiations become **Deal reached**, not **Settled**. In-app Kite payment for those deals is still simulated and no token, NFT or collectible is transferred by this preview. The asset remains reserved so it cannot be listed twice. A verified 1 USDC Kite Passport transfer on Solana mainnet is recorded separately and labelled **Real settlement (Kite Passport, Solana mainnet)**; see [Solscan](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). A marketplace settlement adapter must still verify asset transfer before marking a listing Settled or moving portfolio ownership.
+- Successful negotiations become **Deal reached**, not **Settled**. In-app Kite payment for those deals is still simulated and no token, NFT or collectible is transferred by this deployment. The asset remains reserved so it cannot be listed twice. A verified 1 USDC Kite Passport transfer on Solana mainnet is recorded separately and labelled **Real settlement (Kite Passport, Solana mainnet)**; see [Solscan](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). A marketplace settlement adapter must still verify asset transfer before marking a listing Settled or moving portfolio ownership.
 - Listings can optionally expire. Expiry and seller withdrawal release the reserved quantity. No-deal listings reopen for another attempt.
 
 
@@ -139,13 +145,13 @@ The preview branch now includes `/marketplace`, alongside the original private-d
 
 ### Completion emails
 
-When a negotiation reaches a deal, Blackbox attempts to email both participants with the asset, quantity, agreed unit price and total, deal ID, receipt hash and verifier link. Configure these Vercel Preview environment variables for branch `preview`:
+When a negotiation reaches a deal, Blackbox attempts to email both participants with the asset, quantity, agreed unit price and total, deal ID, receipt hash and verifier link. Configure these environment variables on the deployment that serves marketplace deals:
 
 - `RESEND_API_KEY`
 - `RESEND_FROM_EMAIL` (a sender/domain verified in Resend)
 
-If either variable is absent, email delivery is skipped. The UI and receipt continue to show the settlement as simulated. Email addresses are not verified during account registration in this preview.
+If either variable is absent, email delivery is skipped. The UI and receipt continue to show the settlement as simulated. Email addresses are not verified during account registration in this deployment.
 
 ### Marketplace database
 
-The Preview deployment uses Neon Postgres (`DATABASE_URL`, Preview target, Git branch `preview`). The marketplace tables are `bb_users`, `bb_assets`, `bb_listings`, `bb_negotiations`, `bb_notifications` and `bb_portfolio_events`. Private conditions and receipts are server-side data; public listing responses omit the seller floor.
+Production (and any preview that serves the marketplace) uses Neon Postgres (`DATABASE_URL`). The marketplace tables are `bb_users`, `bb_assets`, `bb_listings`, `bb_negotiations`, `bb_notifications` and `bb_portfolio_events`. Private conditions and receipts are server-side data; public listing responses omit the seller floor.
