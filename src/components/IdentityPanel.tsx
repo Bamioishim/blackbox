@@ -1,10 +1,9 @@
 "use client";
-import { KITE_OWNER, short } from "@/lib/identity";
+import { KITE_OWNER, KITE_AGENTS, short } from "@/lib/identity";
+import type { AgentSeat } from "@/lib/view";
 
-type A = { side: string; runtimeKey: string; agentRef: string };
-
-/** Who is at the table: the Kite Passport owner and each agent's own signing key. */
-export function IdentityPanel({ agents, sessionId }: { agents: A[]; sessionId?: string }) {
+/** Who is at the table: the Kite Passport owner and each registered Kite agent with its signing key. */
+export function IdentityPanel({ agents, sessionId }: { agents: AgentSeat[]; sessionId?: string }) {
   const a = (side: string) => agents.find((x) => x.side === side);
   return (
     <div className="panel" style={{ marginTop: 14 }}>
@@ -19,10 +18,13 @@ export function IdentityPanel({ agents, sessionId }: { agents: A[]; sessionId?: 
         </div>
         {(["buyer", "seller"] as const).map((side) => (
           <div key={side}>
-            <span className="label">{side} agent</span>
-            <div className="mono" style={{ marginTop: 4 }}>{a(side)?.agentRef ?? `blackbox-${side}`}</div>
-            <div className="mono muted">{a(side) ? <>key {a(side)!.runtimeKey}</> : "runtime key minted when the deal starts"}</div>
-            <div className="muted" style={{ fontSize: 12 }}>Signs every offer it makes. Not yet bound to a Kite agent DID.</div>
+            <span className="label">{side} agent (Kite Passport)</span>
+            <div className="mono" style={{ marginTop: 4, wordBreak: "break-all" }}>{a(side)?.did ?? KITE_AGENTS[side].did}</div>
+            <div className="mono muted" style={{ wordBreak: "break-all" }}>{a(side)?.agentId ?? KITE_AGENTS[side].agentId}</div>
+            <div className="mono muted">{a(side) ? <>key {a(side)!.runtimeKey}</> : <>bound key {short(KITE_AGENTS[side].runtimeKey, 8, 6)}</>}</div>
+            <div className="muted" style={{ fontSize: 12 }}>
+              Signs every offer it makes. {a(side) ? (a(side)!.bound ? "Key bound to this Kite agent DID (binding active)." : a(side)!.did ? "Per-deal key, not the DID's bound key." : "Not bound to a Kite agent DID.") : "Registered Kite agent; runtime key bound in Kite Passport."}
+            </div>
           </div>
         ))}
       </div>

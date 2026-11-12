@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import type { LogEntry } from "@/lib/chain";
 import type { Receipt } from "@/lib/receipt";
 import type { StreamEvent } from "@/lib/negotiate";
-import { chartData, saveLocal } from "@/lib/view";
+import { chartData, saveLocal, agentSeats } from "@/lib/view";
 import { OfferChart } from "@/components/OfferChart";
 import { LogView } from "@/components/LogView";
 import { ReceiptCard } from "@/components/ReceiptCard";
@@ -150,7 +150,7 @@ export function DealConsole() {
               {entries.length ? `round ${Math.min(lastRound + 1, chart.maxRounds)} · ${entries.length} log entries · ${blockedCount + attacks.filter((a) => a.kind === "offer.rejected").length} refused` : running ? "sealing limits..." : "waiting"}
             </span>
           </div>
-          <IdentityPanel agents={entries.filter((e) => e.kind === "agent.identity").map((e) => ({ side: String(e.payload.side), runtimeKey: String(e.payload.runtimeKey), agentRef: String(e.payload.agentRef) }))} sessionId={entries.find((e) => e.kind === "mandate.open")?.payload.sessionId as string | undefined} />
+          <IdentityPanel agents={agentSeats(entries)} sessionId={entries.find((e) => e.kind === "mandate.open")?.payload.sessionId as string | undefined} />
           <AnimatePresence>
             {attack && attacks.length === 0 && (
               <motion.div key="sim" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring}

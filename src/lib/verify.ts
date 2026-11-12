@@ -7,7 +7,7 @@ import type { Offer } from "./schema";
 import { roundsFromLog, type Receipt } from "./receipt";
 import { REFEREE_HASH } from "./referee-hash.generated";
 import { checkBudgetReveal, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
-import { offerMessage, type AgentIdentity } from "./identity";
+import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
 
 export type Check = { id: string; label: string; ok: boolean | null; detail: string };
 
@@ -121,10 +121,15 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
       } catch { ok = false; }
       if (!ok) bad++;
     }
-    const ok = ids.length === 2 && bad === 0;
+    // A record that claims a Kite binding must name the runtime key Blackbox registered for that DID.
+    const badBinding = ids.filter((x) => x.binding?.status === "bound" && !(x.side in KITE_AGENTS && KITE_AGENTS[x.side as Side].runtimeKey.toLowerCase() === String(x.runtimeKey).toLowerCase() && x.kiteAgent?.did === KITE_AGENTS[x.side as Side].did));
+    const ok = ids.length === 2 && bad === 0 && badBinding.length === 0;
+    const bindNote = ids.every((x) => x.binding?.status === "bound")
+      ? `Keys are the runtime keys bound to Kite agents ${ids.map((x) => x.kiteAgent?.did).join(" and ")}.`
+      : ids.some((x) => x.kiteAgent) ? `Kite agents: ${ids.map((x) => `${x.side} ${x.kiteAgent?.did ?? "none"} (${x.binding?.status ?? "unbound"})`).join(", ")}.` : "Runtime keys are not bound to Kite agent DIDs.";
     checks.push({
       id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok,
-      detail: ok ? `${offers.length} offers. buyer agent ${ids.find((x) => x.side === "buyer")?.runtimeKey}, seller agent ${ids.find((x) => x.side === "seller")?.runtimeKey}. Owners: ${ids[0].owner?.provider ?? "unknown"} ${ids[0].owner?.account}. Runtime keys are not yet bound to Kite agent DIDs.` : `${bad} offer(s) not signed by the agent identity logged at deal open.`,
+      detail: ok ? `${offers.length} offers. buyer agent ${ids.find((x) => x.side === "buyer")?.runtimeKey}, seller agent ${ids.find((x) => x.side === "seller")?.runtimeKey}. Owners: ${ids[0].owner?.provider ?? "unknown"} ${ids[0].owner?.account}. ${bindNote}` : badBinding.length ? `Claims a Kite binding that does not match the registered runtime key: ${badBinding.map((x) => x.side).join(", ")}.` : `${bad} offer(s) not signed by the agent identity logged at deal open.`,
     });
   } else {
     checks.push({ id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok: null, detail: "Older receipt: recorded before agents signed their offers." });

@@ -23,9 +23,9 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 
 The verifier checks that the limit was committed before any offer, that the reveal matches the commitment, that the session caps equal your limit, and that the deal total sits inside it.
 
-**Agent identity.** Each deal mints one secp256k1 runtime key per agent. Both keys are logged in `agent.identity` entries at deal open, every accepted offer carries its agent's EIP-191 signature, and the verifier checks each one. The identity panel and receipt show the owner, both agent keys and the session id.
+**Agent identity.** Each agent signs with a secp256k1 runtime key (its Kite-bound key when the server holds it, otherwise a per-deal key). Both keys are logged in `agent.identity` entries at deal open, every accepted offer carries its agent's EIP-191 signature, and the verifier checks each one. The identity panel and receipt show the owner, both Kite agent DIDs and agent IDs, both signing keys, whether each key is bound, and the session id.
 
-What this is not yet: the agent keys are **not bound to registered Kite agent DIDs**. Registering them (`kpass agent create --kind buyer|seller`) needs the owner to claim an identifier and finish Kite onboarding, which hasn't been done. Every identity record says "not yet bound".
+The buyer and seller are **registered Kite Passport identity agents**: `did:kite:auto-57j6tv:blackbox-buyer` (`agt_01a1d18a-ef16-7a3e-99e4-2df23f86a71d`, listed) and `did:kite:auto-57j6tv:blackbox-seller` (`agt_01a1d18b-2075-7507-8f69-54ceab133335`, unlisted until it publishes a card). Each has a secp256k1 runtime key bound to its DID with an owner-minted token (`kpass agent bind --token`, binding active). When the server holds those keys (`BLACKBOX_BUYER_AGENT_KEY` / `BLACKBOX_SELLER_AGENT_KEY`), every offer is signed by the bound key and the verifier checks the key against the registered one; without them the agent falls back to a per-deal key and the record says "unbound".
 
 ## How it works
 
@@ -48,7 +48,7 @@ What this is not yet: the agent keys are **not bound to registered Kite agent DI
 | Referee, commit-reveal, hash chain, verifier | Live, unit tested |
 | Mutual round limits | Live: each side chooses 1–3 (default 3); the lower limit is enforced server-side and checked by the verifier |
 | Your spending limit | Live: committed before offers, enforced by the guard and the session caps, checked by the verifier |
-| Agent identity | Live: per-deal agent keys sign every offer, verified. Not yet bound to Kite agent DIDs (needs Kite onboarding) |
+| Agent identity | Live: registered Kite agent DIDs for buyer and seller; their bound runtime keys sign every offer, verified (per-deal fallback key, labelled unbound, if the server lacks the bound keys) |
 | Payment via Kite Passport | **SIMULATED — no real funds moved.** The receipt mirrors the intended session cap and refusal checks, but the delegation is signed by a throwaway key and the `sim_…` ref is not a transaction. Live settlement is not implemented. Kite's published docs currently provide CLI/agent-skill flows and state that there is no public HTTP API reference for app backends. The old server-side CLI attempt has been disabled; `SETTLE_MODE=kite` now safely falls back to an explicitly labelled simulation. A real integration needs a Kite-supported server/hosted-agent handoff and a verifiable transaction hash. [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
 | Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
 | Deal lookup by ID | Recorded deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Deals you run are kept in your browser. No server database. |

@@ -32,7 +32,11 @@ export function describe(e: LogEntry): string {
     case "deal.closed": return `Deal closed at ${p.unitPrice} per unit, ${p.total} USDC total, round ${p.round}.`;
     case "deal.no_deal": return `No deal after ${p.rounds} rounds.`;
     case "reveal": return `${p.side} revealed ${p.side === "buyer" ? "ceiling" : "floor"} ${Number(p.limit)}`;
-    case "agent.identity": return `${p.side} agent ${p.agentRef}: runtime key ${p.runtimeKey}, owned by Kite Passport ${(p.owner as { account?: string })?.account ?? "?"} (signs every offer; not yet bound to a Kite agent DID)`;
+    case "agent.identity": {
+      const ka = p.kiteAgent as { did?: string } | undefined;
+      const bound = (p.binding as { status?: string } | undefined)?.status === "bound";
+      return `${p.side} agent ${ka?.did ?? p.agentRef}: runtime key ${p.runtimeKey}, owned by ${(p.owner as { provider?: string })?.provider === "kite-passport" ? "Kite Passport" : "account"} ${(p.owner as { account?: string })?.account ?? "?"} (signs every offer; ${bound ? "key bound to its Kite agent DID" : ka ? "per-deal key, not the DID's bound key" : "not bound to a Kite agent DID"})`;
+    }
     case "mandate.open": return `Owner set a spending limit before any offer (committed ${String((p.budgetCommitment as { commitment?: string })?.commitment ?? "").slice(0, 12)}...). It caps Kite Passport session ${p.sessionId}${p.simulated ? " (SIMULATED)" : ""}.`;
     case "settle.session": { const s = p.session as Record<string, unknown>; const rv = p.budgetReveal as { budget?: string } | undefined; return `Payment session ${s.sessionId}: per-tx cap ${s.maxAmountPerTx}, total cap ${s.maxTotalAmount}${rv ? ` (= your spending limit ${rv.budget}, revealed)` : ""}, expires ${String(s.expiresAt).slice(11, 19)} UTC${s.mode === "mock" ? " — SIMULATED" : ""}`; }
     case "settle.payment": return `Payment ${p.amount} USDC: ${p.code}${p.mode === "mock" ? " — SIMULATED, no real funds moved" : ""}`;
@@ -83,12 +87,22 @@ export function decisions(log: LogEntry[]): Decision[] {
   return out;
 }
 
+export type AgentSeat = { side: string; runtimeKey: string; agentRef: string; did?: string; agentId?: string; bound: boolean };
+
+/** Agent identities logged at deal open, with their Kite agent DID and binding when present. */
+export function agentSeats(log: LogEntry[]): AgentSeat[] {
+  return log.filter((e) => e.kind === "agent.identity").map((e) => {
+    const ka = e.payload.kiteAgent as { did?: string; agentId?: string } | undefined;
+    return { side: String(e.payload.side), runtimeKey: String(e.payload.runtimeKey), agentRef: String(e.payload.agentRef), did: ka?.did, agentId: ka?.agentId, bound: (e.payload.binding as { status?: string } | undefined)?.status === "bound" };
+  });
+}
+
 export type Ticket = {
   quantity: number; item: string; bid: number | null; ask: number | null; spread: number | null;
   unitPrice: number | null; total: number | null; status: "waiting" | "negotiating" | "agreed" | "settled-mock" | "settled-live" | "no-deal" | "stopped";
   settlement: { mode: string; live: boolean; ok: boolean; code: string; ref?: string; sessionId?: string; cap?: string; explorer?: string; fallback?: string } | null;
   budget: { committed: boolean; limit: string | null } ;
-  agents: { side: string; runtimeKey: string; agentRef: string }[];
+  agents: AgentSeat[];
   round: number;
 };
 
@@ -103,7 +117,7 @@ export function ticket(log: LogEntry[], stopped = false): Ticket {
   const pay = log.find((e) => e.kind === "settle.payment")?.payload as { code: string; ok?: boolean; ref?: string; mode: string; explorer?: string } | undefined;
   const sessP = log.find((e) => e.kind === "settle.session")?.payload as { budgetReveal?: { budget: string }; fallback?: { reason: string } } | undefined;
   const mand = log.some((e) => e.kind === "mandate.open");
-  const agents = log.filter((e) => e.kind === "agent.identity").map((e) => ({ side: String(e.payload.side), runtimeKey: String(e.payload.runtimeKey), agentRef: String(e.payload.agentRef) }));
+  const agents = agentSeats(log);
   const bid = lastRc?.bid ?? null, ask = lastRc?.ask ?? null;
   const live = !!pay && pay.mode !== "mock" && /settled/.test(pay.code) && !/mock/.test(pay.code);
   return {
