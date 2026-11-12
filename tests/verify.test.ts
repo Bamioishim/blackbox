@@ -10,10 +10,10 @@ const files = readdirSync(dir).filter((f) => f.startsWith("deal_"));
 const load = (f: string) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
 
 async function scripted(attackMode = true) {
-  return negotiate({ item: "X tokens", quantity: 500, referencePrice: 0.9, buyerCeiling: 0.92, sellerFloor: 0.88, buyerStyle: "balanced", sellerStyle: "balanced", maxRounds: 6, attackMode }, () => {}, async (system, user) => {
+  return negotiate({ item: "X tokens", quantity: 500, referencePrice: 0.9, buyerCeiling: 0.92, sellerFloor: 0.88, buyerStyle: "balanced", sellerStyle: "balanced", buyerMaxRounds: 3, sellerMaxRounds: 3, attackMode }, () => {}, async (system, user) => {
     const buyer = system.includes("buyer's negotiating agent");
     const round = Number(/Round (\d+) of/.exec(user)![1]);
-    const price = buyer ? [0.85, 0.87, 0.89, 0.9][round - 1] ?? 0.9 : [0.95, 0.93, 0.91, 0.9][round - 1] ?? 0.9;
+    const price = buyer ? [0.85, 0.88, 0.9][round - 1] ?? 0.9 : [0.95, 0.93, 0.9][round - 1] ?? 0.9;
     return JSON.stringify({ reasoning: "x", offer: { price, quantity: 500, round } });
   });
 }

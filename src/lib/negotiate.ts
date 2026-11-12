@@ -41,8 +41,10 @@ type Emit = (e: StreamEvent) => void;
 
 export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall = callServ): Promise<Receipt> {
   // Each owner chooses 1–3 rounds. The table uses the lower request, never above 3.
-  const buyerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.buyerMaxRounds)));
-  const sellerMaxRounds = Math.min(3, Math.max(1, Math.floor(input.sellerMaxRounds)));
+  // A missing or non-numeric request falls back to the protocol maximum instead of poisoning the log with NaN.
+  const clampRounds = (n: unknown) => { const v = Math.floor(Number(n)); return Number.isFinite(v) ? Math.min(3, Math.max(1, v)) : 3; };
+  const buyerMaxRounds = clampRounds(input.buyerMaxRounds);
+  const sellerMaxRounds = clampRounds(input.sellerMaxRounds);
   const maxRounds = Math.min(buyerMaxRounds, sellerMaxRounds);
   const dealId = "deal_" + randomHex(6);
   const chain = new HashChain();
