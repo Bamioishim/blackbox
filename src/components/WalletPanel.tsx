@@ -3,6 +3,7 @@ import { useState } from "react";
 import { formatUnits, isAddress, stringToHex } from "viem";
 import { base } from "viem/chains";
 import { mnemonicToAccount, privateKeyToAccount } from "viem/accounts";
+import { RealSettlementReceipt } from "@/components/RealSettlementReceipt";
 
 declare global { interface Window { ethereum?: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } } }
 
@@ -131,7 +132,9 @@ export function WalletPanel({ onAdded }: { onAdded?: () => void }) {
     try { return formatUnits(BigInt(item.value || "0"), decimals); } catch { return "0"; }
   };
 
-  return <section className="wallet-panel">
+  return <div className="wallet-stack">
+    <RealSettlementReceipt compact />
+    <section className="wallet-panel">
     <div className="wallet-head"><div><span className="hud">WALLET</span><h3 className="display" style={{ fontSize: 22, margin: "4px 0 0" }}>Connect a wallet</h3></div>
       {address ? <button type="button" onClick={disconnect} className="wallet-quiet">Disconnect</button> : <button type="button" style={action} onClick={connect} disabled={busy}>{busy ? "Loading…" : "Connect wallet"}</button>}
     </div>
@@ -156,5 +159,6 @@ export function WalletPanel({ onAdded }: { onAdded?: () => void }) {
       <p className="wallet-source">Portfolio data from {portfolio.source}. Read-only. Assets have not been escrowed or transferred.</p>
       {secret && <button type="button" className="wallet-quiet" onClick={exportSecret}>Copy imported recovery material</button>}
     </div>}
-  </section>;
+  </section>
+  </div>;
 }

@@ -38,13 +38,13 @@ export function ReceiptCard({ r }: { r: Receipt }) {
       {r.identity?.agents.map((a) => <Row key={a.side} k={`${a.side} agent`} v={<>{a.kiteAgent?.did ?? a.agentRef} · {a.runtimeKey}<br /><span className="muted" style={{ fontFamily: "var(--font-geist-sans)" }}>signs every offer; {a.binding?.status === "bound" ? "key bound to its Kite agent DID" : a.kiteAgent ? "per-deal key, not the DID's bound key" : "not bound to a Kite agent DID"}</span></>} />)}
       {s && (
         <>
-          {!s.live && <div className="sim-banner" role="status" style={{ marginTop: 12 }}>SIMULATED — no real funds moved{s.fallback ? ` (fallback: ${s.fallback.reason})` : ""}</div>}
-          <Row k="Settlement" v={<><span className="tag mock">{s.live ? s.mode : "simulated"}</span> <span style={{ fontFamily: "var(--font-geist-sans)" }}>{s.label}</span></>} />
+          {s.live ? <div className="live-banner" role="status" style={{ marginTop: 12 }}>Real settlement (Kite Passport, Solana mainnet)</div> : <div className="sim-banner" role="status" style={{ marginTop: 12 }}>SIMULATED — no real funds moved{s.fallback ? ` (fallback: ${s.fallback.reason})` : ""}</div>}
+          <Row k="Settlement" v={<><span className={s.live ? "tag" : "tag mock"}>{s.live ? s.mode : "simulated"}</span> <span style={{ fontFamily: "var(--font-geist-sans)" }}>{s.label}</span></>} />
           <Row k="Session" v={s.session.sessionId} />
           <Row k="Caps" v={`per payment ${s.session.maxAmountPerTx} · total ${s.session.maxTotalAmount} ${s.session.asset}${s.session.capSource === "user-budget" ? " (= your limit)" : " (= deal total)"}`} />
           <Row k="Expires" v={`${s.session.expiresAt} (${Math.round(s.session.ttlSeconds / 60)} min)`} />
           <Row k="Delegation" v={<>{s.delegation.signer}<br /><span className="muted">{s.delegation.signature.slice(0, 42)}...</span></>} />
-          <Row k="Payment" v={s.live && s.payment.ref ? `${s.payment.amount} USDC · ${s.payment.code} · tx ${s.payment.ref}` : `${s.payment.amount} USDC · ${s.payment.code}${s.payment.ref ? ` · simulation ref ${s.payment.ref} (not a transaction)` : ""}`} />
+          <Row k="Payment" v={s.live && s.payment.ref ? <>{s.payment.amount} USDC · {s.payment.code} · {s.payment.explorer ? <a href={s.payment.explorer} target="_blank" rel="noreferrer">tx {s.payment.ref}</a> : `tx ${s.payment.ref}`}</> : `${s.payment.amount} USDC · ${s.payment.code}${s.payment.ref ? ` · simulation ref ${s.payment.ref} (not a transaction)` : ""}`} />
           {s.enforcement.map((e) => <Row key={e.label} k="Rail check" v={`${e.label}: refused, ${e.code}${e.rule ? ` (${e.rule})` : ""}`} />)}
         </>
       )}

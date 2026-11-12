@@ -261,6 +261,10 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
 
 /* Unmistakable label whenever settlement is simulated. */
 .sim-banner { display: block; font-family: var(--font-geist-mono), monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; color: #f2b84b; border: 1px solid rgba(242,184,75,.6); background: repeating-linear-gradient(135deg, rgba(242,184,75,.10) 0 8px, rgba(242,184,75,.04) 8px 16px); padding: 6px 9px; margin: 4px 0 6px; }
+.live-banner { display: block; font-family: var(--font-geist-mono), monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: #b7e0b4; border: 1px solid rgba(166,199,164,.65); background: repeating-linear-gradient(135deg, rgba(166,199,164,.14) 0 8px, rgba(166,199,164,.05) 8px 16px); padding: 6px 9px; margin: 0 0 6px; }
+.real-settlement-card a { color: var(--wax); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 720px) { .real-settlement-card .kv-row { grid-template-columns: 1fr !important; gap: 2px !important; } }
+
 .id-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
 .id-grid > div { padding: 10px 14px; border-left: 1px solid var(--rule); min-width: 0; }
 .id-grid > div:first-child { border-left: 0; }
@@ -331,6 +335,7 @@ textarea { font-family: var(--font-geist-mono), monospace; font-size: 13px; }
 }
 
 
+.wallet-stack { display:grid; gap:14px; }
 .wallet-panel { border:1px solid var(--rule-2); border-radius:0; padding:18px; background:rgba(255,255,255,.018); }
 .wallet-head { display:flex; justify-content:space-between; align-items:center; gap:14px; }
 .wallet-quiet { background:transparent; color:var(--ink-2); border:1px solid var(--rule-2); border-radius:0; padding:9px 12px; cursor:pointer; font-size:12px; }

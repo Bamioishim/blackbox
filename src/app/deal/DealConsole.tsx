@@ -11,6 +11,7 @@ import { ReceiptCard } from "@/components/ReceiptCard";
 import { Ticket } from "@/components/Ticket";
 import { RefusalScene } from "@/components/RefusalScene";
 import { IdentityPanel } from "@/components/IdentityPanel";
+import { RealSettlementReceipt } from "@/components/RealSettlementReceipt";
 
 type Style = "patient" | "balanced" | "eager";
 const spring = { type: "spring" as const, stiffness: 200, damping: 24 };
@@ -187,6 +188,7 @@ export function DealConsole() {
         </div>
         <div className="ticket-col" style={{ minWidth: 0 }}>
           <Ticket log={entries} stopped={stopped} />
+          <div style={{ marginTop: 16 }}><RealSettlementReceipt compact /></div>
         </div>
       </div>
       <style>{`@media (max-width: 980px) { .deal-grid { grid-template-columns: 1fr !important; } .terms-grid { grid-template-columns: 1fr 1fr !important; } }`}</style>

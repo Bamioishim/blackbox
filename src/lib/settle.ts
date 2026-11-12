@@ -62,7 +62,7 @@ export type SessionIntent = {
 };
 
 export type Delegation = { scheme: string; signer: string; signature: string; message: string };
-export type PaymentAttempt = { label: string; amount: string; ok: boolean; code: string; ref?: string; rule?: string };
+export type PaymentAttempt = { label: string; amount: string; ok: boolean; code: string; ref?: string; rule?: string; explorer?: string };
 
 export type Settlement = {
   mode: "mock" | "kite-testnet" | "kite-mainnet";
