@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { negotiate } from "@/lib/negotiate";
 import { verifyReceipt } from "@/lib/verify";
 import { KitePendingSettler, isRealPaymentRequest } from "@/lib/settle";
-import { checkParsedTransfer, isSolanaAddress, usdcToAtomic, atomicToUsdc } from "@/lib/solana-verify";
+import { checkParsedTransfer, isSolanaAddress, usdcToAtomic, atomicToUsdc, verifyUsdcTransfer, solanaRpcEndpoints, SAME_ORIGIN_SOLANA_RPC, proxyRpcRequestError, forwardSolanaRpc, rpcWithFallback } from "@/lib/solana-verify";
 import { USDC_MINT_SOLANA } from "@/lib/real-settlement";
 
 const PAYOUT = "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx";
@@ -92,5 +92,88 @@ describe("real settlement request in a sealed deal", () => {
 
     const wrong = await verifyReceipt({ ...paid, onchainPayment: { ...paid.onchainPayment, recipient: SENDER } });
     expect(wrong.find((c) => c.id === "payment")?.ok).toBe(false);
+  });
+});
+
+describe("Solana RPC fallbacks", () => {
+  const want = { signature: SIG, recipient: PAYOUT, amountAtomic: BigInt(750000) };
+  const parsed = tx("750000");
+  const statuses = { value: [{ confirmationStatus: "finalized" }] };
+
+  function mockRpc(plan: Record<string, { status?: number; result?: unknown; error?: { message: string } | null; fail?: boolean }>) {
+    return async (url: string | URL | Request, init?: RequestInit) => {
+      const key = String(url);
+      const body = JSON.parse(String(init?.body ?? "{}")) as { method?: string };
+      const entry = plan[`${key} ${body.method}`] ?? plan[key];
+      if (!entry) throw new Error(`unexpected rpc ${key} ${body.method}`);
+      if (entry.fail) throw new Error("network down");
+      const status = entry.status ?? 200;
+      return new Response(JSON.stringify(entry.error ? { jsonrpc: "2.0", id: 1, error: entry.error } : { jsonrpc: "2.0", id: 1, result: entry.result }), { status, headers: { "Content-Type": "application/json" } });
+    };
+  }
+
+  it("lists CORS-friendly RPCs and the same-origin proxy for the browser, not the official endpoint first", () => {
+    const browser = solanaRpcEndpoints({ browser: true });
+    expect(browser[0]).toBe("https://public.rpc.solanavibestation.com");
+    expect(browser).toContain("https://solana-mainnet.gateway.tatum.io");
+    expect(browser.at(-1)).toBe(SAME_ORIGIN_SOLANA_RPC);
+    expect(browser.includes("https://api.mainnet-beta.solana.com")).toBe(false);
+    const server = solanaRpcEndpoints({ browser: false, rpcUrl: "https://custom.example/rpc" });
+    expect(server[0]).toBe("https://custom.example/rpc");
+    expect(server).toContain("https://api.mainnet-beta.solana.com");
+    expect(server).not.toContain(SAME_ORIGIN_SOLANA_RPC);
+  });
+
+  it("falls through an official-style HTTP 403 and accepts the next RPC's transaction", async () => {
+    const fetcher = mockRpc({
+      "https://api.mainnet-beta.solana.com getTransaction": { status: 403 },
+      "https://public.rpc.solanavibestation.com getTransaction": { result: parsed },
+      "https://public.rpc.solanavibestation.com getSignatureStatuses": { result: statuses },
+    });
+    const c = await verifyUsdcTransfer(want, { rpcUrls: ["https://api.mainnet-beta.solana.com", "https://public.rpc.solanavibestation.com"], fetcher: fetcher as unknown as typeof fetch });
+    expect(c.ok).toBe(true);
+    expect(c.confirmationStatus).toBe("finalized");
+    expect(c.rpcUsed).toBe("https://public.rpc.solanavibestation.com");
+    expect(c.sender).toBe(SENDER);
+  });
+
+  it("still refuses the wrong amount after a successful RPC read", async () => {
+    const fetcher = mockRpc({
+      "https://public.rpc.solanavibestation.com getTransaction": { result: tx("750000") },
+    });
+    const c = await verifyUsdcTransfer({ ...want, amountAtomic: BigInt(860000) }, { rpcUrls: ["https://public.rpc.solanavibestation.com"], fetcher: fetcher as unknown as typeof fetch });
+    expect(c.ok).toBe(false);
+    expect(c.reason).toContain("0.75");
+  });
+
+  it("refuses the official USDC mint being swapped for another token", () => {
+    const c = checkParsedTransfer(tx("750000", { mint: "So11111111111111111111111111111111111111112" }), want);
+    expect(c.ok).toBe(false);
+    expect(c.mint).toBe("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  });
+
+  it("guards the proxy to read-only methods and valid signatures", () => {
+    expect(proxyRpcRequestError("sendTransaction", [SIG])).toBeTruthy();
+    expect(proxyRpcRequestError("getTransaction", ["not-a-sig"])).toBeTruthy();
+    expect(proxyRpcRequestError("getTransaction", [SIG])).toBeNull();
+    expect(proxyRpcRequestError("getSignatureStatuses", [[SIG]])).toBeNull();
+    expect(proxyRpcRequestError("getSignatureStatuses", [[]])).toBeTruthy();
+  });
+
+  it("forwards through the next server RPC when the first returns 403", async () => {
+    const fetcher = mockRpc({
+      "https://api.mainnet-beta.solana.com getTransaction": { status: 403 },
+      "https://api.mainnet.solana.com getTransaction": { result: parsed },
+    });
+    const r = await forwardSolanaRpc("getTransaction", [SIG, { encoding: "jsonParsed" }], { fetcher: fetcher as unknown as typeof fetch, rpcUrl: "https://api.mainnet-beta.solana.com" });
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.result).toEqual(parsed);
+  });
+
+  it("surfaces a single error when every RPC fails", async () => {
+    const fetcher = mockRpc({
+      "https://dead.example getTransaction": { status: 403 },
+    });
+    await expect(rpcWithFallback(["https://dead.example"], "getTransaction", [SIG], fetcher as unknown as typeof fetch)).rejects.toThrow(/failed on every endpoint/);
   });
 });

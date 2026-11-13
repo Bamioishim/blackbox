@@ -91,7 +91,8 @@ export function Verifier() {
       <h1 className="display" style={{ fontSize: "clamp(42px, 6vw, 76px)", margin: "8px 0 14px", maxWidth: 940 }}>Check a deal <span className="dim">without trusting us.</span></h1>
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
         Paste a deal ID or a receipt. Your browser re-hashes every log entry, re-runs the referee on the recorded offers,
-        checks both revealed limits against their commitments, and reads the payment caps. No account, nothing sent to a server.
+        checks both revealed limits against their commitments, and reads the payment caps. A real USDC payment is re-read live from Solana mainnet
+        (public RPCs, or this site&apos;s proxy if those are blocked). No account required.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 32, marginTop: 34 }} className="v-grid">

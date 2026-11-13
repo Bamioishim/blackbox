@@ -180,7 +180,8 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
         } else if (opts.onchain) {
           try {
             const c = await verifyUsdcTransfer({ signature: p.signature, recipient: p.recipient, amountAtomic: usdcToAtomic(p.amount) });
-            checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: c.ok, detail: c.ok ? `${p.amount} USDC reached ${p.recipient} (read from Solana mainnet, ${c.confirmationStatus}). ${p.explorerUrl}` : `${c.reason} ${p.explorerUrl}` });
+            const live = c.ok ? `${p.amount} USDC reached ${p.recipient} (re-read live from Solana mainnet, ${c.confirmationStatus}). ${p.explorerUrl}` : `${c.reason} ${p.explorerUrl}`;
+            checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: c.ok, detail: live });
           } catch (e) {
             checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: null, detail: `Couldn't reach Solana mainnet (${(e as Error).message}). Check by hand: ${p.explorerUrl}` });
           }

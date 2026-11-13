@@ -69,7 +69,7 @@ Kite Passport has no server API for app backends: wallet sends are made with the
 3. **Settlement worker** (`node scripts/settle-worker.mjs --expect-to <payout address>`), run where `kpass` is signed in, picks up the request, refuses any other recipient or an amount above `--max`, runs `kpass wallet send --chain solana --asset USDC` for exactly the agreed total, and posts the passkey approval link back to the app.
 4. The buyer's deal shows **Approve … USDC in Kite Passport**. The owner approves with a passkey.
 5. The worker posts the transaction signature. The server reads it from Solana mainnet and accepts it only if the official USDC mint (`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`) moved exactly the agreed amount to the seller's payout address, after the request was made, in a transaction no other deal has used. Only then is the deal **Settled**, with the Solscan link, and the item moved to the buyer's portfolio.
-6. `/verify` re-reads the payment from Solana mainnet in your browser and checks it against the sealed request.
+6. `/verify` re-reads the payment live from Solana mainnet (public RPCs that allow browser reads, falling back to a same-origin proxy) and checks it against the sealed request.
 
 Worker endpoints are authenticated with a shared secret (`SETTLEMENT_WORKER_SECRET`, a Vercel Secret). `REAL_SETTLE_BUYER_EMAILS` lists the buyer accounts that may request a real payment and `REAL_SETTLE_MAX_USDC` caps it (default 1).
 
