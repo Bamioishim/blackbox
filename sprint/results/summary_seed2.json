@@ -1,0 +1,3145 @@
+{
+ "corpus": "sprint/data/corpus_seed2.json",
+ "seed": 11,
+ "receipts": 100,
+ "rows": 23590,
+ "seconds": 21.646,
+ "summary": [
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_identity",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "unchanged honest receipt",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "b_reserialize",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "re-serialize with shuffled key order",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_offer_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one accepted offer price",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C1 hash chain",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C2 +replay & rules",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C3 shipped (offline)",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_close_price",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change closing price in the log",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_reveal_limit",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change a revealed private limit",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_delete_entry",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "delete one log entry",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_swap_entries",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "swap two adjacent entries",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "n_timestamp",
+   "cls": "A1 naive edit",
+   "harmful": true,
+   "desc": "change one timestamp",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_offer_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change an offer price, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C1 hash chain",
+   "n": 54,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    6.938893903907228e-18,
+    0.06641586678100189
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C2 +replay & rules",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_close_price",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change closing price + summary, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_reveal_limit",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "change a revealed limit, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_referee_hash",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "claim a different referee code, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C1 hash chain",
+   "n": 8,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.3244156195108769
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C2 +replay & rules",
+   "n": 8,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.3244156195108769
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 8,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.3244156195108769
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 8,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.3244156195108769
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 8,
+   "flagged": 8,
+   "rate": 1,
+   "ci95": [
+    0.6755843804891231,
+    1
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 8,
+   "flagged": 8,
+   "rate": 1,
+   "ci95": [
+    0.6755843804891231,
+    1
+   ]
+  },
+  {
+   "op": "c_hide_refusals",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "delete blocked/rejected (injection) entries, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 8,
+   "flagged": 8,
+   "rate": 1,
+   "ci95": [
+    0.6755843804891231,
+    1
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_frame_injection",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "insert a fake injection attempt blamed on the buyer, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_backdate_all",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "shift every timestamp by -1 day, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 54,
+   "rate": 0.54,
+   "ci95": [
+    0.44264685393523856,
+    0.6343935614666815
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "c_truncate_tail",
+   "cls": "A2 chain rewrite",
+   "harmful": true,
+   "desc": "drop everything after the close/no-deal entry, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_fabricate",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite: all prices/limits x1.10, re-signed",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_strip_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + mark receipt not anchored",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_fabricate_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "consistent rewrite + attacker writes own memo, points receipt at it",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_rewrite_limits",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "rewrite both private limits consistently (no keys needed)",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "f_rewrite_limits_self_anchor",
+   "cls": "A3 full forgery",
+   "harmful": true,
+   "desc": "limits rewrite + attacker's own memo",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_identity",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove agent identities + offer signatures, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_anchor",
+   "cls": "A0 benign",
+   "harmful": false,
+   "desc": "content unchanged, receipt's anchor field removed",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "d_strip_reveals",
+   "cls": "A4 downgrade",
+   "harmful": true,
+   "desc": "remove both reveal entries, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C1 hash chain",
+   "n": 54,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    6.938893903907228e-18,
+    0.06641586678100189
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C2 +replay & rules",
+   "n": 54,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    6.938893903907228e-18,
+    0.06641586678100189
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C3 shipped (offline)",
+   "n": 54,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    6.938893903907228e-18,
+    0.06641586678100189
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 54,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    6.938893903907228e-18,
+    0.06641586678100189
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "s_outcome_price",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.outcome.unitPrice/total",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 54,
+   "flagged": 54,
+   "rate": 1,
+   "ci95": [
+    0.9335841332189981,
+    1
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 46,
+   "rate": 0.46,
+   "ci95": [
+    0.36560643853331865,
+    0.5573531460647615
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 46,
+   "rate": 0.46,
+   "ci95": [
+    0.36560643853331865,
+    0.5573531460647615
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_outcome_status",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "flip receipt.outcome.status",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_terms_item",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.terms item/quantity",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 54,
+   "rate": 0.54,
+   "ci95": [
+    0.44264685393523856,
+    0.6343935614666815
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 54,
+   "rate": 0.54,
+   "ci95": [
+    0.44264685393523856,
+    0.6343935614666815
+   ]
+  },
+  {
+   "op": "s_budget_limit",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.budget.limit",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 54,
+   "rate": 0.54,
+   "ci95": [
+    0.44264685393523856,
+    0.6343935614666815
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "s_reveals",
+   "cls": "A5 summary edit",
+   "harmful": true,
+   "desc": "change receipt.reveals[] limit",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 100,
+   "rate": 1,
+   "ci95": [
+    0.9630051925239981,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C1 hash chain",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C2 +replay & rules",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C3 shipped (offline)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "p_preanchor_forgery",
+   "cls": "P pre-anchor",
+   "harmful": true,
+   "desc": "operator fabricates, then anchors the fake with the official wallet",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 100,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.03699480747600191
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C1 hash chain",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C2 +replay & rules",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C3 shipped (offline)",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_naive",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, no rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C1 hash chain",
+   "n": 300,
+   "flagged": 0,
+   "rate": 0,
+   "ci95": [
+    0,
+    0.012643429997735661
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C2 +replay & rules",
+   "n": 300,
+   "flagged": 105,
+   "rate": 0.35,
+   "ci95": [
+    0.2982310964752725,
+    0.4055619325240481
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C3 shipped (offline)",
+   "n": 300,
+   "flagged": 135,
+   "rate": 0.45,
+   "ci95": [
+    0.39468890948161645,
+    0.506575433518157
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C3h C3 + summary binding + strict",
+   "n": 300,
+   "flagged": 167,
+   "rate": 0.5566666666666666,
+   "ci95": [
+    0.5000863411296723,
+    0.611814070137251
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C4 shipped + anchor (receipt-directed)",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C5 C4 + summary binding + strict",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  },
+  {
+   "op": "z_fuzz_rehash",
+   "cls": "Z random fuzz",
+   "harmful": true,
+   "desc": "random leaf change in a random entry, rehash",
+   "config": "C6 C5 + pinned anchor lookup",
+   "n": 300,
+   "flagged": 300,
+   "rate": 1,
+   "ci95": [
+    0.9873565700022643,
+    0.9999999999999999
+   ]
+  }
+ ]
+}

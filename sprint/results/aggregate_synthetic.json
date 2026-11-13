@@ -1,0 +1,1623 @@
+{
+ "configs": [
+  "C1 hash chain",
+  "C2 +replay & rules",
+  "C3 shipped (offline)",
+  "C3h C3 + summary binding + strict",
+  "C4 shipped + anchor (receipt-directed)",
+  "C5 C4 + summary binding + strict",
+  "C6 C5 + pinned anchor lookup"
+ ],
+ "per_op": {
+  "b_identity": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 200
+   }
+  },
+  "b_reserialize": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 200
+   }
+  },
+  "d_strip_anchor": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 200
+   }
+  },
+  "n_offer_price": {
+   "C1 hash chain": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "n_close_price": {
+   "C1 hash chain": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C2 +replay & rules": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C3 shipped (offline)": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 112,
+    "n": 112
+   }
+  },
+  "n_reveal_limit": {
+   "C1 hash chain": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "n_delete_entry": {
+   "C1 hash chain": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "n_swap_entries": {
+   "C1 hash chain": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "n_timestamp": {
+   "C1 hash chain": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "c_offer_price": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "c_close_price": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 112
+   },
+   "C2 +replay & rules": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C3 shipped (offline)": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 112,
+    "n": 112
+   }
+  },
+  "c_reveal_limit": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "c_referee_hash": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "c_hide_refusals": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 22
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 22
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 22
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 22
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 22,
+    "n": 22
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 22,
+    "n": 22
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 22,
+    "n": 22
+   }
+  },
+  "c_frame_injection": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 198
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 198
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 198
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 198
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 198,
+    "n": 198
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 198,
+    "n": 198
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 198,
+    "n": 198
+   }
+  },
+  "c_backdate_all": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "c_truncate_tail": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 112,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "f_fabricate": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "f_fabricate_strip_anchor": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "f_fabricate_self_anchor": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "f_rewrite_limits": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "f_rewrite_limits_self_anchor": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "d_strip_identity": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "d_strip_reveals": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "s_outcome_price": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 112
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 112
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 112
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 112
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 112,
+    "n": 112
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 112,
+    "n": 112
+   }
+  },
+  "s_outcome_status": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 88,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 88,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "s_terms_item": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "s_budget_limit": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 112,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 112,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 112,
+    "n": 200
+   }
+  },
+  "s_reveals": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 200,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 200,
+    "n": 200
+   }
+  },
+  "p_preanchor_forgery": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 200
+   }
+  },
+  "z_fuzz_naive": {
+   "C1 hash chain": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C2 +replay & rules": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C3 shipped (offline)": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 600,
+    "n": 600
+   }
+  },
+  "z_fuzz_rehash": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 600
+   },
+   "C2 +replay & rules": {
+    "flagged": 211,
+    "n": 600
+   },
+   "C3 shipped (offline)": {
+    "flagged": 273,
+    "n": 600
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 343,
+    "n": 600
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 600,
+    "n": 600
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 600,
+    "n": 600
+   }
+  }
+ },
+ "per_class": {
+  "A0 benign": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 600,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.006361933328210577
+    ]
+   }
+  },
+  "A1 naive edit": {
+   "C1 hash chain": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 1112,
+    "n": 1112,
+    "rate": 1.0,
+    "ci95": [
+     0.9965572174401814,
+     0.9999999999999999
+    ]
+   }
+  },
+  "A2 chain rewrite": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 1332,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.002875790063732107
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 512,
+    "n": 1332,
+    "rate": 0.3843843843843844,
+    "ci95": [
+     0.358628224397615,
+     0.4108055168483532
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 824,
+    "n": 1332,
+    "rate": 0.6186186186186187,
+    "ci95": [
+     0.5922275360886117,
+     0.6443274566590315
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 912,
+    "n": 1332,
+    "rate": 0.6846846846846847,
+    "ci95": [
+     0.6592308716854861,
+     0.7090762689216038
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 1332,
+    "n": 1332,
+    "rate": 1.0,
+    "ci95": [
+     0.9971242099362679,
+     1
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 1332,
+    "n": 1332,
+    "rate": 1.0,
+    "ci95": [
+     0.9971242099362679,
+     1
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 1332,
+    "n": 1332,
+    "rate": 1.0,
+    "ci95": [
+     0.9971242099362679,
+     1
+    ]
+   }
+  },
+  "A3 full forgery": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 1000,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.003826898586390522
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 1000,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.003826898586390522
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 1000,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.003826898586390522
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 1000,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.003826898586390522
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 400,
+    "n": 1000,
+    "rate": 0.4,
+    "ci95": [
+     0.37007424033937747,
+     0.43069113937790077
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 400,
+    "n": 1000,
+    "rate": 0.4,
+    "ci95": [
+     0.37007424033937747,
+     0.43069113937790077
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 1000,
+    "n": 1000,
+    "rate": 1.0,
+    "ci95": [
+     0.9961731014136095,
+     1
+    ]
+   }
+  },
+  "A4 downgrade": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 400,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.009512640599680667
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 400,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.009512640599680667
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 400,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.009512640599680667
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 400,
+    "n": 400,
+    "rate": 1.0,
+    "ci95": [
+     0.9904873594003194,
+     1
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 400,
+    "n": 400,
+    "rate": 1.0,
+    "ci95": [
+     0.9904873594003194,
+     1
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 400,
+    "n": 400,
+    "rate": 1.0,
+    "ci95": [
+     0.9904873594003194,
+     1
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 400,
+    "n": 400,
+    "rate": 1.0,
+    "ci95": [
+     0.9904873594003194,
+     1
+    ]
+   }
+  },
+  "A5 summary edit": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 912,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.004194611819336444
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 912,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.004194611819336444
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 88,
+    "n": 912,
+    "rate": 0.09649122807017543,
+    "ci95": [
+     0.07898603458232634,
+     0.11738154688591007
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 824,
+    "n": 912,
+    "rate": 0.9035087719298246,
+    "ci95": [
+     0.8826184531140899,
+     0.9210139654176737
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 88,
+    "n": 912,
+    "rate": 0.09649122807017543,
+    "ci95": [
+     0.07898603458232634,
+     0.11738154688591007
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 824,
+    "n": 912,
+    "rate": 0.9035087719298246,
+    "ci95": [
+     0.8826184531140899,
+     0.9210139654176737
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 824,
+    "n": 912,
+    "rate": 0.9035087719298246,
+    "ci95": [
+     0.8826184531140899,
+     0.9210139654176737
+    ]
+   }
+  },
+  "P pre-anchor": {
+   "C1 hash chain": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 0,
+    "n": 200,
+    "rate": 0.0,
+    "ci95": [
+     0,
+     0.018846005918320894
+    ]
+   }
+  },
+  "Z random fuzz": {
+   "C1 hash chain": {
+    "flagged": 600,
+    "n": 1200,
+    "rate": 0.5,
+    "ci95": [
+     0.47175501149539095,
+     0.5282449885046091
+    ]
+   },
+   "C2 +replay & rules": {
+    "flagged": 811,
+    "n": 1200,
+    "rate": 0.6758333333333333,
+    "ci95": [
+     0.6488254275257269,
+     0.7017190294858932
+    ]
+   },
+   "C3 shipped (offline)": {
+    "flagged": 873,
+    "n": 1200,
+    "rate": 0.7275,
+    "ci95": [
+     0.7016116252893784,
+     0.7519364162469834
+    ]
+   },
+   "C3h C3 + summary binding + strict": {
+    "flagged": 943,
+    "n": 1200,
+    "rate": 0.7858333333333334,
+    "ci95": [
+     0.7617286456387198,
+     0.80811376552235
+    ]
+   },
+   "C4 shipped + anchor (receipt-directed)": {
+    "flagged": 1200,
+    "n": 1200,
+    "rate": 1.0,
+    "ci95": [
+     0.9968088824974979,
+     0.9999999999999998
+    ]
+   },
+   "C5 C4 + summary binding + strict": {
+    "flagged": 1200,
+    "n": 1200,
+    "rate": 1.0,
+    "ci95": [
+     0.9968088824974979,
+     0.9999999999999998
+    ]
+   },
+   "C6 C5 + pinned anchor lookup": {
+    "flagged": 1200,
+    "n": 1200,
+    "rate": 1.0,
+    "ci95": [
+     0.9968088824974979,
+     0.9999999999999998
+    ]
+   }
+  }
+ },
+ "overall": {
+  "C1 hash chain": {
+   "harmful_detected": 1112,
+   "harmful_n": 4756,
+   "detection": 0.23380992430613962,
+   "detection_ci95": [
+    0.2219985503243438,
+    0.24605097468505988
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 6,
+   "ops_inscope": 26
+  },
+  "C2 +replay & rules": {
+   "harmful_detected": 1624,
+   "harmful_n": 4756,
+   "detection": 0.34146341463414637,
+   "detection_ci95": [
+    0.3281190763232518,
+    0.35506365816102176
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 9,
+   "ops_inscope": 26
+  },
+  "C3 shipped (offline)": {
+   "harmful_detected": 2024,
+   "harmful_n": 4756,
+   "detection": 0.4255677039529016,
+   "detection_ci95": [
+    0.4115812957877192,
+    0.4396742585987965
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 10,
+   "ops_inscope": 26
+  },
+  "C3h C3 + summary binding + strict": {
+   "harmful_detected": 3248,
+   "harmful_n": 4756,
+   "detection": 0.6829268292682927,
+   "detection_ci95": [
+    0.6695585133475017,
+    0.6959998699398751
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 17,
+   "ops_inscope": 26
+  },
+  "C4 shipped + anchor (receipt-directed)": {
+   "harmful_detected": 3332,
+   "harmful_n": 4756,
+   "detection": 0.7005887300252313,
+   "detection_ci95": [
+    0.6874143875340094,
+    0.7134392879328381
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 18,
+   "ops_inscope": 26
+  },
+  "C5 C4 + summary binding + strict": {
+   "harmful_detected": 4068,
+   "harmful_n": 4756,
+   "detection": 0.8553406223717409,
+   "detection_ci95": [
+    0.8450565616533807,
+    0.8650511024335921
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 22,
+   "ops_inscope": 26
+  },
+  "C6 C5 + pinned anchor lookup": {
+   "harmful_detected": 4668,
+   "harmful_n": 4756,
+   "detection": 0.9814970563498738,
+   "detection_ci95": [
+    0.9772603090900548,
+    0.9849565848502814
+   ],
+   "benign_flagged": 0,
+   "benign_n": 600,
+   "fpr": 0.0,
+   "fpr_ci95": [
+    0,
+    0.006361933328210577
+   ],
+   "ops_fully_detected": 25,
+   "ops_inscope": 26
+  }
+ }
+}

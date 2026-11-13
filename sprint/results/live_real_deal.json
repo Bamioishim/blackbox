@@ -1,0 +1,242 @@
+{
+ "deal": "deal_74b9a05fe8f4",
+ "ranAt": "2026-11-13T14:01:52.000Z",
+ "officialWriter": "3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8",
+ "officialMemos": [
+  {
+   "dealId": "deal_74b9a05fe8f4",
+   "finalHash": "2cb98d1cb3a02f18b00b011d5ffc0fa80de1da7224bb4b76a01d91809705c1a1",
+   "sig": "3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy",
+   "slot": 468776619
+  }
+ ],
+ "attackerWriterStubbed": "GoYh1p17QfN4LjFBTmVGZmPmyXGxDTgPJFhPuCpVchmH",
+ "cases": [
+  {
+   "case": "honest (unchanged)",
+   "shippedVerdict": "HOLDS UP",
+   "failed": [],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "true Matches the memo written on Solana mainnet at 2026-11-13T03:30:46.000Z. https://solscan.io/tx/3jFUTFv1NJBQgLsc",
+   "pinnedAnchor": {
+    "ok": true,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "HOLDS UP"
+  },
+  {
+   "case": "n_offer_price",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "chain",
+    "final",
+    "agent-sigs",
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Does NOT match the memo written on Solana mainnet at 2026-11-13T03:30:46.000Z. https://solscan.io/tx/3jFUTFv1N",
+   "pinnedAnchor": {
+    "ok": true,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "c_offer_price",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "agent-sigs",
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "c_close_price",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "replay",
+    "within",
+    "payment",
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "c_frame_injection",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "c_backdate_all",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "f_fabricate",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "payment",
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "f_rewrite_limits",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "anchor"
+   ],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "d_strip_identity",
+   "shippedVerdict": "FAILED",
+   "failed": [
+    "anchor"
+   ],
+   "pending": [
+    "agent-sigs",
+    "delegation"
+   ],
+   "anchorCheck": "false Memo does not match this deal's final hash. https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXW",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "s_outcome_price",
+   "shippedVerdict": "HOLDS UP",
+   "failed": [],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "true Matches the memo written on Solana mainnet at 2026-11-13T03:30:46.000Z. https://solscan.io/tx/3jFUTFv1NJBQgLsc",
+   "pinnedAnchor": {
+    "ok": true,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [
+    "outcome.values"
+   ],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "s_terms_item",
+   "shippedVerdict": "HOLDS UP",
+   "failed": [],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "true Matches the memo written on Solana mainnet at 2026-11-13T03:30:46.000Z. https://solscan.io/tx/3jFUTFv1NJBQgLsc",
+   "pinnedAnchor": {
+    "ok": true,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [
+    "terms.item",
+    "terms.quantity"
+   ],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "f_rewrite_limits_strip_anchor",
+   "shippedVerdict": "HOLDS UP",
+   "failed": [],
+   "pending": [
+    "delegation",
+    "anchor"
+   ],
+   "anchorCheck": "null Not anchored yet.",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  },
+  {
+   "case": "f_rewrite_limits_self_anchor (stubbed attacker tx)",
+   "shippedVerdict": "HOLDS UP",
+   "failed": [],
+   "pending": [
+    "delegation"
+   ],
+   "anchorCheck": "true Matches the memo written on Solana mainnet at 2026-11-13T14:01:49.000Z. https://solscan.io/tx/pVhFkcm9j6GdNLr4",
+   "pinnedAnchor": {
+    "ok": false,
+    "detail": "official memo 2cb98d1cb3a0… (tx 3jFUTFv1NJ…, slot 468776619)"
+   },
+   "summaryBinding": [],
+   "hardenedVerdict": "FLAGGED"
+  }
+ ]
+}
