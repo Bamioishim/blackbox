@@ -49,11 +49,9 @@ for c in configs:
     print(f"{c:42s} detect {o['harmful_detected']}/{o['harmful_n']} = {100*o['detection']:.1f}% [{100*o['detection_ci95'][0]:.1f},{100*o['detection_ci95'][1]:.1f}]  FP {o['benign_flagged']}/{o['benign_n']}  ops fully caught {o['ops_fully_detected']}/{o['ops_inscope']}")
 
 # ---- Figure 1: heatmap ----
-short = {"C1 hash chain": "C1\nhash\nchain", "C2 +replay & rules": "C2\n+replay\n& rules", "C3 shipped (offline)": "C3\nshipped\noffline",
-         "C3h C3 + summary binding + strict": "C3h\nC3 +\nsummary\n+ strict", "C4 shipped + anchor (receipt-directed)": "C4\nshipped +\nanchor\n(receipt-\ndirected)",
-         "C5 C4 + summary binding + strict": "C5\nC4 +\nsummary\n+ strict", "C6 C5 + pinned anchor lookup": "C6\nC5 +\npinned\nanchor"}
+short = {"C1 hash chain": "C1\nchain", "C2 +replay & rules": "C2\n+replay", "C3 shipped (offline)": "C3\nshipped", "C3h C3 + summary binding + strict": "C3h\nC3+bind", "C4 shipped + anchor (receipt-directed)": "C4\nC3+anchor", "C5 C4 + summary binding + strict": "C5\nC4+bind", "C6 C5 + pinned anchor lookup": "C6\nC5+pinned"}
 M = np.array([[out["per_op"][o][c]["flagged"]/max(1, out["per_op"][o][c]["n"]) for c in configs] for o in ops])
-fig, ax = plt.subplots(figsize=(7.2, 9.2))
+fig, ax = plt.subplots(figsize=(8.4, 6.6))
 cmap = matplotlib.colors.LinearSegmentedColormap.from_list("bb", ["#f6efe2", "#c7d9b0", "#2f6b3a"])
 ax.imshow(M, aspect="auto", cmap=cmap, vmin=0, vmax=1)
 for i, o in enumerate(ops):
@@ -62,10 +60,10 @@ for i, o in enumerate(ops):
         txt = f"{100*v:.0f}"
         col = "white" if v > 0.6 else "black"
         if (ben and v > 0) or (not ben and v < 0.99 and not cls_of[o].startswith(("Z", "P"))): col = "#a3001b" if v < 0.6 else "white"
-        ax.text(j, i, txt, ha="center", va="center", fontsize=7.5, color=col, fontweight="bold" if col == "#a3001b" else "normal")
+        ax.text(j, i, txt, ha="center", va="center", fontsize=7, color=col, fontweight="bold" if col == "#a3001b" else "normal")
 labels = [f"{o}  (n={out['per_op'][o][configs[0]]['n']})" for o in ops]
 ax.set_yticks(range(len(ops))); ax.set_yticklabels(labels, fontsize=7.5, family="monospace")
-ax.set_xticks(range(len(configs))); ax.set_xticklabels([short[c] for c in configs], fontsize=7)
+ax.set_xticks(range(len(configs))); ax.set_xticklabels([short[c] for c in configs], fontsize=8)
 ax.xaxis.tick_top()
 prev = None
 for i, o in enumerate(ops):
@@ -74,7 +72,6 @@ for i, o in enumerate(ops):
 for i, o in enumerate(ops):
     if i == 0 or cls_of[ops[i-1]] != cls_of[o]:
         ax.text(len(configs) - 0.35, i - 0.35, cls_of[o], fontsize=6.5, ha="left", va="top", color="#444", clip_on=False)
-ax.set_title("% of mutants flagged (rows: mutation operator; columns: verifier configuration)\nred = benign record flagged, or in-scope attack missed on some mutants", fontsize=8, pad=8, loc="left", y=-0.07)
 plt.tight_layout()
 plt.savefig("sprint/results/fig1_heatmap.png", dpi=200, bbox_inches="tight")
 
