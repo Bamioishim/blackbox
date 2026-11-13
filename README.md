@@ -10,9 +10,53 @@ Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasonin
 
 The live site includes the marketplace and wallets, a tappable asset picker when you list from your portfolio, and a landing illustration that starts as a spinning point-cloud and, after about two seconds, loops through how a price forms (sealed limits, converging offers, the referee, a sealed price, and a receipt). The animation respects `prefers-reduced-motion`.
 
+## See it in action
+
+These screenshots are from a real marketplace deal on 13 November 2026. Two SERV agents agreed at 0.86 USDC. The buyer-owner approved the payment with a Kite Passport passkey, and the server marked the deal **Settled** only after reading the USDC transfer from Solana mainnet. Replay the record at [`/verify?id=deal_74b9a05fe6f4`](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe6f4), or check the transfer on [Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk). The payment settled on Solana mainnet. The final-hash anchor (planned for Kite testnet) is not live yet, and this deal is not anchored.
+
+![Blackbox landing page, headline "The ground truth for every agent deal," with the price-formation illustration](docs/screenshots/01-landing-hero.webp)
+
+The live landing page at [blackbox-serv.vercel.app](https://blackbox-serv.vercel.app).
+
+![Seller listing form showing a 0.50 USDC private floor, and a public marketplace card that says seller floor sealed](docs/screenshots/02-seller-listing-sealed-floor.webp)
+
+The seller lists a Blackbox Genesis Pass with a private floor of 0.50 USDC. The public card shows only "seller floor sealed." Payout goes to her Solana address, through Kite Passport.
+
+![Marketplace grid with Blackbox Genesis Pass (Real USDC settlement available), Mad Lads #4471, Logo design, Signed Burna Boy vinyl, Jupiter, and Lagos Nights #142](docs/screenshots/03-marketplace.webp)
+
+The marketplace, with the Genesis Pass marked **Real USDC settlement available**. Other listings show a sealed seller floor.
+
+![Offer form with a 0.90 USDC private ceiling, a 1 USDC spending limit, and Settle for real checked](docs/screenshots/04-buyer-ceiling-settle-for-real.webp)
+
+The buyer sets a sealed ceiling of 0.90 USDC, a 1 USDC spending limit, and ticks **Settle for real**.
+
+![Motion-graphic chart of three rounds of offers closing at a 0.86 USDC midpoint](docs/screenshots/10-agents-haggle.webp)
+
+How the agents haggled, from the deal record: round 1 was ask 0.98 against bid 0.72, round 2 was ask 0.88 against bid 0.81, and round 3 was ask 0.84 against bid 0.88. The referee closed at the 0.86 midpoint.
+
+![Deal card: Real payment requested, 0.86 USDC on Solana mainnet, and an Approve 0.86 USDC in Kite Passport button](docs/screenshots/05-payment-requested-approve.webp)
+
+The agents agreed at 0.86 USDC. The deal shows **Real payment requested** and **Approve 0.86 USDC in Kite Passport**.
+
+![Deal card marked Settled: 0.86 USDC paid on Solana mainnet via Kite Passport, confirmed 13 Nov 02:04:03 WAT](docs/screenshots/06-settled-0.86-usdc.webp)
+
+After passkey approval, the deal is **Settled**: 0.86 USDC paid on Solana mainnet on 13 November 2026 at 02:04:03 WAT, and the pass delivered to the buyer's portfolio.
+
+![Solscan transaction details: 0.86 USDC transfer, success, finalized, with the full signature](docs/screenshots/07-solscan-0.86-usdc.webp)
+
+The same transfer on Solscan: 0.86 USDC, **SUCCESS**, finalized at 01:04:03 UTC (02:04:03 WAT) on 13 November 2026. Signature `EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk`.
+
+![Verifier page with the heading Record holds up, a price chart settling at 0.86, and 13 of 15 checks passing](docs/screenshots/08-verify-record-holds-up.webp)
+
+`/verify` replays the hash-chained log in the browser. **Record holds up.** The chart shows the 0.86 close inside the revealed limits (floor 0.50, ceiling 0.90). 13 of 15 checks pass; two stay pending, below.
+
+![Verifier checks: Real payment on Solana mainnet passes; passkey approval and final-hash anchor stay pending](docs/screenshots/09-verify-solana-payment.webp)
+
+The verifier re-reads the payment from Solana mainnet and marks **Real payment on Solana mainnet**. Two checks are pending by design: the passkey ceremony is not an in-app key (the proof is the on-chain transfer), and the final hash is not anchored yet.
+
 ## Three proofs
 
-1. **Decisions move a real transaction.** Every agent decision (open, counter, accept, hold, walk) updates a live transaction ticket (bid/ask, spread, total). A deal either closes into a settlement attempt or, after the agreed round limit without overlap, a `no_deal` receipt. Marketplace deals can **settle for real**: when the buyer opts in and the seller has a Solana payout address, the agreed USDC is paid through **Kite Passport on Solana mainnet**, approved with the buyer-owner's passkey, and the deal only shows **Settled** after the server reads the transfer from Solana mainnet (see [Real marketplace settlement](#real-marketplace-settlement)). Every other deal, including the `/deal` demo, settles in a simulation that says so on the ticket, the receipt, the log and the verifier: `SIMULATED — no real funds moved`. The payment code is `simulated_no_funds_moved` and the `sim_…` ref is never shown as a transaction or a link. Separately, a real 1 USDC settlement was completed through Kite Passport on Solana mainnet and is labelled **Real settlement (Kite Passport, Solana mainnet)** in the app (home, wallets, receipts, and the deal ticket column), with the Solscan link [3jHaiNfA…LM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM).
+1. **Decisions move a real transaction.** Every agent decision (open, counter, accept, hold, walk) updates a live transaction ticket (bid/ask, spread, total). A deal either closes into a settlement attempt or, after the agreed round limit without overlap, a `no_deal` receipt. Marketplace deals can **settle for real**: when the buyer opts in and the seller has a Solana payout address, the agreed USDC is paid through **Kite Passport on Solana mainnet**, approved with the buyer-owner's passkey, and the deal only shows **Settled** after the server reads the transfer from Solana mainnet (see [Real marketplace settlement](#real-marketplace-settlement)). Every other deal, including the `/deal` demo, settles in a simulation that says so on the ticket, the receipt, the log and the verifier: `SIMULATED — no real funds moved`. The payment code is `simulated_no_funds_moved` and the `sim_…` ref is never shown as a transaction or a link. A marketplace deal for **0.86 USDC** was settled this way on 13 November 2026 at 02:04:03 WAT ([Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk); [verifier](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe6f4)). Separately, an earlier 1 USDC transfer is labelled **Real settlement (Kite Passport, Solana mainnet)** in the app (home, wallets, receipts, and the deal ticket column), with the Solscan link [3jHaiNfA…LM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM).
 2. **Judges verify, not trust.** `/verify` takes a deal ID or a dropped receipt JSON and re-hashes every entry, re-runs the referee on each offer, refusal, round and close, and checks the commit-reveal, all in the browser with a per-entry HASH/RULE pass/fail. Offline: `npm run verify -- public/deals/<deal>.json --entries` (exit 0 = holds up). The shipped tampered deal fails at entry #44.
 3. **Rule-breaks get stopped on screen.** Attack mode (simulated) has a test harness inject a prompt-injection message from the seller's side and push the buyer's bid backwards in round 2. The referee refuses both (`blocked: non-schema content`, `rejected: buyer bid moved backwards`), the UI shows the offending message, the code rule that fired and a REJECTED stamp, and the negotiation continues.
 
@@ -53,8 +97,8 @@ The buyer and seller are **registered Kite Passport identity agents**: `did:kite
 | Mutual round limits | Live: each side chooses 1–3 (default 3); the lower limit is enforced server-side and checked by the verifier |
 | Your spending limit | Live: committed before offers, enforced by the guard and the session caps, checked by the verifier |
 | Agent identity | Live: registered Kite agent DIDs for buyer and seller; their bound runtime keys sign every offer, verified (per-deal fallback key, labelled unbound, if the server lacks the bound keys) |
-| Real marketplace payment | **Live (opt-in, capped at 1 USDC, approved demo buyer accounts).** The deal's sealed log records a Kite Passport payment request; the operator's settlement worker creates the Kite wallet send; the buyer-owner approves with a passkey; the server checks the transfer on Solana mainnet (mint, amount, recipient, time) before marking the deal Settled and moving the listed item to the buyer's portfolio. See [Real marketplace settlement](#real-marketplace-settlement). |
-| Payment via Kite Passport (other deals) | **Deals that don't opt in, and the `/deal` demo, are SIMULATED — no real funds moved.** Those receipts keep the session-cap and refusal-check shape, a throwaway delegation, and a `sim_…` ref that is not a transaction. `SETTLE_MODE=kite` still falls back to that labelled simulation because Kite's published docs provide CLI/agent-skill flows, not a public HTTP API for app backends. Separately, a real 1 USDC transfer was completed with a Kite Passport passkey on Solana mainnet (request `wallet_send_req_01a1d1bc-ec7d-7cce-9c86-f7ec03979c63`, 2026-11-12 22:50:04 WAT) from `ABVbrFkJoTEtBHvh7AiSBH11HLo5XbwSU9vJoUajZahN` to `BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx`. It is shown in the app as **Real settlement (Kite Passport, Solana mainnet)** and can be checked on Solscan: [3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
+| Real marketplace payment | **Live (opt-in, capped at 1 USDC, approved demo buyer accounts).** The deal's sealed log records a Kite Passport payment request; the operator's settlement worker creates the Kite wallet send; the buyer-owner approves with a passkey; the server checks the transfer on Solana mainnet (mint, amount, recipient, time) before marking the deal Settled and moving the listed item to the buyer's portfolio. A marketplace deal for **0.86 USDC** settled this way on 13 November 2026 at 02:04:03 WAT ([Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk); [verifier](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe6f4)). See [Real marketplace settlement](#real-marketplace-settlement). |
+| Payment via Kite Passport (other deals) | **Deals that don't opt in, and the `/deal` demo, are SIMULATED — no real funds moved.** Those receipts keep the session-cap and refusal-check shape, a throwaway delegation, and a `sim_…` ref that is not a transaction. `SETTLE_MODE=kite` still falls back to that labelled simulation because Kite's published docs provide CLI/agent-skill flows, not a public HTTP API for app backends. Separately, an earlier 1 USDC transfer was completed with a Kite Passport passkey on Solana mainnet (request `wallet_send_req_01a1d1bc-ec7d-7cce-9c86-f7ec03979c63`, 12 November 2026, 22:50:04 WAT) between the same addresses. It is shown in the app as **Real settlement (Kite Passport, Solana mainnet)** and can be checked on Solscan: [3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
 | Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
 | Marketplace and wallets | Live on production at [`/marketplace`](https://blackbox-serv.vercel.app/marketplace): accounts, portfolio, listings, Base wallet import, and a tappable asset picker when listing. Deals settle for real when the buyer opts in (see above); otherwise they are labelled **SIMULATED**. Blackbox moves the item between Blackbox portfolios; it does not move on-chain tokens or NFTs. |
 | Landing illustration | Live: a spinning point-cloud becomes a looping price-formation animation after about two seconds (`prefers-reduced-motion` is handled). |
@@ -72,6 +116,8 @@ Kite Passport has no server API for app backends: wallet sends are made with the
 6. `/verify` re-reads the payment live from Solana mainnet (public RPCs that allow browser reads, falling back to a same-origin proxy) and checks it against the sealed request.
 
 Worker endpoints are authenticated with a shared secret (`SETTLEMENT_WORKER_SECRET`, a Vercel Secret). `REAL_SETTLE_BUYER_EMAILS` lists the buyer accounts that may request a real payment and `REAL_SETTLE_MAX_USDC` caps it (default 1).
+
+The 0.86 USDC Genesis Pass deal above is a complete run of this path. The final hash of that deal is not anchored onchain yet.
 
 ## Published referee code
 
@@ -144,7 +190,7 @@ Recorded deals made before the spending limit and agent signatures were added st
 - Listings are exclusive and fixed-quantity (no partial fills). Buyers can search by asset name or symbol. Public listing cards never return the seller's private floor.
 - Seller limits stay in the database. The buyer supplies a ceiling, total spending limit and 1–3 round preference. Both sides default to 3; the lower limit applies. A buyer's first mandate is reused on later attempts against the same listing.
 - The buyer queues the negotiation; the server runs both agents after the response, so the seller does not need to be online and the buyer can leave the page. The negotiation status and receipt are stored in Postgres.
-- Successful negotiations become **Deal reached**. If the buyer chose **Settle for real**, they become **Settled** once the USDC payment is verified on Solana mainnet, and the item moves to the buyer's Blackbox portfolio (on-chain tokens and NFTs are not moved). Otherwise settlement is simulated. The asset remains reserved so it cannot be listed twice. A verified 1 USDC Kite Passport transfer on Solana mainnet is recorded separately and labelled **Real settlement (Kite Passport, Solana mainnet)**; see [Solscan](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). 
+- Successful negotiations become **Deal reached**. If the buyer chose **Settle for real**, they become **Settled** once the USDC payment is verified on Solana mainnet, and the item moves to the buyer's Blackbox portfolio (on-chain tokens and NFTs are not moved). Otherwise settlement is simulated. The asset remains reserved so it cannot be listed twice. A marketplace deal for 0.86 USDC was settled and verified on Solana mainnet on 13 November 2026 at 02:04:03 WAT ([Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk)). An earlier verified 1 USDC Kite Passport transfer on Solana mainnet is recorded separately and labelled **Real settlement (Kite Passport, Solana mainnet)**; see [Solscan](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM).
 - Listings can optionally expire. Expiry and seller withdrawal release the reserved quantity. No-deal listings reopen for another attempt.
 
 
@@ -154,7 +200,7 @@ Recorded deals made before the spending limit and agent signatures were added st
 - Wallet portfolio discovery currently targets **Base mainnet (chain ID 8453)**. Token and NFT holdings are read through Base Blockscout. Importing an asset requires an EIP-191 signature tied to the signed-in Blackbox account and a server-side live contract check. The backend does not receive the wallet secret.
 - WalletConnect protocol support and additional EVM networks are not wired yet. Base is the first supported network, not a claim of universal multichain coverage.
 - `contracts/BlackboxEscrow.sol` is an initial EVM escrow implementation for ERC-20, ERC-721 and ERC-1155 assets. The buyer deposits the payment cap and the seller deposits the asset before negotiation; a referee-signed agreement can then atomically pay the seller, refund unused buyer funds and release the asset. Cancellation requires referee authorization so the backend can refuse cancellation after agreement.
-- **The escrow contract is source-only, not deployed, audited or connected to the marketplace yet.** Escrow is not used by the real-settlement path below, which pays the seller directly through Kite Passport after both agents agree. Before enabling live settlement, Blackbox still needs a deployed contract, secured referee signer, approval/deposit workflow, relayer integration, contract tests and an independent security review.
+- **The escrow contract is source-only, not deployed, audited or connected to the marketplace yet.** Escrow is not used by the [real-settlement path](#real-marketplace-settlement), which pays the seller directly through Kite Passport after both agents agree. Before enabling live settlement, Blackbox still needs a deployed contract, secured referee signer, approval/deposit workflow, relayer integration, contract tests and an independent security review.
 - Kite-specific wallet custody and settlement work is paused. The existing SERV negotiation/referee/receipt pipeline remains separate from wallet and settlement infrastructure.
 
 ### Completion emails
