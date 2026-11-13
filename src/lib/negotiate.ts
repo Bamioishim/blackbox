@@ -6,7 +6,7 @@ import { initialState, judge, closeRound, type Side, type RefereeState } from ".
 import type { Offer } from "./schema";
 import { callServ, extractJson, systemPrompt, userPrompt, turnSchema, INJECTION, SERV_MODEL, type AgentContext, type Style, type LlmCall } from "./agents";
 import { getSettler } from "./settle-server";
-import { commitBudget, SESSION_TTL_SECONDS, type Mandate } from "./settle";
+import { commitBudget, SESSION_TTL_SECONDS, type Mandate, type Settler } from "./settle";
 import { mintAgent, KITE_OWNER, type AgentOwner } from "./identity";
 import { getAnchorer } from "./anchor-evm";
 import { REFEREE_HASH, REFEREE_FILES } from "./referee-hash.generated";
@@ -27,6 +27,8 @@ export type NegotiateInput = {
   budget?: number;
   buyerOwner?: AgentOwner;
   sellerOwner?: AgentOwner;
+  /** Server-side only: overrides the default (simulated) settler, e.g. a real Kite Passport payment request. */
+  settler?: Settler;
 };
 
 export type PrivateNote = { side: Side; round: number; kind: "prompt" | "reply" | "reasoning" | "guard"; text: string; sealed?: string };
@@ -65,9 +67,10 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   // private until settlement), and wired into the Kite Passport session the owner approves.
   const budget = round6(input.budget ?? input.buyerCeiling * input.quantity);
   const bud = commitBudget(dealId, budget);
-  const mandate: Mandate = { sessionId: "sim_sess_" + randomHex(8), createdAt: new Date().toISOString(), ttlSeconds: SESSION_TTL_SECONDS, budget, budgetReveal: bud.reveal };
+  const realPay = input.settler?.mode === "kite-mainnet";
+  const mandate: Mandate = { sessionId: (realPay ? "sess_" : "sim_sess_") + randomHex(8), createdAt: new Date().toISOString(), ttlSeconds: SESSION_TTL_SECONDS, budget, budgetReveal: bud.reveal };
   log("mandate.open", "buyer", {
-    owner: buyerOwner.account, payer: buyerOwner.wallet.evm, sessionId: mandate.sessionId, mode: "mock",
+    owner: buyerOwner.account, payer: buyerOwner.wallet.evm, sessionId: mandate.sessionId, mode: realPay ? "kite-mainnet" : "mock",
     budgetCommitment: bud.commitment,
     policy: "Kite Passport spending session: max_total_amount = max_amount_per_tx = the owner's spending limit",
     ttlSeconds: mandate.ttlSeconds, createdAt: mandate.createdAt,
@@ -75,7 +78,7 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
       task: { summary: `Pay one seller for ${input.item} agreed in Blackbox deal ${dealId}, up to <your limit> USDC.` },
       payment_policy: { currency: "USD", max_amount_per_tx: "<your limit>", max_total_amount: "<your limit>", ttl_seconds: mandate.ttlSeconds },
     },
-    simulated: true,
+    simulated: !realPay,
   });
 
   const bc = commitLimit("buyer", dealId, input.buyerCeiling);
@@ -208,11 +211,11 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   log("reveal", "seller", { ...sc.reveal });
 
   if (state.status === "closed" && state.price !== null && total !== null) {
-    settlement = await getSettler().settle({
+    settlement = await (input.settler ?? getSettler()).settle({
       dealId, item: input.item, quantity: input.quantity, unitPrice: state.price, total, asset: "USDC",
       payee: sellerOwner.account, payer: buyerOwner.wallet.evm, mandate,
     });
-    const sim = !settlement.live;
+    const sim = !settlement.live && settlement.simulated !== false;
     log("settle.session", "settlement", { session: settlement.session, delegation: settlement.delegation, label: settlement.label, budgetReveal: bud.reveal, simulated: sim, ...(settlement.fallback ? { fallback: settlement.fallback } : {}) });
     log("settle.payment", "settlement", { ...settlement.payment, mode: settlement.mode, simulated: sim });
     log("settle.enforcement", "settlement", { attempts: settlement.enforcement, mode: settlement.mode, simulated: sim });

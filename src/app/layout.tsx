@@ -6,6 +6,7 @@ import "./globals.css";
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0a0a0b" };
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://blackbox-serv.vercel.app"),
   title: "Blackbox",
   description: "Private agent-to-agent deals. Negotiate, agree, verify.",
 };

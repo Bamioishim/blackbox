@@ -6,8 +6,9 @@ import { replay, initialState, judge, closeRound, type RefereeState, type Side }
 import type { Offer } from "./schema";
 import { roundsFromLog, type Receipt } from "./receipt";
 import { REFEREE_HASH } from "./referee-hash.generated";
-import { checkBudgetReveal, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
+import { checkBudgetReveal, KITE_PASSKEY_SCHEME, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
 import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
+import { verifyUsdcTransfer, usdcToAtomic } from "./solana-verify";
 
 export type Check = { id: string; label: string; ok: boolean | null; detail: string };
 
@@ -165,6 +166,30 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
       const capsOk = ss.maxTotalAmount === total && ss.maxAmountPerTx === total && ttl > 0 && ttl <= 900;
       checks.push({ id: "caps", label: "Payment session capped at the deal amount", ok: capsOk, detail: `per-tx ${ss.maxAmountPerTx}, total ${ss.maxTotalAmount}, expires after ${Math.round(ttl / 60)} min. Deal total ${total}. (Older receipt: no user-set spending limit.)` });
     }
+    const realReq = ss.mode === "kite-mainnet" && sessE.simulated === false && sessE.delegation?.scheme === KITE_PASSKEY_SCHEME;
+    if (realReq) {
+      checks.push({ id: "delegation", label: "Payment approved by the owner's passkey in Kite Passport", ok: null, detail: "Real payment: the approval is a Kite Passport passkey ceremony at payment time, not an in-app key. The proof is the on-chain transfer below." });
+      const p = r.onchainPayment;
+      const payReqOk = !!payE && payE.amount === total && payE.code === "awaiting_owner_approval";
+      if (!p) {
+        checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: null, detail: payReqOk ? `${total} USDC requested from the buyer's Kite Passport to ${ss.payee}. Not paid yet (no transaction recorded with this receipt).` : "Payment request does not match the deal total." });
+      } else {
+        const matches = payReqOk && p.recipient === ss.payee && p.amount === total;
+        if (!matches) {
+          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: false, detail: `Recorded transfer (${p.amount} USDC to ${p.recipient}) does not match the sealed request (${total} USDC to ${ss.payee}).` });
+        } else if (opts.onchain) {
+          try {
+            const c = await verifyUsdcTransfer({ signature: p.signature, recipient: p.recipient, amountAtomic: usdcToAtomic(p.amount) });
+            checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: c.ok, detail: c.ok ? `${p.amount} USDC reached ${p.recipient} (read from Solana mainnet, ${c.confirmationStatus}). ${p.explorerUrl}` : `${c.reason} ${p.explorerUrl}` });
+          } catch (e) {
+            checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: null, detail: `Couldn't reach Solana mainnet (${(e as Error).message}). Check by hand: ${p.explorerUrl}` });
+          }
+        } else {
+          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: true, detail: `${p.amount} USDC to ${p.recipient}, verified on Solana mainnet when recorded (not re-read in this check). ${p.explorerUrl}` });
+        }
+      }
+      return finishAnchor(r, checks, headOk, opts);
+    }
     let sigOk = false;
     try {
       const d = sessE.delegation!;
@@ -175,6 +200,10 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     checks.push({ id: "payment", label: sim ? "Payment — SIMULATED, no real funds moved" : "Payment", ok: payOk, detail: payE ? `${payE.amount} USDC, ${payE.code}${sim ? ". SIMULATED — no real funds moved; the ref is not a transaction." : ""}` : "No payment entry." });
   }
 
+  return finishAnchor(r, checks, headOk, opts);
+}
+
+async function finishAnchor(r: Receipt, checks: Check[], headOk: boolean, opts: { onchain?: boolean }): Promise<Check[]> {
   // 7. Anchor
   if (r.anchor?.status === "anchored") {
     const a = r.anchor;

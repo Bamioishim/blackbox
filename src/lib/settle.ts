@@ -206,3 +206,45 @@ export class MockKiteSettler implements Settler {
 export function isSimulated(s: { mode?: string; live?: boolean } | null | undefined): boolean {
   return !s || s.live !== true || s.mode === "mock";
 }
+
+export const KITE_PENDING_LABEL = "Real payment requested — Kite Passport, USDC on Solana mainnet. The buyer's owner approves it with a passkey; nothing moves until then." as const;
+export const KITE_PASSKEY_SCHEME = "kite-passport-passkey: approved by the owner in Kite Passport at payment time (no in-app key)" as const;
+
+/** True for a settlement that asked for a real Kite Passport payment (approved outside the sealed log). */
+export function isRealPaymentRequest(s: { mode?: string; live?: boolean; simulated?: boolean; delegation?: { scheme?: string } } | null | undefined): boolean {
+  return !!s && s.mode === "kite-mainnet" && s.simulated === false && s.delegation?.scheme === KITE_PASSKEY_SCHEME;
+}
+
+/**
+ * Real settlement, deferred: the deal closes, and the exact agreed total is requested from the
+ * owner's Kite Passport wallet (USDC on Solana) to the seller's payout address. Nothing here moves
+ * funds or claims they moved: live stays false and the payment code is awaiting_owner_approval.
+ * The on-chain transfer is checked later against Solana mainnet and stored next to the receipt.
+ */
+export class KitePendingSettler implements Settler {
+  readonly mode = "kite-mainnet" as const;
+  constructor(private readonly payout: { chain: "solana"; address: string }) {}
+  async settle(deal: SettleInput): Promise<Settlement> {
+    const now = new Date();
+    const session = { ...buildSessionIntent(deal, "kite-mainnet", now), payee: this.payout.address };
+    const total = deal.total;
+    const over = round6(total + 0.01);
+    const a1 = checkAgainstDeal(total, 0, over);
+    const a2 = checkAgainstDeal(total, total, 0.01);
+    const enforcement: PaymentAttempt[] = [
+      { label: "Accept a transfer of 0.01 more than agreed", amount: fmtAmount(over), ok: a1.ok, code: a1.code, rule: "deal rule, enforced when the on-chain transfer is checked" },
+      { label: "Accept a second payment after settling", amount: fmtAmount(0.01), ok: a2.ok, code: a2.code, rule: "deal rule, one payment per deal" },
+    ];
+    return {
+      mode: "kite-mainnet",
+      live: false,
+      simulated: false,
+      label: KITE_PENDING_LABEL,
+      session,
+      delegation: { scheme: KITE_PASSKEY_SCHEME, signer: "kite-passport", signature: "", message: canonical(session) },
+      payment: { label: "Pay the agreed amount", amount: fmtAmount(total), ok: true, code: "awaiting_owner_approval", rule: `USDC on Solana to ${this.payout.address}` },
+      enforcement,
+      ...(deal.mandate ? { budget: { limit: fmtAmount(deal.mandate.budget), reveal: deal.mandate.budgetReveal, withinLimit: total <= deal.mandate.budget + 1e-9 } } : {}),
+    };
+  }
+}

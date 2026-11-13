@@ -11,7 +11,7 @@ const steps = [
 const faqs = [
   { q: "Can the other side see my limit?", a: "No. Your ceiling or floor is kept private during negotiation. The receipt records the negotiation events and verification data, not your private boundary." },
   { q: "What if the agents cannot agree?", a: "The negotiation ends with a no-deal outcome. The recorded offers make it possible to inspect where the talks stopped." },
-  { q: "Does Blackbox move the assets?", a: "Marketplace listings still do not transfer the listed token, NFT or collectible, and in-app settle(deal) for new deals remains simulated and labelled as such. A separate 1 USDC payment was completed on Solana mainnet through Kite Passport and is shown on the real-settlement receipt, with a Solscan link." },
+  { q: "Does Blackbox move the assets?", a: "Payments, yes, when the buyer chooses to settle for real: the agreed USDC is requested from the buyer's Kite Passport, approved with a passkey, and checked on Solana mainnet before the deal is marked settled. Then the listed item moves to the buyer's Blackbox portfolio. Blackbox does not move on-chain tokens or NFTs themselves. Deals that don't opt in settle in a simulation labelled SIMULATED." },
 ];
 
 export default function Home() {
@@ -70,7 +70,7 @@ export default function Home() {
     <section className="landing-recorder" id="real-settlement-section">
       <div className="landing-section-label mono">Live rail</div>
       <div>
-        <div className="landing-recorder-head"><h2 className="display">A real settlement, on chain.</h2><p className="landing-lead">This is a verified 1 USDC transfer on Solana mainnet through Kite Passport. In-app settle(deal) for new deals is still simulated and is labelled SIMULATED. Marketplace asset transfers are not live.</p></div>
+        <div className="landing-recorder-head"><h2 className="display">A real settlement, on chain.</h2><p className="landing-lead">A verified 1 USDC transfer on Solana mainnet through Kite Passport, the rail Blackbox settles on. Marketplace deals can now settle the same way: the buyer opts in, approves the agreed amount with a passkey, and the deal is marked settled only after the transfer is checked on chain. Deals that don&apos;t opt in are labelled SIMULATED.</p></div>
         <RealSettlementReceipt />
       </div>
     </section>

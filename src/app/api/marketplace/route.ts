@@ -1,10 +1,12 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { ensureRealSchema, publicSettlement } from "@/lib/real-deal";
 
 export async function GET(req:Request) {
   const user=await currentUser();
   const q=new URL(req.url).searchParams.get("q")?.trim().slice(0,80)??"";
   const sql=db();
+  await ensureRealSchema();
   await sql`WITH expired AS (
     UPDATE bb_listings SET status='Expired',updated_at=now()
     WHERE status='Listed' AND expires_at IS NOT NULL AND expires_at<=now()
@@ -15,13 +17,18 @@ export async function GET(req:Request) {
     WHERE a.id=x.asset_id RETURNING a.id
   ) SELECT count(*) FROM released`;
   const listings=q
-    ? await sql`SELECT l.id,l.quantity,l.currency,l.max_rounds,l.expires_at,l.status,l.created_at,a.asset_type,a.symbol,a.name,a.unit,a.chain,a.metadata FROM bb_listings l JOIN bb_assets a ON a.id=l.asset_id WHERE l.status='Listed' AND (a.name ILIKE ${"%"+q+"%"} OR a.symbol ILIKE ${"%"+q+"%"}) ORDER BY l.created_at DESC LIMIT 100`
-    : await sql`SELECT l.id,l.quantity,l.currency,l.max_rounds,l.expires_at,l.status,l.created_at,a.asset_type,a.symbol,a.name,a.unit,a.chain,a.metadata FROM bb_listings l JOIN bb_assets a ON a.id=l.asset_id WHERE l.status='Listed' ORDER BY l.created_at DESC LIMIT 100`;
+    ? await sql`SELECT l.id,l.quantity,l.currency,l.max_rounds,l.expires_at,l.status,l.created_at,a.asset_type,a.symbol,a.name,a.unit,a.chain,a.metadata,(w.solana_address IS NOT NULL) AS real_settlement FROM bb_listings l JOIN bb_assets a ON a.id=l.asset_id LEFT JOIN bb_payout_wallets w ON w.user_id=l.seller_id::text WHERE l.status='Listed' AND (a.name ILIKE ${"%"+q+"%"} OR a.symbol ILIKE ${"%"+q+"%"}) ORDER BY l.created_at DESC LIMIT 100`
+    : await sql`SELECT l.id,l.quantity,l.currency,l.max_rounds,l.expires_at,l.status,l.created_at,a.asset_type,a.symbol,a.name,a.unit,a.chain,a.metadata,(w.solana_address IS NOT NULL) AS real_settlement FROM bb_listings l JOIN bb_assets a ON a.id=l.asset_id LEFT JOIN bb_payout_wallets w ON w.user_id=l.seller_id::text WHERE l.status='Listed' ORDER BY l.created_at DESC LIMIT 100`;
   let mine:unknown[]=[];
   let deals:unknown[]=[];
   if(user){
-    mine=await sql`SELECT id,quantity,floor_price,currency,max_rounds,expires_at,status,created_at,asset_snapshot FROM bb_listings WHERE seller_id=${user.id} ORDER BY created_at DESC LIMIT 100`;
-    deals=await sql`SELECT id,listing_id,buyer_id,seller_id,status,result,receipt_hash,receipt,error,created_at,completed_at FROM bb_negotiations WHERE buyer_id=${user.id} OR seller_id=${user.id} ORDER BY created_at DESC LIMIT 100`;
+    mine=await sql`SELECT l.id,l.quantity,l.floor_price,l.currency,l.max_rounds,l.expires_at,l.status,l.created_at,l.asset_snapshot,
+      (SELECT r.status FROM bb_real_settlements r WHERE r.listing_id=l.id ORDER BY r.created_at DESC LIMIT 1) AS settlement_status
+      FROM bb_listings l WHERE l.seller_id=${user.id} ORDER BY l.created_at DESC LIMIT 100`;
+    const rows=await sql`SELECT n.id,n.listing_id,n.buyer_id,n.seller_id,n.status,n.result,n.receipt_hash,n.receipt,n.error,n.created_at,n.completed_at,to_jsonb(r.*) AS real_row
+      FROM bb_negotiations n LEFT JOIN bb_real_settlements r ON r.negotiation_id=n.id
+      WHERE n.buyer_id=${user.id} OR n.seller_id=${user.id} ORDER BY n.created_at DESC LIMIT 100`;
+    deals=rows.map((d:any)=>{const {real_row,...rest}=d;if(real_row?.status==="settled"&&real_row.onchain&&rest.receipt)rest.receipt={...rest.receipt,onchainPayment:real_row.onchain};return {...rest,role:String(d.buyer_id)===String(user.id)?"buyer":"seller",settlement:publicSettlement(real_row,user.id)};});
   }
   return Response.json({listings,mine,deals});
 }

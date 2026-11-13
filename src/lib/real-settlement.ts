@@ -62,7 +62,7 @@ export const KITE_SOLANA_USDC_SETTLEMENT: RealSettlement = {
   settledAtWat: "2026-11-12 22:50:04 WAT",
   settledAtIso: "2026-11-12T22:50:04+01:00",
   feeLamports: 5000,
-  note: "Verified on Solana mainnet after Kite Passport passkey approval. In-app settle(deal) for new deals remains simulated and is labelled as such.",
+  note: "Verified on Solana mainnet after Kite Passport passkey approval. This was the first rail test, a direct wallet send. Marketplace deals now settle the same way when the buyer chooses to settle for real; those payments appear on each deal.",
 };
 
 export function solscanTxUrl(signature: string): string {
