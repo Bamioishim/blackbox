@@ -50,10 +50,29 @@ export function saveLocal(r: Receipt) {
   try { localStorage.setItem(KEY + r.dealId, JSON.stringify(r)); } catch {}
 }
 export async function loadReceipt(id: string): Promise<Receipt | null> {
-  try { const v = localStorage.getItem(KEY + id); if (v) return JSON.parse(v); } catch {}
-  if (!/^deal_[a-z0-9_-]{6,40}$/.test(id)) return null;
-  const res = await fetch(`/deals/${id}.json`);
-  return res.ok ? res.json() : null;
+  let local: Receipt | null = null;
+  try { const v = localStorage.getItem(KEY + id); if (v) local = JSON.parse(v); } catch {}
+  let remote: Receipt | null = null;
+  if (/^deal_[a-z0-9_-]{6,40}$/.test(id)) {
+    try {
+      const res = await fetch(`/deals/${id}.json`, { cache: "no-store" });
+      if (res.ok) remote = await res.json();
+    } catch {}
+    if (!remote) {
+      try {
+        const res = await fetch(`/api/receipts/${encodeURIComponent(id)}`, { cache: "no-store" });
+        if (res.ok) remote = await res.json();
+      } catch {}
+    }
+  }
+  if (remote && local) {
+    // Prefer the published/server copy when it has an onchain anchor or payment the local copy lacks
+    // (for example an older receipt left in this browser before the memo was written).
+    if (remote.anchor?.status === "anchored" && local.anchor?.status !== "anchored") return remote;
+    if (remote.onchainPayment && !local.onchainPayment) return { ...local, onchainPayment: remote.onchainPayment, anchor: remote.anchor ?? local.anchor };
+    return local;
+  }
+  return remote ?? local;
 }
 export function listLocal(): string[] {
   try { return Object.keys(localStorage).filter((k) => k.startsWith(KEY)).map((k) => k.slice(KEY.length)); } catch { return []; }

@@ -12,7 +12,7 @@ The live site includes the marketplace and wallets, a tappable asset picker when
 
 ## See it in action
 
-These screenshots are from a real marketplace deal on 13 November 2026. Two SERV agents agreed at 0.86 USDC. The buyer-owner approved the payment with a Kite Passport passkey, and the server marked the deal **Settled** only after reading the USDC transfer from Solana mainnet. Replay the record at [`/verify?id=deal_74b9a05fe8f4`](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe8f4), or check the transfer on [Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk). The payment settled on Solana mainnet. The final-hash anchor (planned for Kite testnet) is not live yet, and this deal is not anchored.
+These screenshots are from a real marketplace deal on 13 November 2026. Two SERV agents agreed at 0.86 USDC. The buyer-owner approved the payment with a Kite Passport passkey, and the server marked the deal **Settled** only after reading the USDC transfer from Solana mainnet. Replay the record at [`/verify?id=deal_74b9a05fe8f4`](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe8f4), or check the transfer on [Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk). The payment settled on Solana mainnet. The deal's final hash is also anchored on Solana mainnet as an SPL Memo ([anchor transaction](https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy)).
 
 ![Blackbox landing page, headline "The ground truth for every agent deal," with the price-formation illustration](docs/screenshots/01-landing-hero.webp)
 
@@ -48,11 +48,11 @@ The same transfer on Solscan: 0.86 USDC, **SUCCESS**, finalized at 01:04:03 UTC 
 
 ![Verifier page with the heading Record holds up, a price chart settling at 0.86, and 13 of 15 checks passing](docs/screenshots/08-verify-record-holds-up.webp)
 
-`/verify` replays the hash-chained log in the browser. **Record holds up.** The chart shows the 0.86 close inside the revealed limits (floor 0.50, ceiling 0.90). 13 of 15 checks pass; two stay pending, below.
+`/verify` replays the hash-chained log in the browser. **Record holds up.** The chart shows the 0.86 close inside the revealed limits (floor 0.50, ceiling 0.90). The passkey-approval check stays pending by design (the proof is the on-chain transfer). The final hash is re-read from the Solana mainnet memo.
 
 ![Verifier checks: Real payment on Solana mainnet passes; passkey approval and final-hash anchor stay pending](docs/screenshots/09-verify-solana-payment.webp)
 
-The verifier re-reads the payment from Solana mainnet and marks **Real payment on Solana mainnet**. Two checks are pending by design: the passkey ceremony is not an in-app key (the proof is the on-chain transfer), and the final hash is not anchored yet.
+The verifier re-reads the payment from Solana mainnet and marks **Real payment on Solana mainnet**. It also re-reads the final-hash memo and marks **Final hash matches the onchain anchor**. One check stays pending by design: the passkey ceremony is not an in-app key (the proof is the on-chain transfer).
 
 ## Three proofs
 
@@ -99,10 +99,10 @@ The buyer and seller are **registered Kite Passport identity agents**: `did:kite
 | Agent identity | Live: registered Kite agent DIDs for buyer and seller; their bound runtime keys sign every offer, verified (per-deal fallback key, labelled unbound, if the server lacks the bound keys) |
 | Real marketplace payment | **Live (opt-in, capped at 1 USDC, approved demo buyer accounts).** The deal's sealed log records a Kite Passport payment request; the operator's settlement worker creates the Kite wallet send; the buyer-owner approves with a passkey; the server checks the transfer on Solana mainnet (mint, amount, recipient, time) before marking the deal Settled and moving the listed item to the buyer's portfolio. A marketplace deal for **0.86 USDC** settled this way on 13 November 2026 at 02:04:03 WAT ([Solscan](https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk); [verifier](https://blackbox-serv.vercel.app/verify?id=deal_74b9a05fe8f4)). See [Real marketplace settlement](#real-marketplace-settlement). |
 | Payment via Kite Passport (other deals) | **Deals that don't opt in, and the `/deal` demo, are SIMULATED — no real funds moved.** Those receipts keep the session-cap and refusal-check shape, a throwaway delegation, and a `sim_…` ref that is not a transaction. `SETTLE_MODE=kite` still falls back to that labelled simulation because Kite's published docs provide CLI/agent-skill flows, not a public HTTP API for app backends. Separately, an earlier 1 USDC transfer was completed with a Kite Passport passkey on Solana mainnet (request `wallet_send_req_01a1d1bc-ec7d-7cce-9c86-f7ec03979c63`, 12 November 2026, 22:50:04 WAT) between the same addresses. It is shown in the app as **Real settlement (Kite Passport, Solana mainnet)** and can be checked on Solscan: [3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM](https://solscan.io/tx/3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM). [Kite Passport](https://docs.gokite.ai/passport) · [API reference](https://docs.gokite.ai/api-reference) |
-| Onchain anchor of the final hash | **Not yet.** `contracts/BlackboxAnchor.sol` compiles and `scripts/anchor.mjs` deploys it to Kite testnet (chain 2368) and anchors a receipt. The deployer `0xc3F5769A3E5f850E04B311b89db577e4aA1DfFe3` still needs testnet KITE from faucet.gokite.ai (captcha). Every receipt says "not anchored yet" until then. |
+| Onchain anchor of the final hash | **Live on Solana mainnet.** After a deal settles, Blackbox writes `blackbox:<dealId>:<finalHash>` as an SPL Memo from the published anchor wallet [`3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8`](https://solscan.io/account/3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8). The verifier re-reads that transaction. The 0.86 USDC Genesis Pass deal is anchored at [3jFUTFv1…TEBvy](https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy). An unused EVM contract (`contracts/BlackboxAnchor.sol`) remains as an optional Kite path. |
 | Marketplace and wallets | Live on production at [`/marketplace`](https://blackbox-serv.vercel.app/marketplace): accounts, portfolio, listings, Base wallet import, and a tappable asset picker when listing. Deals settle for real when the buyer opts in (see above); otherwise they are labelled **SIMULATED**. Blackbox moves the item between Blackbox portfolios; it does not move on-chain tokens or NFTs. |
 | Landing illustration | Live: a spinning point-cloud becomes a looping price-formation animation after about two seconds (`prefers-reduced-motion` is handled). |
-| Deal lookup by ID | Recorded private deals ship in `public/deals/` (an attack run, a plain run, and a deliberately tampered copy that fails). Private-flow deals you run are kept in your browser. Marketplace listings and negotiations are stored in Postgres. |
+| Deal lookup by ID | Recorded deals ship in `public/deals/` (the 0.86 USDC real settlement, an attack run, a plain run, and a deliberately tampered copy that fails). `/verify` also loads marketplace receipts from `/api/receipts/<dealId>`. Private-flow deals you run are kept in your browser. Marketplace listings and negotiations are stored in Postgres. |
 
 ## Real marketplace settlement
 
@@ -114,10 +114,11 @@ Kite Passport has no server API for app backends: wallet sends are made with the
 4. The buyer's deal shows **Approve … USDC in Kite Passport**. The owner approves with a passkey.
 5. The worker posts the transaction signature. The server reads it from Solana mainnet and accepts it only if the official USDC mint (`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`) moved exactly the agreed amount to the seller's payout address, after the request was made, in a transaction no other deal has used. Only then is the deal **Settled**, with the Solscan link, and the item moved to the buyer's portfolio.
 6. `/verify` re-reads the payment live from Solana mainnet (public RPCs that allow browser reads, falling back to a same-origin proxy) and checks it against the sealed request.
+7. After the deal is Settled, the server writes the receipt's final hash to Solana mainnet as an SPL Memo (`blackbox:<dealId>:<finalHash>`). `/verify` re-reads that memo from the same RPCs.
 
 Worker endpoints are authenticated with a shared secret (`SETTLEMENT_WORKER_SECRET`, a Vercel Secret). `REAL_SETTLE_BUYER_EMAILS` lists the buyer accounts that may request a real payment and `REAL_SETTLE_MAX_USDC` caps it (default 1).
 
-The 0.86 USDC Genesis Pass deal above is a complete run of this path. The final hash of that deal is not anchored onchain yet.
+The 0.86 USDC Genesis Pass deal above is a complete run of this path. Its final hash is anchored on Solana mainnet as an SPL Memo ([anchor transaction](https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy)).
 
 ## Published referee code
 
@@ -134,7 +135,7 @@ These are two different checks and both are needed.
 - **The fingerprint (referee hash) proves which code ran.** The receipt carries `sha256` of `schema.ts` + `referee.ts`. If it matches the hash published here, the deal was judged by this exact referee code. On its own it says nothing about the inputs: a fingerprint can't tell you whether someone fed the referee made-up offers.
 - **The replay verifier proves the code ran on the recorded inputs and gives the recorded outcome.** `/verify` (or `npm run verify`) takes the offers from the hash-chained log, runs the published referee on them again, round by round, and checks that it produces the same refusals, the same bid/ask after each round, the same closing round and the same price. The hash chain proves those offers are the ones written during the deal (edit one and the chain breaks at that entry), the commit-reveal proves the limits were fixed before the first offer, and the agent signatures prove each offer came from that agent's key.
 
-Put together: right code (fingerprint) + untouched inputs (hash chain, signatures, commitments) + same result when re-run (replay). What none of this proves: that the two owners didn't stage the negotiation together, and, until the anchor is live, that nobody replaced the whole log before you saw it.
+Put together: right code (fingerprint) + untouched inputs (hash chain, signatures, commitments) + same result when re-run (replay). What none of this proves: that the two owners didn't stage the negotiation together. Once the final hash is anchored on Solana mainnet, a later rewrite of the whole log no longer matches the memo.
 
 ## Scope
 
@@ -142,11 +143,11 @@ One deal type today: a fixed quantity of one item, negotiated on **price**, with
 
 ## Hard questions
 
-**Could the log be rewritten before anchoring?** Yes, until the moment it's anchored. That's what the anchor is for: once the final hash is onchain, changing any earlier entry changes the final hash. Until anchoring is switched on, the verifier proves the log is internally consistent, not that nobody replaced the whole thing.
+**Could the log be rewritten before anchoring?** Yes, until the moment it's anchored. That's what the anchor is for: once the final hash is on Solana mainnet as a memo, changing any earlier entry changes the final hash, and the verifier will no longer match the on-chain memo.
 
 **Could buyer and seller collude to fake a log?** The record proves the log wasn't altered after anchoring. It does not prove the two parties didn't stage the negotiation together. What helps: the referee code is published with its hash so anyone can re-run it on the recorded offers, and commitments pin each limit before the first offer.
 
-**Why a chain?** Dispute evidence has to exist somewhere neither party controls. If our server is the only copy, we're the referee. Kite Chain is an EVM chain, so one hash write from a small contract is enough.
+**Why a chain?** Dispute evidence has to exist somewhere neither party controls. If our server is the only copy, we're the referee. Blackbox writes one memo per settled deal on Solana mainnet, the same network the payment already uses.
 
 **Who pays 0.3%?** Whoever needs a deal they can defend later: marketplaces running agent-to-agent trades, OTC-style token deals, and companies whose procurement agents buy from other agents. The bigger business is the recorder on its own, sold as an audit log for anyone running agents.
 
@@ -170,7 +171,7 @@ Latest outputs are in [`test-output/`](test-output/).
 - `src/lib/agents.ts`, `src/lib/negotiate.ts`: SERV agents and the negotiation loop
 - `src/lib/identity.ts`: owner identity (Kite Passport) and per-deal agent keys that sign offers
 - `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, intended Kite delegation shape, the SIMULATED settler and `KitePendingSettler` (real payment request); `real-deal.ts`, `solana-verify.ts`, `app/api/settlement/worker`, `scripts/settle-worker.mjs`: real marketplace settlement; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: guarded placeholder that refuses unsupported server-side CLI execution; `real-settlement.ts`: the verified 1 USDC Kite Passport Solana mainnet receipt
-- `src/lib/anchor.ts`, `anchor-evm.ts`, `contracts/BlackboxAnchor.sol`, `scripts/anchor.mjs`: pluggable anchoring (off until deployed)
+- `src/lib/anchor.ts`, `anchor-solana.ts`, `solana-memo.ts`, `scripts/anchor-solana.mjs`: Solana mainnet SPL Memo anchoring of the final hash after settlement. `anchor-evm.ts`, `contracts/BlackboxAnchor.sol`, and `scripts/anchor.mjs` remain as an unused optional Kite path.
 - `src/lib/verify.ts`: the checks the public verifier runs
 
 ## Deploys

@@ -1,5 +1,9 @@
 [
   {
+    "id": "deal_74b9a05fe8f4",
+    "label": "Real 0.86 USDC marketplace settlement, anchored on Solana mainnet"
+  },
+  {
     "id": "deal_330d29f9a714",
     "label": "Simulated attack (injection + backwards bid), closed at 0.915",
     "hero": true

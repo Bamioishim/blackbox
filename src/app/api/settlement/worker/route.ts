@@ -3,6 +3,8 @@ import { ensureRealSchema, workerAuthorized, realSettleMax } from "@/lib/real-de
 import { verifyUsdcTransfer, isSolanaSignature, atomicToUsdc } from "@/lib/solana-verify";
 import { USDC_MINT_SOLANA } from "@/lib/real-settlement";
 import type { OnchainPayment } from "@/lib/receipt";
+import { getAnchorer } from "@/lib/anchor-solana";
+import { BLACKBOX_ANCHOR_SOLANA, verifyMemoAnchor } from "@/lib/solana-memo";
 
 export const maxDuration = 60;
 
@@ -53,6 +55,19 @@ export async function POST(req: Request) {
     const up = await sql`UPDATE bb_real_settlements SET status=${action === "failed" ? "failed" : "cancelled"}, approval_url=NULL, error=${String(b?.reason ?? (action === "failed" ? "Payment failed." : "Cancelled by the operator.")).slice(0, 300)}, updated_at=now()
       WHERE id=${id}::uuid AND status IN ('pending_deal','requested','awaiting_approval') RETURNING id,status`;
     return Response.json({ ok: up.length > 0, status: up.length ? (up[0] as { status: string }).status : row.status });
+  }
+  if (action === "record_anchor") {
+    const signature = String(b?.signature ?? "").trim();
+    if (signature && !isSolanaSignature(signature)) return Response.json({ error: "bad signature" }, { status: 400 });
+    const dealId = String(b?.dealId ?? "").trim();
+    let negotiationId = String(row.negotiation_id);
+    if (dealId) {
+      const found = await sql`SELECT n.id FROM bb_negotiations n WHERE n.receipt->>'dealId'=${dealId} LIMIT 1`;
+      if (!found.length) return Response.json({ error: "deal not found" }, { status: 404 });
+      negotiationId = String((found[0] as { id: string }).id);
+    }
+    const anchor = await attachSolanaAnchor(sql, negotiationId, signature || undefined);
+    return Response.json(anchor, { status: anchor.ok ? 200 : 422 });
   }
   if (action !== "confirm") return Response.json({ error: "unknown action" }, { status: 400 });
 
@@ -107,5 +122,39 @@ export async function POST(req: Request) {
   const out = await sql.transaction([settle, sql`UPDATE bb_listings SET updated_at=now() WHERE id=${String(row.listing_id)}::uuid`]);
   const res = (out[0] as Record<string, any>[])[0] ?? {};
   if (res.buyer_asset_id) await sql`UPDATE bb_real_settlements SET buyer_asset_id=${String(res.buyer_asset_id)}::uuid WHERE id=${id}::uuid`;
-  return Response.json({ ok: Number(res.settled) === 1, status: "settled", amount: atomicToUsdc(BigInt(String(row.amount_atomic))), buyerAssetId: res.buyer_asset_id ?? null, onchain });
+  const anchor = Number(res.settled) === 1 ? await attachSolanaAnchor(sql, String(row.negotiation_id)) : { skipped: true };
+  return Response.json({ ok: Number(res.settled) === 1, status: "settled", amount: atomicToUsdc(BigInt(String(row.amount_atomic))), buyerAssetId: res.buyer_asset_id ?? null, onchain, anchor });
+}
+
+/** Writes (or records) the Solana memo for a settled negotiation's receipt. Failures do not undo settlement. */
+async function attachSolanaAnchor(sql: ReturnType<typeof db>, negotiationId: string, existingSig?: string) {
+  try {
+    const rows = await sql`SELECT receipt FROM bb_negotiations WHERE id=${negotiationId}::uuid LIMIT 1`;
+    const receipt = (rows[0] as { receipt?: any } | undefined)?.receipt;
+    if (!receipt?.dealId || !receipt?.finalHash) return { ok: false, error: "Receipt has no deal id or final hash." };
+    if (receipt.anchor?.status === "anchored" && receipt.anchor?.txHash) return { ok: true, already: true, anchor: receipt.anchor };
+    let record = receipt.anchor;
+    if (existingSig) {
+      const check = await verifyMemoAnchor({ signature: existingSig, dealId: receipt.dealId, finalHash: receipt.finalHash, writer: BLACKBOX_ANCHOR_SOLANA });
+      if (check.ok !== true) return { ok: false, error: check.reason ?? "Memo did not verify." };
+      record = {
+        status: "anchored",
+        chain: "solana-mainnet",
+        program: "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+        writer: check.writer ?? BLACKBOX_ANCHOR_SOLANA,
+        memo: check.memo,
+        txHash: existingSig,
+        explorerUrl: `https://solscan.io/tx/${existingSig}`,
+        finalHash: String(receipt.finalHash).replace(/^0x/i, "").toLowerCase(),
+        slot: check.slot,
+        blockTime: check.blockTime,
+      };
+    } else {
+      record = await getAnchorer().anchor(receipt.dealId, receipt.finalHash, receipt.referee?.hash ?? "");
+    }
+    await sql`UPDATE bb_negotiations SET receipt=jsonb_set(COALESCE(receipt,'{}'::jsonb), '{anchor}', ${JSON.stringify(record)}::jsonb) WHERE id=${negotiationId}::uuid`;
+    return { ok: record?.status === "anchored", anchor: record };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }

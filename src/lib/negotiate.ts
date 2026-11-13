@@ -8,7 +8,7 @@ import { callServ, extractJson, systemPrompt, userPrompt, turnSchema, INJECTION,
 import { getSettler } from "./settle-server";
 import { commitBudget, SESSION_TTL_SECONDS, type Mandate, type Settler } from "./settle";
 import { mintAgent, KITE_OWNER, type AgentOwner } from "./identity";
-import { getAnchorer } from "./anchor-evm";
+import { getAnchorer } from "./anchor-solana";
 import { REFEREE_HASH, REFEREE_FILES } from "./referee-hash.generated";
 import type { Receipt, DealTerms } from "./receipt";
 
@@ -223,8 +223,13 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
 
   const finalHash = chain.head;
   let anchor;
-  try { anchor = await getAnchorer().anchor(dealId, finalHash, REFEREE_HASH); }
-  catch (e) { anchor = { status: "not_anchored" as const, reason: `Anchor failed: ${(e as Error).message}`, plannedChain: "Kite AI testnet (chain 2368)" }; }
+  const pendingReal = settlement?.mode === "kite-mainnet" && settlement.live === false;
+  if (pendingReal) {
+    anchor = { status: "not_anchored" as const, reason: "Waiting for the real USDC payment to settle before the final hash is anchored on Solana mainnet.", plannedChain: "Solana mainnet (SPL Memo)" };
+  } else {
+    try { anchor = await getAnchorer().anchor(dealId, finalHash, REFEREE_HASH); }
+    catch (e) { anchor = { status: "not_anchored" as const, reason: `Anchor failed: ${(e as Error).message}`, plannedChain: "Solana mainnet (SPL Memo)" }; }
+  }
 
   const receipt: Receipt = {
     version: "blackbox/1", dealId, createdAt: chain.entries[0].ts, model: `${SERV_MODEL} via SERV Reasoning`, terms,

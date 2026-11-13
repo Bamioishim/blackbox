@@ -9,6 +9,7 @@ import { REFEREE_HASH } from "./referee-hash.generated";
 import { checkBudgetReveal, KITE_PASSKEY_SCHEME, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
 import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
 import { verifyUsdcTransfer, usdcToAtomic } from "./solana-verify";
+import { BLACKBOX_ANCHOR_SOLANA, verifyMemoAnchor } from "./solana-memo";
 
 export type Check = { id: string; label: string; ok: boolean | null; detail: string };
 
@@ -208,7 +209,24 @@ async function finishAnchor(r: Receipt, checks: Check[], headOk: boolean, opts: 
   // 7. Anchor
   if (r.anchor?.status === "anchored") {
     const a = r.anchor;
-    if (opts.onchain) {
+    const solanaMemo = a.chain === "solana-mainnet" || Boolean(a.program) || Boolean(a.memo);
+    if (opts.onchain && solanaMemo) {
+      try {
+        const on = await verifyMemoAnchor({ signature: a.txHash, dealId: r.dealId, finalHash: r.finalHash, writer: a.writer ?? BLACKBOX_ANCHOR_SOLANA });
+        const ok = on.ok === true && headOk;
+        const when = on.blockTime ? ` at ${new Date(on.blockTime * 1000).toISOString()}` : "";
+        checks.push({
+          id: "anchor",
+          label: "Final hash matches the onchain anchor",
+          ok: on.ok === null ? null : ok,
+          detail: on.ok === true
+            ? `${ok ? "Matches" : "Does NOT match"} the memo written on Solana mainnet${when}. ${a.explorerUrl}`
+            : `${on.reason ?? "Could not verify the memo."} ${a.explorerUrl}`,
+        });
+      } catch (e) {
+        checks.push({ id: "anchor", label: "Final hash matches the onchain anchor", ok: null, detail: `Couldn't reach Solana mainnet (${(e as Error).message}). Check by hand: ${a.explorerUrl}` });
+      }
+    } else if (opts.onchain && a.chainId && a.contract) {
       try {
         const on = await readAnchor(a.chainId, a.contract, r.dealId);
         const ok = on.blockTime > 0 && on.finalHash === r.finalHash && headOk;
@@ -220,7 +238,7 @@ async function finishAnchor(r: Receipt, checks: Check[], headOk: boolean, opts: 
       checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: a.finalHash === r.finalHash && headOk, detail: `${a.chain}: ${a.explorerUrl} (not read from chain in this check)` });
     }
   } else {
-    checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: null, detail: "Not anchored yet." });
+    checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: null, detail: r.anchor?.reason ?? "Not anchored yet." });
   }
   return checks;
 }

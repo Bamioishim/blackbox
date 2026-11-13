@@ -91,7 +91,7 @@ export function Verifier() {
       <h1 className="display" style={{ fontSize: "clamp(42px, 6vw, 76px)", margin: "8px 0 14px", maxWidth: 940 }}>Check a deal <span className="dim">without trusting us.</span></h1>
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
         Paste a deal ID or a receipt. Your browser re-hashes every log entry, re-runs the referee on the recorded offers,
-        checks both revealed limits against their commitments, and reads the payment caps. A real USDC payment is re-read live from Solana mainnet
+        checks both revealed limits against their commitments, and reads the payment caps. A real USDC payment, and the final-hash memo when one has been written, are re-read live from Solana mainnet
         (public RPCs, or this site&apos;s proxy if those are blocked). No account required.
       </p>
 
@@ -172,7 +172,7 @@ export function Verifier() {
                 </div>
                 {effective.r.anchor.status !== "anchored" && (
                   <p className="muted" style={{ fontSize: 14, marginTop: 16 }}>
-                    Without an onchain anchor, this check proves the log is internally consistent, not that it wasn&apos;t rewritten whole before you got it. Anchoring the final hash fixes that; it&apos;s built and waiting for approval to deploy.
+                    Without an onchain anchor, this check proves the log is internally consistent, not that it wasn&apos;t rewritten whole before you got it. After a real settlement, Blackbox writes the final hash to Solana mainnet as an SPL Memo so this page can re-read it.
                   </p>
                 )}
               </div>

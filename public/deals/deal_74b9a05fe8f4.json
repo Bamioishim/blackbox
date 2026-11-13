@@ -1,0 +1,787 @@
+{
+  "log": [
+    {
+      "ts": "2026-11-13T01:03:39.554Z",
+      "seq": 0,
+      "hash": "ee7a77392e053cac0010ebc36bb1c0c34607b7689b2ce5c2569aa68f25a31d9d",
+      "kind": "deal.open",
+      "actor": "system",
+      "payload": {
+        "item": "Blackbox Genesis Pass",
+        "asset": "USDC",
+        "model": "gpt-5.4-mini",
+        "dealId": "deal_74b9a05fe8f4",
+        "quantity": 1,
+        "maxRounds": 3,
+        "attackMode": false,
+        "refereeHash": "5c194b8f6fdd8688f375d5111036fe3993b636b1ebb4c83efc5e627c649b6673",
+        "roundPolicy": "blackbox/mutual-min-3",
+        "buyerMaxRounds": 3,
+        "referencePrice": 0.75,
+        "sellerMaxRounds": 3
+      },
+      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.618Z",
+      "seq": 1,
+      "hash": "ca69d624d26a01769eba3e6a92a835ab0979675c302fa115b1c426b7fd3ec9f2",
+      "kind": "agent.identity",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "owner": {
+          "wallet": {
+            "evm": "",
+            "solana": ""
+          },
+          "account": "6ba6c359-e7ed-45fe-9e70-a6957c7924b2",
+          "backend": "Blackbox",
+          "provider": "blackbox-account"
+        },
+        "binding": {
+          "note": "Per-deal runtime key for this account's agent; not bound to a Kite agent DID.",
+          "status": "unbound"
+        },
+        "agentRef": "blackbox-buyer",
+        "keyScheme": "secp256k1 / EIP-191",
+        "runtimeKey": "0xffae9a4f630b9357ea62997D850a460E8Ef23ddA"
+      },
+      "prevHash": "ee7a77392e053cac0010ebc36bb1c0c34607b7689b2ce5c2569aa68f25a31d9d"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.618Z",
+      "seq": 2,
+      "hash": "8087c2761d1cb33965cabac707c2e39e1d1f3df82f5d215812b9e3bf3db2b814",
+      "kind": "agent.identity",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "owner": {
+          "wallet": {
+            "evm": "",
+            "solana": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx"
+          },
+          "account": "4ef6e771-4a19-43b7-82b7-6ed34896db35",
+          "backend": "Blackbox",
+          "provider": "blackbox-account"
+        },
+        "binding": {
+          "note": "Per-deal runtime key for this account's agent; not bound to a Kite agent DID.",
+          "status": "unbound"
+        },
+        "agentRef": "blackbox-seller",
+        "keyScheme": "secp256k1 / EIP-191",
+        "runtimeKey": "0xbd078d9d9fdB31241afeEB157759bc479f7D8dC1"
+      },
+      "prevHash": "ca69d624d26a01769eba3e6a92a835ab0979675c302fa115b1c426b7fd3ec9f2"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.619Z",
+      "seq": 3,
+      "hash": "cc94231a66d361c70e9bf59b94c63dac15996d912fb879596f72f608e33daa5a",
+      "kind": "mandate.open",
+      "actor": "buyer",
+      "payload": {
+        "mode": "kite-mainnet",
+        "owner": "6ba6c359-e7ed-45fe-9e70-a6957c7924b2",
+        "payer": "",
+        "policy": "Kite Passport spending session: max_total_amount = max_amount_per_tx = the owner's spending limit",
+        "createdAt": "2026-11-13T01:03:39.619Z",
+        "sessionId": "sess_3daa9518b66f716f",
+        "simulated": false,
+        "ttlSeconds": 900,
+        "delegationShape": {
+          "task": {
+            "summary": "Pay one seller for Blackbox Genesis Pass agreed in Blackbox deal deal_74b9a05fe8f4, up to <your limit> USDC."
+          },
+          "payment_policy": {
+            "currency": "USD",
+            "ttl_seconds": 900,
+            "max_total_amount": "<your limit>",
+            "max_amount_per_tx": "<your limit>"
+          }
+        },
+        "budgetCommitment": {
+          "dealId": "deal_74b9a05fe8f4",
+          "commitment": "9df3210f694a25a32a01bd74e16dd7f87881833c7ddafebc1e68b9da57171645"
+        }
+      },
+      "prevHash": "8087c2761d1cb33965cabac707c2e39e1d1f3df82f5d215812b9e3bf3db2b814"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.621Z",
+      "seq": 4,
+      "hash": "ba3e204a37e76c349ee999bacdaa898ee6c9b0ec41b5ee7b7b44a20a7f7f5d10",
+      "kind": "commit",
+      "actor": "buyer",
+      "payload": {
+        "side": "buyer",
+        "dealId": "deal_74b9a05fe8f4",
+        "commitment": "c343daca28b7661bd50ddaaf8f105d14c894586b5350e59065f257d23fac8aef"
+      },
+      "prevHash": "cc94231a66d361c70e9bf59b94c63dac15996d912fb879596f72f608e33daa5a"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.621Z",
+      "seq": 5,
+      "hash": "1c91c26122c930b3ef793582a1cfd6b16ca40ed5873aaaeac8dd9c984284deb4",
+      "kind": "commit",
+      "actor": "seller",
+      "payload": {
+        "side": "seller",
+        "dealId": "deal_74b9a05fe8f4",
+        "commitment": "f4e2b6a860a7c3b9c7c4e382a1714e2c24451df044a6a770e567aa970d88e34b"
+      },
+      "prevHash": "ba3e204a37e76c349ee999bacdaa898ee6c9b0ec41b5ee7b7b44a20a7f7f5d10"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.627Z",
+      "seq": 6,
+      "hash": "40ba2c6543ce729536ad025900ad3312b4270eff5c93883d99f11cea4ab79392",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 1216,
+        "round": 1,
+        "sealed": "c0e1829dfb311382e522a921a77bf55b32637d097cc4abc4114cd874c65a714f",
+        "attempt": 0
+      },
+      "prevHash": "1c91c26122c930b3ef793582a1cfd6b16ca40ed5873aaaeac8dd9c984284deb4"
+    },
+    {
+      "ts": "2026-11-13T01:03:39.629Z",
+      "seq": 7,
+      "hash": "694718f6782e04d895ff0a7bd55a0d9878eea202a5f71a11cbbbc6e4d5326595",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 1215,
+        "round": 1,
+        "sealed": "96de7d8fd1850d2680efa792f9b7cc87024efd74870f0cd235c8467b4bc02603",
+        "attempt": 0
+      },
+      "prevHash": "40ba2c6543ce729536ad025900ad3312b4270eff5c93883d99f11cea4ab79392"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.440Z",
+      "seq": 8,
+      "hash": "77650f85aa37acfae72b293f79cdced0a1ac7f10ccf2634866fe8a4febb09966",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 220,
+        "round": 1,
+        "sealed": "81799d9a07f68d4ccbf376c8629cc4b5113636da408aaf320f58a75005568054",
+        "attempt": 0
+      },
+      "prevHash": "694718f6782e04d895ff0a7bd55a0d9878eea202a5f71a11cbbbc6e4d5326595"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.444Z",
+      "seq": 9,
+      "hash": "e16bd9c082a361e04fa2ea5d4376d38d485434a3579a7ee111e4d4cfb61ef13e",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "agent": "0xbd078d9d9fdB31241afeEB157759bc479f7D8dC1",
+        "price": 0.98,
+        "round": 1,
+        "agentSig": "0x613fd7ef4889a3e916d258584caefe758a9a57a077d5069baa147286f41d01be528fe716c000e4fd7ae3f60a67bdaa6151fa3886ca8c727a0d60432392bb1eb51c",
+        "quantity": 1
+      },
+      "prevHash": "77650f85aa37acfae72b293f79cdced0a1ac7f10ccf2634866fe8a4febb09966"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.496Z",
+      "seq": 10,
+      "hash": "7756182120fe3cabcb17232e803d9715dc9567119a80feb5085df7b3435ee9eb",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 135,
+        "round": 1,
+        "sealed": "30a6e2af623fd3ec4ca134d02430279aed54a62755378210f8702bef946b9542",
+        "attempt": 0
+      },
+      "prevHash": "e16bd9c082a361e04fa2ea5d4376d38d485434a3579a7ee111e4d4cfb61ef13e"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.498Z",
+      "seq": 11,
+      "hash": "f90135ef29bbfff1ee15a97da96314c0cbe660bea6cd1b3dc9bb7d6b8f0789c3",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "agent": "0xffae9a4f630b9357ea62997D850a460E8Ef23ddA",
+        "price": 0.72,
+        "round": 1,
+        "agentSig": "0x060baac1f00064c24e28b2e639cd3aabb58d9e85f246c06f6189887777a261727d13203587332b2e2eccefc338ee1b52a5e628d507169916c6a15e8021a268321b",
+        "quantity": 1
+      },
+      "prevHash": "7756182120fe3cabcb17232e803d9715dc9567119a80feb5085df7b3435ee9eb"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.499Z",
+      "seq": 12,
+      "hash": "3e6dab4c41821c156a47a5c98307415f068dd24b8f5d53b79ed637e0614c6bc2",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "ask": 0.98,
+        "bid": 0.72,
+        "round": 1,
+        "status": "open"
+      },
+      "prevHash": "f90135ef29bbfff1ee15a97da96314c0cbe660bea6cd1b3dc9bb7d6b8f0789c3"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.499Z",
+      "seq": 13,
+      "hash": "d304448a3a18ac862eeeb76c4081a89a41ddd96febc9436d0b9438ef15b48683",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 1268,
+        "round": 2,
+        "sealed": "e3df8128427669957ab44334ab60efd4632c4691c673f7b023534d5e2e55762a",
+        "attempt": 0
+      },
+      "prevHash": "3e6dab4c41821c156a47a5c98307415f068dd24b8f5d53b79ed637e0614c6bc2"
+    },
+    {
+      "ts": "2026-11-13T01:03:41.500Z",
+      "seq": 14,
+      "hash": "297c1a4dee810e5d80e7cf9ce7b8b2573c024a8442491191e9066752597eec86",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 1266,
+        "round": 2,
+        "sealed": "b5d74c29114682c8895032d45cab152144045100c997545ad6ec3cf144446b07",
+        "attempt": 0
+      },
+      "prevHash": "d304448a3a18ac862eeeb76c4081a89a41ddd96febc9436d0b9438ef15b48683"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.170Z",
+      "seq": 15,
+      "hash": "f7613eb557c285bdc257f1c4efdfa830a19ecead47c36ee16807e2d5685bec4b",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 70,
+        "round": 2,
+        "sealed": "1b68ad2e80865bc4389b3a2a62f4a9e39612ad3c7ff46a8cab35299f14b3ce29",
+        "attempt": 0
+      },
+      "prevHash": "297c1a4dee810e5d80e7cf9ce7b8b2573c024a8442491191e9066752597eec86"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.172Z",
+      "seq": 16,
+      "hash": "2ba5eb21d911eac2fffba7d4ef85926710dc03db3c6787ede58b337727af85cc",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "agent": "0xffae9a4f630b9357ea62997D850a460E8Ef23ddA",
+        "price": 0.81,
+        "round": 2,
+        "agentSig": "0xfa0441e873b05f42ce845f323e76f14dc508cf2bcf7761460b8124f6606a67bc471386d4055f7c042ad7a7937d7a6dd0f62bbec98b8bd322083c9382c825c5c51c",
+        "quantity": 1
+      },
+      "prevHash": "f7613eb557c285bdc257f1c4efdfa830a19ecead47c36ee16807e2d5685bec4b"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.691Z",
+      "seq": 17,
+      "hash": "21b48987909db7b4e7d8f5bdf672a01cffaf9f185d74d7581683a63603da8a30",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 175,
+        "round": 2,
+        "sealed": "1091cd58e91b36b0186a57e6b67da6b016973b7363ec7fc4b5033f4f0ecf489f",
+        "attempt": 0
+      },
+      "prevHash": "2ba5eb21d911eac2fffba7d4ef85926710dc03db3c6787ede58b337727af85cc"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.693Z",
+      "seq": 18,
+      "hash": "adae943142ede57dbc0b470a7eb66f4f2041c0ef6187743d348cc1838cb4393a",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "agent": "0xbd078d9d9fdB31241afeEB157759bc479f7D8dC1",
+        "price": 0.88,
+        "round": 2,
+        "agentSig": "0xd0d2a7eec44301ea82ed051dac0aba0b8e0516c38bae0f6c838b0a241ff376f31425dc61e546f0d368c7c76c9277f4d141514d144097fb3c3008a4437aafb45c1b",
+        "quantity": 1
+      },
+      "prevHash": "21b48987909db7b4e7d8f5bdf672a01cffaf9f185d74d7581683a63603da8a30"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.693Z",
+      "seq": 19,
+      "hash": "b392b2f379a8cb929d02a3007abf4bbdf89b0b1f1acc18eba4416031a418c407",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "ask": 0.88,
+        "bid": 0.81,
+        "round": 2,
+        "status": "open"
+      },
+      "prevHash": "adae943142ede57dbc0b470a7eb66f4f2041c0ef6187743d348cc1838cb4393a"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.694Z",
+      "seq": 20,
+      "hash": "d3f4148b8ad33f99532875f5ae1cf83fa613be4afbcea677032a2dd0612cc2e5",
+      "kind": "prompt",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 1310,
+        "round": 3,
+        "sealed": "bee2cacbd57e96d7fd588db9ddf96bd436714d7614dabfef3801628b25e722af",
+        "attempt": 0
+      },
+      "prevHash": "b392b2f379a8cb929d02a3007abf4bbdf89b0b1f1acc18eba4416031a418c407"
+    },
+    {
+      "ts": "2026-11-13T01:03:43.694Z",
+      "seq": 21,
+      "hash": "151bc35257934271a92e3b1ef69b46665f1037d073a7f98ea7b828afd40c4719",
+      "kind": "prompt",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 1307,
+        "round": 3,
+        "sealed": "ad88a0577bdca13bceef86d3e118cdd9c759262e5130f56b90fe5e94efdcdcf0",
+        "attempt": 0
+      },
+      "prevHash": "d3f4148b8ad33f99532875f5ae1cf83fa613be4afbcea677032a2dd0612cc2e5"
+    },
+    {
+      "ts": "2026-11-13T01:03:45.836Z",
+      "seq": 22,
+      "hash": "3d72dfc1a743f36473663521756736478e7f6c9a66aba4b97c60ccef37c22ab9",
+      "kind": "response",
+      "actor": "buyer-agent",
+      "payload": {
+        "side": "buyer",
+        "chars": 223,
+        "round": 3,
+        "sealed": "3e62962ad1735028a368e477c461b86ed6fa43db096574307913fad491ce9eea",
+        "attempt": 0
+      },
+      "prevHash": "151bc35257934271a92e3b1ef69b46665f1037d073a7f98ea7b828afd40c4719"
+    },
+    {
+      "ts": "2026-11-13T01:03:45.838Z",
+      "seq": 23,
+      "hash": "c7948028ec4ff648e317f8a809369fbbdf3235a3a8aa019c36f5fbc9b2496688",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "buyer",
+        "agent": "0xffae9a4f630b9357ea62997D850a460E8Ef23ddA",
+        "price": 0.88,
+        "round": 3,
+        "agentSig": "0x5e7fc1bb3bc359638aafd8a73bb778650bd2b67486abc1e654d1da095acff6b83417a8e08869be89cfac6adf7855605bd2f69042c61e9129429aa1fb1d1ff8b81b",
+        "quantity": 1
+      },
+      "prevHash": "3d72dfc1a743f36473663521756736478e7f6c9a66aba4b97c60ccef37c22ab9"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.151Z",
+      "seq": 24,
+      "hash": "e411ffaecc4c4648177c308938b4add8e2587595b858c71a0deeb5d6e6d52646",
+      "kind": "response",
+      "actor": "seller-agent",
+      "payload": {
+        "side": "seller",
+        "chars": 70,
+        "round": 3,
+        "sealed": "bb110e1d3546a27f378242ec08c17b5cb7f20fff2a8c4f64feeed9179650ca6d",
+        "attempt": 0
+      },
+      "prevHash": "c7948028ec4ff648e317f8a809369fbbdf3235a3a8aa019c36f5fbc9b2496688"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 25,
+      "hash": "f33b1986fda783bb825a63852129486fe43944db780d22ad3b8c06aef3121cf9",
+      "kind": "offer.accepted",
+      "actor": "referee",
+      "payload": {
+        "side": "seller",
+        "agent": "0xbd078d9d9fdB31241afeEB157759bc479f7D8dC1",
+        "price": 0.84,
+        "round": 3,
+        "agentSig": "0x34e85947c53291939f490e2e9f1b8d37c767f563539f278895b25bffdc10a0ac5df862befbdc45f39ab3ae706a671ad1334de2b0b07db176c8e361ee2c2390e51b",
+        "quantity": 1
+      },
+      "prevHash": "e411ffaecc4c4648177c308938b4add8e2587595b858c71a0deeb5d6e6d52646"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 26,
+      "hash": "e10b6b009e388960797883843af945f82cd23a7e7d0d5f7fcbd01296cea997e7",
+      "kind": "round.closed",
+      "actor": "referee",
+      "payload": {
+        "ask": 0.84,
+        "bid": 0.88,
+        "round": 3,
+        "status": "closed"
+      },
+      "prevHash": "f33b1986fda783bb825a63852129486fe43944db780d22ad3b8c06aef3121cf9"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 27,
+      "hash": "1eba745f7231d7e4d462cb269b818587f868965916bf8752c930ef9f01aa7006",
+      "kind": "deal.closed",
+      "actor": "referee",
+      "payload": {
+        "rule": "midpoint of crossing bid and ask",
+        "round": 3,
+        "total": 0.86,
+        "unitPrice": 0.86
+      },
+      "prevHash": "e10b6b009e388960797883843af945f82cd23a7e7d0d5f7fcbd01296cea997e7"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 28,
+      "hash": "e671facbe83c4fd30dfeb959fd708e7b57abbf72244743b9768ab0aaff865e68",
+      "kind": "reveal",
+      "actor": "buyer",
+      "payload": {
+        "salt": "10afdb678a68852a7df9cb4b1e3e54ce65f2af6d2e60351bc3b57c3083d73adc",
+        "side": "buyer",
+        "limit": "0.900000",
+        "dealId": "deal_74b9a05fe8f4"
+      },
+      "prevHash": "1eba745f7231d7e4d462cb269b818587f868965916bf8752c930ef9f01aa7006"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 29,
+      "hash": "b40d647071ec2da4dd974e2e073a109dac0cc1da393cc29fb83dccc7992f8001",
+      "kind": "reveal",
+      "actor": "seller",
+      "payload": {
+        "salt": "594f6b83cb54624e7f7837370c42243418d9b85f0ac85d16b9dc70eb17e7b70c",
+        "side": "seller",
+        "limit": "0.500000",
+        "dealId": "deal_74b9a05fe8f4"
+      },
+      "prevHash": "e671facbe83c4fd30dfeb959fd708e7b57abbf72244743b9768ab0aaff865e68"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 30,
+      "hash": "1bf9af14a52a30a9968722fb908ba481be3bf4231e9f7b0bbc57cce1e396923a",
+      "kind": "settle.session",
+      "actor": "settlement",
+      "payload": {
+        "label": "Real payment requested \u2014 Kite Passport, USDC on Solana mainnet. The buyer's owner approves it with a passkey; nothing moves until then.",
+        "session": {
+          "mode": "kite-mainnet",
+          "asset": "USDC",
+          "payee": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx",
+          "dealId": "deal_74b9a05fe8f4",
+          "provider": "kite-passport",
+          "capSource": "user-budget",
+          "createdAt": "2026-11-13T01:03:39.619Z",
+          "expiresAt": "2026-11-13T01:18:39.619Z",
+          "sessionId": "sess_3daa9518b66f716f",
+          "ttlSeconds": 900,
+          "taskSummary": "Pay for 1 x Blackbox Genesis Pass (Blackbox deal deal_74b9a05fe8f4). Spending limit set by the owner: 1.000000 USDC.",
+          "maxAmountPerTx": "1.000000",
+          "maxTotalAmount": "1.000000"
+        },
+        "simulated": false,
+        "delegation": {
+          "scheme": "kite-passport-passkey: approved by the owner in Kite Passport at payment time (no in-app key)",
+          "signer": "kite-passport",
+          "message": "{\"asset\":\"USDC\",\"capSource\":\"user-budget\",\"createdAt\":\"2026-11-13T01:03:39.619Z\",\"dealId\":\"deal_74b9a05fe8f4\",\"expiresAt\":\"2026-11-13T01:18:39.619Z\",\"maxAmountPerTx\":\"1.000000\",\"maxTotalAmount\":\"1.000000\",\"mode\":\"kite-mainnet\",\"payee\":\"BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx\",\"provider\":\"kite-passport\",\"sessionId\":\"sess_3daa9518b66f716f\",\"taskSummary\":\"Pay for 1 x Blackbox Genesis Pass (Blackbox deal deal_74b9a05fe8f4). Spending limit set by the owner: 1.000000 USDC.\",\"ttlSeconds\":900}",
+          "signature": ""
+        },
+        "budgetReveal": {
+          "kind": "budget",
+          "salt": "3e2aede359a14ec3b40d225d589624c0c64859599ca28f52b4525e19a4bed3b3",
+          "budget": "1.000000",
+          "dealId": "deal_74b9a05fe8f4"
+        }
+      },
+      "prevHash": "b40d647071ec2da4dd974e2e073a109dac0cc1da393cc29fb83dccc7992f8001"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.154Z",
+      "seq": 31,
+      "hash": "07ae37a4af553bc016b79930ea7c4daf3d7e9f5d79897c003539cd270619d657",
+      "kind": "settle.payment",
+      "actor": "settlement",
+      "payload": {
+        "ok": true,
+        "code": "awaiting_owner_approval",
+        "mode": "kite-mainnet",
+        "rule": "USDC on Solana to BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx",
+        "label": "Pay the agreed amount",
+        "amount": "0.860000",
+        "simulated": false
+      },
+      "prevHash": "1bf9af14a52a30a9968722fb908ba481be3bf4231e9f7b0bbc57cce1e396923a"
+    },
+    {
+      "ts": "2026-11-13T01:03:46.155Z",
+      "seq": 32,
+      "hash": "2cb98d1cb3a02f18b00b011d5ffc0fa80de1da7224bb4b76a01d91809705c1a1",
+      "kind": "settle.enforcement",
+      "actor": "settlement",
+      "payload": {
+        "mode": "kite-mainnet",
+        "attempts": [
+          {
+            "ok": false,
+            "code": "over_agreed_total",
+            "rule": "deal rule, enforced when the on-chain transfer is checked",
+            "label": "Accept a transfer of 0.01 more than agreed",
+            "amount": "0.870000"
+          },
+          {
+            "ok": false,
+            "code": "deal_already_settled",
+            "rule": "deal rule, one payment per deal",
+            "label": "Accept a second payment after settling",
+            "amount": "0.010000"
+          }
+        ],
+        "simulated": false
+      },
+      "prevHash": "07ae37a4af553bc016b79930ea7c4daf3d7e9f5d79897c003539cd270619d657"
+    }
+  ],
+  "model": "gpt-5.4-mini via SERV Reasoning",
+  "terms": {
+    "item": "Blackbox Genesis Pass",
+    "asset": "USDC",
+    "quantity": 1,
+    "maxRounds": 3,
+    "attackMode": false,
+    "referencePrice": 0.75
+  },
+  "anchor": {
+    "status": "anchored",
+    "chain": "solana-mainnet",
+    "program": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+    "writer": "3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8",
+    "memo": "blackbox:deal_74b9a05fe8f4:2cb98d1cb3a02f18b00b011d5ffc0fa80de1da7224bb4b76a01d91809705c1a1",
+    "txHash": "3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy",
+    "explorerUrl": "https://solscan.io/tx/3jFUTFv1NJBQgLscRc91qMvUv3kXpkeW7Ni5RPUALZXWivHfeRN6w5XXgwPFP225oGJA9eLaGUTAYN5q5MXTEBvy",
+    "finalHash": "2cb98d1cb3a02f18b00b011d5ffc0fa80de1da7224bb4b76a01d91809705c1a1",
+    "slot": 468776619,
+    "blockTime": 1794540646
+  },
+  "budget": {
+    "limit": "1.000000",
+    "sessionId": "sess_3daa9518b66f716f",
+    "commitment": "9df3210f694a25a32a01bd74e16dd7f87881833c7ddafebc1e68b9da57171645"
+  },
+  "dealId": "deal_74b9a05fe8f4",
+  "outcome": {
+    "round": 3,
+    "total": 0.86,
+    "status": "closed",
+    "unitPrice": 0.86
+  },
+  "referee": {
+    "hash": "5c194b8f6fdd8688f375d5111036fe3993b636b1ebb4c83efc5e627c649b6673",
+    "files": [
+      "src/lib/schema.ts",
+      "src/lib/referee.ts"
+    ]
+  },
+  "reveals": [
+    {
+      "salt": "10afdb678a68852a7df9cb4b1e3e54ce65f2af6d2e60351bc3b57c3083d73adc",
+      "side": "buyer",
+      "limit": "0.900000",
+      "dealId": "deal_74b9a05fe8f4"
+    },
+    {
+      "salt": "594f6b83cb54624e7f7837370c42243418d9b85f0ac85d16b9dc70eb17e7b70c",
+      "side": "seller",
+      "limit": "0.500000",
+      "dealId": "deal_74b9a05fe8f4"
+    }
+  ],
+  "version": "blackbox/1",
+  "identity": {
+    "owner": {
+      "wallet": {
+        "evm": "",
+        "solana": ""
+      },
+      "account": "6ba6c359-e7ed-45fe-9e70-a6957c7924b2",
+      "backend": "Blackbox",
+      "provider": "blackbox-account"
+    },
+    "agents": [
+      {
+        "side": "buyer",
+        "owner": {
+          "wallet": {
+            "evm": "",
+            "solana": ""
+          },
+          "account": "6ba6c359-e7ed-45fe-9e70-a6957c7924b2",
+          "backend": "Blackbox",
+          "provider": "blackbox-account"
+        },
+        "binding": {
+          "note": "Per-deal runtime key for this account's agent; not bound to a Kite agent DID.",
+          "status": "unbound"
+        },
+        "agentRef": "blackbox-buyer",
+        "keyScheme": "secp256k1 / EIP-191",
+        "runtimeKey": "0xffae9a4f630b9357ea62997D850a460E8Ef23ddA"
+      },
+      {
+        "side": "seller",
+        "owner": {
+          "wallet": {
+            "evm": "",
+            "solana": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx"
+          },
+          "account": "4ef6e771-4a19-43b7-82b7-6ed34896db35",
+          "backend": "Blackbox",
+          "provider": "blackbox-account"
+        },
+        "binding": {
+          "note": "Per-deal runtime key for this account's agent; not bound to a Kite agent DID.",
+          "status": "unbound"
+        },
+        "agentRef": "blackbox-seller",
+        "keyScheme": "secp256k1 / EIP-191",
+        "runtimeKey": "0xbd078d9d9fdB31241afeEB157759bc479f7D8dC1"
+      }
+    ],
+    "counterparty": {
+      "wallet": {
+        "evm": "",
+        "solana": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx"
+      },
+      "account": "4ef6e771-4a19-43b7-82b7-6ed34896db35",
+      "backend": "Blackbox",
+      "provider": "blackbox-account"
+    }
+  },
+  "createdAt": "2026-11-13T01:03:39.554Z",
+  "finalHash": "2cb98d1cb3a02f18b00b011d5ffc0fa80de1da7224bb4b76a01d91809705c1a1",
+  "settlement": {
+    "live": false,
+    "mode": "kite-mainnet",
+    "label": "Real payment requested \u2014 Kite Passport, USDC on Solana mainnet. The buyer's owner approves it with a passkey; nothing moves until then.",
+    "budget": {
+      "limit": "1.000000",
+      "reveal": {
+        "kind": "budget",
+        "salt": "3e2aede359a14ec3b40d225d589624c0c64859599ca28f52b4525e19a4bed3b3",
+        "budget": "1.000000",
+        "dealId": "deal_74b9a05fe8f4"
+      },
+      "withinLimit": true
+    },
+    "payment": {
+      "ok": true,
+      "code": "awaiting_owner_approval",
+      "rule": "USDC on Solana to BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx",
+      "label": "Pay the agreed amount",
+      "amount": "0.860000"
+    },
+    "session": {
+      "mode": "kite-mainnet",
+      "asset": "USDC",
+      "payee": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx",
+      "dealId": "deal_74b9a05fe8f4",
+      "provider": "kite-passport",
+      "capSource": "user-budget",
+      "createdAt": "2026-11-13T01:03:39.619Z",
+      "expiresAt": "2026-11-13T01:18:39.619Z",
+      "sessionId": "sess_3daa9518b66f716f",
+      "ttlSeconds": 900,
+      "taskSummary": "Pay for 1 x Blackbox Genesis Pass (Blackbox deal deal_74b9a05fe8f4). Spending limit set by the owner: 1.000000 USDC.",
+      "maxAmountPerTx": "1.000000",
+      "maxTotalAmount": "1.000000"
+    },
+    "simulated": false,
+    "delegation": {
+      "scheme": "kite-passport-passkey: approved by the owner in Kite Passport at payment time (no in-app key)",
+      "signer": "kite-passport",
+      "message": "{\"asset\":\"USDC\",\"capSource\":\"user-budget\",\"createdAt\":\"2026-11-13T01:03:39.619Z\",\"dealId\":\"deal_74b9a05fe8f4\",\"expiresAt\":\"2026-11-13T01:18:39.619Z\",\"maxAmountPerTx\":\"1.000000\",\"maxTotalAmount\":\"1.000000\",\"mode\":\"kite-mainnet\",\"payee\":\"BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx\",\"provider\":\"kite-passport\",\"sessionId\":\"sess_3daa9518b66f716f\",\"taskSummary\":\"Pay for 1 x Blackbox Genesis Pass (Blackbox deal deal_74b9a05fe8f4). Spending limit set by the owner: 1.000000 USDC.\",\"ttlSeconds\":900}",
+      "signature": ""
+    },
+    "enforcement": [
+      {
+        "ok": false,
+        "code": "over_agreed_total",
+        "rule": "deal rule, enforced when the on-chain transfer is checked",
+        "label": "Accept a transfer of 0.01 more than agreed",
+        "amount": "0.870000"
+      },
+      {
+        "ok": false,
+        "code": "deal_already_settled",
+        "rule": "deal rule, one payment per deal",
+        "label": "Accept a second payment after settling",
+        "amount": "0.010000"
+      }
+    ]
+  },
+  "commitments": [
+    {
+      "side": "buyer",
+      "dealId": "deal_74b9a05fe8f4",
+      "commitment": "c343daca28b7661bd50ddaaf8f105d14c894586b5350e59065f257d23fac8aef"
+    },
+    {
+      "side": "seller",
+      "dealId": "deal_74b9a05fe8f4",
+      "commitment": "f4e2b6a860a7c3b9c7c4e382a1714e2c24451df044a6a770e567aa970d88e34b"
+    }
+  ],
+  "onchainPayment": {
+    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "slot": 468735852,
+    "asset": "USDC",
+    "chain": "solana-mainnet",
+    "amount": "0.860000",
+    "sender": "ABVbrFkJoTEtBHvh7AiSBH11HLo5XbwSU9vJoUajZahN",
+    "blockTime": 1794531843,
+    "recipient": "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx",
+    "signature": "EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk",
+    "verifiedAt": "2026-11-13T01:04:05.895Z",
+    "explorerUrl": "https://solscan.io/tx/EirLVt2nyUbXXJRXMgRgKWMZX2krjzMxaZHPdbkMwgwSE145ssrHmDZaJxVMA2YeTtz8y1qKSsKCfvYbrzsdDWk",
+    "amountAtomic": "860000",
+    "kiteRequestId": "wallet_send_req_01a1d26e-a596-7014-aab8-4e4419a5de14"
+  }
+}

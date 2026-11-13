@@ -1,4 +1,6 @@
-// Deploys BlackboxAnchor to Kite AI testnet (once) and anchors recorded deals.
+// Optional Kite testnet path (not used in production).
+// Live anchoring is scripts/anchor-solana.mjs + src/lib/anchor-solana.ts (SPL Memo on Solana mainnet).
+// This script deploys BlackboxAnchor to Kite AI testnet (once) and can anchor recorded deals.
 //   node scripts/anchor.mjs deploy
 //   node scripts/anchor.mjs anchor public/deals/deal_xxx.json
 // The deployer key is read from ANCHOR_KEY_FILE (default /workspace/secrets/sealed_anchor_key). It is never printed.
