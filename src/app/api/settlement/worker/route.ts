@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 }
 
 function okApprovalUrl(u: string) {
-  try { const x = new URL(u); return x.protocol === "https:" && (x.hostname === "gokite.ai" || x.hostname.endsWith(".gokite.ai")); } catch { return false; }
+  try { const x = new URL(u); const h = x.hostname; return x.protocol === "https:" && (h === "gokite.ai" || h.endsWith(".gokite.ai") || h === "agentpassport.ai" || h.endsWith(".agentpassport.ai")); } catch { return false; }
 }
 
 export async function POST(req: Request) {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
   if (action === "approval") {
     const approvalUrl = String(b?.approvalUrl ?? ""), kiteRequestId = String(b?.kiteRequestId ?? "").slice(0, 120);
-    if (!okApprovalUrl(approvalUrl) || !kiteRequestId) return Response.json({ error: "approvalUrl must be an https gokite.ai link, with a kiteRequestId" }, { status: 400 });
+    if (!okApprovalUrl(approvalUrl) || !kiteRequestId) return Response.json({ error: "approvalUrl must be an https Kite Passport link (gokite.ai or agentpassport.ai), with a kiteRequestId" }, { status: 400 });
     const exp = b?.expiresAt ? new Date(String(b.expiresAt)) : null;
     const up = await sql`UPDATE bb_real_settlements SET status='awaiting_approval', approval_url=${approvalUrl}, kite_request_id=${kiteRequestId},
       approval_expires_at=${exp && Number.isFinite(exp.getTime()) ? exp.toISOString() : null}, attempts=attempts+1, error=NULL, updated_at=now()
