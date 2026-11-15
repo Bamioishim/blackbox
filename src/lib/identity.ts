@@ -2,12 +2,11 @@
  * Who is at the table. Public values only: no keys, no email.
  *
  * Owner: the Kite Passport account that owns both seats in this demo and whose Passport wallet pays.
- * Agents: the buyer and seller are registered Kite Passport identity agents (`kpass agent create`), each with
- * its own DID and a public runtime address recorded below. Blackbox checks whether a local key matches that
- * address; it cannot query whether Kite Passport currently considers the remote binding active. When the
- * server holds the matching key (BLACKBOX_BUYER_AGENT_KEY / BLACKBOX_SELLER_AGENT_KEY), the agent signs every
- * offer with it; otherwise it falls back to a per-deal key and the record says it is unbound. Either way the
- * verifier can prove which key made which offer.
+ * Agents: the buyer and seller have registered Kite Passport identity metadata, each with a DID and a public
+ * runtime address recorded below. Blackbox checks whether a local key matches that address; it cannot query
+ * whether Kite Passport currently considers the remote binding active. When the server holds the matching key
+ * (BLACKBOX_BUYER_AGENT_KEY / BLACKBOX_SELLER_AGENT_KEY), the agent signs every offer with it; otherwise it
+ * falls back to a per-deal key. Either way the verifier can prove which key made which offer.
  */
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import { canonical } from "./canonical";
@@ -55,8 +54,8 @@ export type AgentIdentity = {
   owner: AgentOwner;
   /** The registered Kite Passport agent this seat belongs to (Kite-owned seats only). */
   kiteAgent?: KiteAgentRef;
-  /** "bound" means the local signer matches the registered runtime address; live Passport status is not queried. */
-  binding: { status: "bound" | "unbound"; note: string; method?: "kite-token" };
+  /** New records never claim active Passport binding: the local key check is not a live Passport query. */
+  binding: { status: "local-key-match" | "unbound" | "bound"; note: string; method?: "local-key-check" | "kite-token" };
 };
 
 export type AgentSigner = { identity: AgentIdentity; signOffer: (o: OfferSigPayload) => Promise<string> };
@@ -105,9 +104,9 @@ export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSign
     ? ((raw!.startsWith("0x") ? raw! : `0x${raw!}`) as `0x${string}`)
     : null;
   let account = privateKeyToAccount(held ?? generatePrivateKey());
-  // Only claim the binding when the held key really is the one registered with Kite.
-  const bound = !!reg && keyCheck?.status === "match" && account.address.toLowerCase() === reg.runtimeKey.toLowerCase();
-  if (held && !bound) account = privateKeyToAccount(generatePrivateKey());
+  // Use the registered runtime key only when its address matches, but do not imply Passport has an active binding.
+  const localKeyMatch = !!reg && keyCheck?.status === "match" && account.address.toLowerCase() === reg.runtimeKey.toLowerCase();
+  if (held && !localKeyMatch) account = privateKeyToAccount(generatePrivateKey());
   const identity: AgentIdentity = {
     side,
     agentRef: `blackbox-${side}`,
@@ -115,9 +114,9 @@ export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSign
     keyScheme: "secp256k1 / EIP-191",
     owner,
     ...(reg ? { kiteAgent: { did: reg.did, agentId: reg.agentId, keyId: reg.keyId } } : {}),
-    binding: bound
-      ? { status: "bound", method: "kite-token", note: `Local key matches the registered runtime address for ${reg!.did}; Blackbox does not query active Kite Passport binding status.` }
-      : { status: "unbound", note: reg ? `Per-deal key. The agent is registered as ${reg.did}; local key check: ${keyCheck?.status}. Blackbox does not query active Passport binding status.` : "Per-deal runtime key for this account's agent; not bound to a Kite agent DID." },
+    binding: localKeyMatch
+      ? { status: "local-key-match", method: "local-key-check", note: `Local key matches the registered runtime address for ${reg!.did}; active Kite Passport binding is not verified.` }
+      : { status: "unbound", note: reg ? `Per-deal key. The agent is registered as ${reg.did}; local key check: ${keyCheck?.status}. Active Passport binding is not verified.` : "Per-deal runtime key for this account's agent; not bound to a Kite agent DID." },
   };
   return { identity, signOffer: (o) => account.signMessage({ message: offerMessage(o) }) };
 }

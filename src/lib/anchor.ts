@@ -1,7 +1,8 @@
 /**
- * Anchoring is pluggable. The live path writes the deal's final hash to Solana
- * mainnet as an SPL Memo (`blackbox:<dealId>:<finalHash>`). The unused EVM
- * contract in contracts/BlackboxAnchor.sol remains as an optional Kite path.
+ * Anchoring is pluggable. Production writes the deal's final hash to Solana
+ * mainnet as an SPL Memo (`blackbox:<dealId>:<finalHash>`). The deployed EVM
+ * contract on Kite testnet is checked read-only by the verifier; it is not a
+ * payment rail and this module does not submit Kite transactions by default.
  */
 export type AnchorRecord =
   | { status: "not_anchored"; reason: string; plannedChain: string }

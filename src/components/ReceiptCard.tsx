@@ -35,7 +35,10 @@ export function ReceiptCard({ r }: { r: Receipt }) {
       {r.outcome.status === "closed" && <Row k="Total" v={`${r.outcome.total} USDC, closed in round ${r.outcome.round}`} />}
       {r.budget && <Row k="Your limit" v={`${r.budget.limit} USDC (committed before any offer; session ${r.budget.sessionId})`} />}
       <Row k="Buyer account" v={`${r.identity?.owner.provider ?? "Kite Passport"} · ${r.identity?.owner.account ?? KITE_OWNER.account}`} />\n      {r.identity?.counterparty && <Row k="Seller account" v={`${r.identity.counterparty.provider} · ${r.identity.counterparty.account}`} />}
-      {r.identity?.agents.map((a) => <Row key={a.side} k={`${a.side} agent`} v={<>{a.kiteAgent?.did ?? a.agentRef} · {a.runtimeKey}<br /><span className="muted" style={{ fontFamily: "var(--font-geist-sans)" }}>signs every offer; {a.binding?.status === "bound" ? "local key matches registered runtime address; active Passport status not queried" : a.kiteAgent ? "per-deal key, not the DID's registered runtime key" : "not bound to a Kite agent DID"}</span></>} />)}
+      {r.identity?.agents.map((a) => {
+        const localKeyMatch = a.binding?.status === "local-key-match" || a.binding?.status === "bound";
+        return <Row key={a.side} k={`${a.side} agent`} v={<>{a.kiteAgent?.did ?? a.agentRef} · {a.runtimeKey}<br /><span className="muted" style={{ fontFamily: "var(--font-geist-sans)" }}>signs every offer; {localKeyMatch ? "local key matches registered runtime address; active Kite Passport binding is unverified" : a.kiteAgent ? "per-deal key, not the DID's registered runtime key" : "not bound to a Kite agent DID"}</span></>} />;
+      })}
       {s && (
         <>
           {s.live ? <div className="live-banner" role="status" style={{ marginTop: 12 }}>Real settlement (Kite Passport, Solana mainnet)</div> : <div className="sim-banner" role="status" style={{ marginTop: 12 }}>SIMULATED — no real funds moved{s.fallback ? ` (fallback: ${s.fallback.reason})` : ""}</div>}

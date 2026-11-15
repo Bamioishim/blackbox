@@ -3,8 +3,8 @@ pragma solidity ^0.8.24;
 
 /// @title BlackboxAnchor
 /// @notice Stores the final hash of each Blackbox negotiation log, once. Nothing else.
-/// Unused optional path. Live anchoring is an SPL Memo on Solana mainnet, not this contract.
-/// Kept in case we later also write the hash on Kite (testnet 2368 / mainnet 2366).
+/// Optional Kite testnet hash anchor. Production writes remain SPL Memos on Solana mainnet.
+/// This contract stores hashes only; it does not transfer or settle USDC.
 contract BlackboxAnchor {
     struct Anchor { bytes32 finalHash; bytes32 refereeHash; uint64 blockTime; address writer; }
 

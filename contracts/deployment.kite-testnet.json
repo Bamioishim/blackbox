@@ -1,0 +1,9 @@
+{
+  "chain": "Kite AI testnet",
+  "chainId": 2368,
+  "contract": "0x19119ea2c1fc5d7d0941472e9cd362d809c78ec6",
+  "deployTx": "0x81a62117b15fdbaed6cbffc5cdb5faf7b0c05bdc564a7b2eb45b6a27f7b488ee",
+  "deployer": "0x7E678E756Fe8e0eF5E9919550C5c4263e4e66533",
+  "block": 22044943,
+  "explorer": "https://testnet.kitescan.ai/address/0x19119ea2c1fc5d7d0941472e9cd362d809c78ec6"
+}

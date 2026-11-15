@@ -92,7 +92,7 @@ export function Verifier() {
       <p className="muted" style={{ maxWidth: 700, marginTop: 0 }}>
         Paste a deal ID or a receipt. Your browser re-hashes every log entry, re-runs the referee on the recorded offers,
         checks both revealed limits against their commitments, and reads the payment caps. A real USDC payment, and the final-hash memo when one has been written, are re-read live from Solana mainnet
-        (public RPCs, or this site&apos;s proxy if those are blocked). No account required.
+        (public RPCs, or this site&apos;s proxy if those are blocked). The optional Kite AI testnet anchor is checked separately and read-only; it is not a payment rail. No account required.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: 32, marginTop: 34 }} className="v-grid">
