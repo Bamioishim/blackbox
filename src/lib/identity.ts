@@ -3,11 +3,11 @@
  *
  * Owner: the Kite Passport account that owns both seats in this demo and whose Passport wallet pays.
  * Agents: the buyer and seller are registered Kite Passport identity agents (`kpass agent create`), each with
- * its own DID. Each has a secp256k1 runtime key bound to that DID with an owner-minted token
- * (`kpass agent init` + `kpass agent bind --token`, binding active). When the server holds the bound key
- * (BLACKBOX_BUYER_AGENT_KEY / BLACKBOX_SELLER_AGENT_KEY), the agent signs every offer with it; otherwise it
- * falls back to a per-deal key and the record says it is unbound. Either way the verifier can prove which
- * agent made which offer.
+ * its own DID and a public runtime address recorded below. Blackbox checks whether a local key matches that
+ * address; it cannot query whether Kite Passport currently considers the remote binding active. When the
+ * server holds the matching key (BLACKBOX_BUYER_AGENT_KEY / BLACKBOX_SELLER_AGENT_KEY), the agent signs every
+ * offer with it; otherwise it falls back to a per-deal key and the record says it is unbound. Either way the
+ * verifier can prove which key made which offer.
  */
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts";
 import { canonical } from "./canonical";
@@ -55,6 +55,7 @@ export type AgentIdentity = {
   owner: AgentOwner;
   /** The registered Kite Passport agent this seat belongs to (Kite-owned seats only). */
   kiteAgent?: KiteAgentRef;
+  /** "bound" means the local signer matches the registered runtime address; live Passport status is not queried. */
   binding: { status: "bound" | "unbound"; note: string; method?: "kite-token" };
 };
 
@@ -65,19 +66,47 @@ export function offerMessage(o: OfferSigPayload): string {
   return canonical({ scheme: "blackbox-offer/1", ...o });
 }
 
-function boundKey(side: Side): `0x${string}` | null {
-  const raw = (typeof process !== "undefined" ? process.env[`BLACKBOX_${side.toUpperCase()}_AGENT_KEY`] : undefined)?.trim();
-  if (!raw) return null;
-  const hex = (raw.startsWith("0x") ? raw : `0x${raw}`) as `0x${string}`;
-  return /^0x[0-9a-fA-F]{64}$/.test(hex) ? hex : null;
+export type KiteAgentKeyCheck = {
+  status: "missing" | "malformed" | "invalid" | "mismatch" | "match";
+  expectedAddress: string;
+  derivedAddress?: string;
+};
+
+/** Check a configured private key without returning or logging the secret itself. */
+export function inspectKiteAgentKey(
+  side: Side,
+  raw = (typeof process !== "undefined" ? process.env[`BLACKBOX_${side.toUpperCase()}_AGENT_KEY`] : undefined),
+): KiteAgentKeyCheck {
+  const expectedAddress = KITE_AGENTS[side].runtimeKey;
+  const value = raw?.trim();
+  if (!value) return { status: "missing", expectedAddress };
+
+  const hex = (value.startsWith("0x") ? value : `0x${value}`) as `0x${string}`;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(hex)) return { status: "malformed", expectedAddress };
+
+  try {
+    const derivedAddress = privateKeyToAccount(hex).address;
+    return {
+      status: derivedAddress.toLowerCase() === expectedAddress.toLowerCase() ? "match" : "mismatch",
+      expectedAddress,
+      derivedAddress,
+    };
+  } catch {
+    // A 32-byte hex value can still be an invalid secp256k1 scalar (for example, zero).
+    return { status: "invalid", expectedAddress };
+  }
 }
 
 export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSigner {
   const reg = owner.provider === "kite-passport" ? KITE_AGENTS[side] : undefined;
-  const held = reg ? boundKey(side) : null;
+  const raw = (typeof process !== "undefined" ? process.env[`BLACKBOX_${side.toUpperCase()}_AGENT_KEY`] : undefined)?.trim();
+  const keyCheck = reg ? inspectKiteAgentKey(side, raw) : undefined;
+  const held = keyCheck?.status === "match"
+    ? ((raw!.startsWith("0x") ? raw! : `0x${raw!}`) as `0x${string}`)
+    : null;
   let account = privateKeyToAccount(held ?? generatePrivateKey());
   // Only claim the binding when the held key really is the one registered with Kite.
-  const bound = !!reg && !!held && account.address.toLowerCase() === reg.runtimeKey.toLowerCase();
+  const bound = !!reg && keyCheck?.status === "match" && account.address.toLowerCase() === reg.runtimeKey.toLowerCase();
   if (held && !bound) account = privateKeyToAccount(generatePrivateKey());
   const identity: AgentIdentity = {
     side,
@@ -87,8 +116,8 @@ export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSign
     owner,
     ...(reg ? { kiteAgent: { did: reg.did, agentId: reg.agentId, keyId: reg.keyId } } : {}),
     binding: bound
-      ? { status: "bound", method: "kite-token", note: `Runtime key bound to ${reg!.did} in Kite Passport (owner-minted bind token, binding active).` }
-      : { status: "unbound", note: reg ? `Per-deal key. The agent is registered as ${reg.did}, but this deal's key is not its bound runtime key.` : "Per-deal runtime key for this account's agent; not bound to a Kite agent DID." },
+      ? { status: "bound", method: "kite-token", note: `Local key matches the registered runtime address for ${reg!.did}; Blackbox does not query active Kite Passport binding status.` }
+      : { status: "unbound", note: reg ? `Per-deal key. The agent is registered as ${reg.did}; local key check: ${keyCheck?.status}. Blackbox does not query active Passport binding status.` : "Per-deal runtime key for this account's agent; not bound to a Kite agent DID." },
   };
   return { identity, signOffer: (o) => account.signMessage({ message: offerMessage(o) }) };
 }

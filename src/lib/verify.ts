@@ -127,7 +127,7 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     const badBinding = ids.filter((x) => x.binding?.status === "bound" && !(x.side in KITE_AGENTS && KITE_AGENTS[x.side as Side].runtimeKey.toLowerCase() === String(x.runtimeKey).toLowerCase() && x.kiteAgent?.did === KITE_AGENTS[x.side as Side].did));
     const ok = ids.length === 2 && bad === 0 && badBinding.length === 0;
     const bindNote = ids.every((x) => x.binding?.status === "bound")
-      ? `Keys are the runtime keys bound to Kite agents ${ids.map((x) => x.kiteAgent?.did).join(" and ")}.`
+      ? `Keys match the registered runtime addresses for Kite agents ${ids.map((x) => x.kiteAgent?.did).join(" and ")}; active Passport status is not queried.`
       : ids.some((x) => x.kiteAgent) ? `Kite agents: ${ids.map((x) => `${x.side} ${x.kiteAgent?.did ?? "none"} (${x.binding?.status ?? "unbound"})`).join(", ")}.` : "Runtime keys are not bound to Kite agent DIDs.";
     checks.push({
       id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok,

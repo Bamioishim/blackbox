@@ -13,7 +13,8 @@
     "test": "vitest run",
     "live-run": "tsx --conditions=react-server scripts/live-run.mts",
     "verify": "tsx scripts/verify.mts",
-    "check:kite-identity": "tsx --conditions=react-server scripts/check-kite-identity.mts"
+    "check:kite-identity": "tsx --conditions=react-server scripts/check-kite-identity.mts",
+    "anchor:kite": "node scripts/anchor.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
