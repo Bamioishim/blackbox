@@ -12,7 +12,8 @@
     "prebuild": "node scripts/referee-hash.mjs",
     "test": "vitest run",
     "live-run": "tsx --conditions=react-server scripts/live-run.mts",
-    "verify": "tsx scripts/verify.mts"
+    "verify": "tsx scripts/verify.mts",
+    "check:kite-identity": "tsx --conditions=react-server scripts/check-kite-identity.mts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
