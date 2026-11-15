@@ -35,7 +35,7 @@ export function describe(e: LogEntry): string {
     case "agent.identity": {
       const ka = p.kiteAgent as { did?: string } | undefined;
       const bound = (p.binding as { status?: string } | undefined)?.status === "bound";
-      return `${p.side} agent ${ka?.did ?? p.agentRef}: runtime key ${p.runtimeKey}, owned by ${(p.owner as { provider?: string })?.provider === "kite-passport" ? "Kite Passport" : "account"} ${(p.owner as { account?: string })?.account ?? "?"} (signs every offer; ${bound ? "key bound to its Kite agent DID" : ka ? "per-deal key, not the DID's bound key" : "not bound to a Kite agent DID"})`;
+      return `${p.side} agent ${ka?.did ?? p.agentRef}: runtime key ${p.runtimeKey}, owned by ${(p.owner as { provider?: string })?.provider === "kite-passport" ? "Kite Passport" : "account"} ${(p.owner as { account?: string })?.account ?? "?"} (signs every offer; ${bound ? "local key matches the registered runtime address; active Passport status is not queried" : ka ? "per-deal key, not the DID's registered runtime key" : "not bound to a Kite agent DID"})`;
     }
     case "mandate.open": return `Owner set a spending limit before any offer (committed ${String((p.budgetCommitment as { commitment?: string })?.commitment ?? "").slice(0, 12)}...). It caps Kite Passport session ${p.sessionId}${p.simulated ? " (SIMULATED)" : ""}.`;
     case "settle.session": { const s = p.session as Record<string, unknown>; const rv = p.budgetReveal as { budget?: string } | undefined; return `Payment session ${s.sessionId}: per-tx cap ${s.maxAmountPerTx}, total cap ${s.maxTotalAmount}${rv ? ` (= your spending limit ${rv.budget}, revealed)` : ""}, expires ${String(s.expiresAt).slice(11, 19)} UTC${s.mode === "mock" ? " — SIMULATED" : ""}`; }
