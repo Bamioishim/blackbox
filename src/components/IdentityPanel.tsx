@@ -18,12 +18,12 @@ export function IdentityPanel({ agents, sessionId }: { agents: AgentSeat[]; sess
         </div>
         {(["buyer", "seller"] as const).map((side) => (
           <div key={side}>
-            <span className="label">{side} agent (Kite Passport)</span>
+            <span className="label">{side} agent (registered Kite DID)</span>
             <div className="mono" style={{ marginTop: 4, wordBreak: "break-all" }}>{a(side)?.did ?? KITE_AGENTS[side].did}</div>
             <div className="mono muted" style={{ wordBreak: "break-all" }}>{a(side)?.agentId ?? KITE_AGENTS[side].agentId}</div>
             <div className="mono muted">{a(side) ? <>key {a(side)!.runtimeKey}</> : <>registered key {short(KITE_AGENTS[side].runtimeKey, 8, 6)}</>}</div>
             <div className="muted" style={{ fontSize: 12 }}>
-              Signs every offer it makes. {a(side) ? (a(side)!.bound ? "Local key matches the registered runtime address; active Passport status is not queried here." : a(side)!.did ? "Per-deal key, not the DID's registered runtime key." : "Not bound to a Kite agent DID.") : "Registered agent; active Passport binding status is not queried here."}
+              Signs every offer it makes. {a(side) ? (a(side)!.localKeyMatch ? "Local key matches the registered runtime address; active Kite Passport binding is unverified." : a(side)!.did ? "Per-deal key, not the DID's registered runtime key." : "Not bound to a Kite agent DID.") : "Registered DID metadata; no live Passport runtime connection is verified here."}
             </div>
           </div>
         ))}

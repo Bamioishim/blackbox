@@ -10,14 +10,15 @@ describe("Kite agent identity", () => {
     delete process.env.BLACKBOX_SELLER_AGENT_KEY;
   });
 
-  it("Kite-owned seats carry the registered DID; without the bound key they say unbound", () => {
+  it("Kite-owned seats carry the registered DID; without a matching local key they say unbound", () => {
     const a = mintAgent("buyer", KITE_OWNER);
     expect(a.identity.kiteAgent?.did).toBe(KITE_AGENTS.buyer.did);
     expect(a.identity.kiteAgent?.agentId).toBe(KITE_AGENTS.buyer.agentId);
     expect(a.identity.binding.status).toBe("unbound");
+    expect(a.identity.binding.note).toContain("Active Passport binding is not verified");
   });
 
-  it("a held key that is not the registered runtime key is ignored, never claimed as bound", () => {
+  it("a held key that is not the registered runtime key is ignored, never claimed as a local match", () => {
     process.env.BLACKBOX_BUYER_AGENT_KEY = WRONG;
     const a = mintAgent("buyer", KITE_OWNER);
     expect(inspectKiteAgentKey("buyer").status).toBe("mismatch");

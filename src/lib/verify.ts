@@ -123,11 +123,12 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
       } catch { ok = false; }
       if (!ok) bad++;
     }
-    // A record that claims a Kite binding must name the runtime key Blackbox registered for that DID.
-    const badBinding = ids.filter((x) => x.binding?.status === "bound" && !(x.side in KITE_AGENTS && KITE_AGENTS[x.side as Side].runtimeKey.toLowerCase() === String(x.runtimeKey).toLowerCase() && x.kiteAgent?.did === KITE_AGENTS[x.side as Side].did));
+    // A local-key match (including legacy `bound` receipts) must name the expected public runtime key.
+    const claimsLocalMatch = (x: AgentIdentity) => x.binding?.status === "local-key-match" || x.binding?.status === "bound";
+    const badBinding = ids.filter((x) => claimsLocalMatch(x) && !(x.side in KITE_AGENTS && KITE_AGENTS[x.side as Side].runtimeKey.toLowerCase() === String(x.runtimeKey).toLowerCase() && x.kiteAgent?.did === KITE_AGENTS[x.side as Side].did));
     const ok = ids.length === 2 && bad === 0 && badBinding.length === 0;
-    const bindNote = ids.every((x) => x.binding?.status === "bound")
-      ? `Keys match the registered runtime addresses for Kite agents ${ids.map((x) => x.kiteAgent?.did).join(" and ")}; active Passport status is not queried.`
+    const bindNote = ids.every(claimsLocalMatch)
+      ? `Local keys match the registered runtime addresses for Kite agents ${ids.map((x) => x.kiteAgent?.did).join(" and ")}; active Kite Passport binding and runtime connection are not verified.`
       : ids.some((x) => x.kiteAgent) ? `Kite agents: ${ids.map((x) => `${x.side} ${x.kiteAgent?.did ?? "none"} (${x.binding?.status ?? "unbound"})`).join(", ")}.` : "Runtime keys are not bound to Kite agent DIDs.";
     checks.push({
       id: "agent-sigs", label: "Every offer is signed by its own agent's key", ok,
