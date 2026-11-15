@@ -10,6 +10,7 @@ import { checkBudgetReveal, KITE_PASSKEY_SCHEME, type SessionIntent, type Delega
 import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
 import { verifyUsdcTransfer, usdcToAtomic } from "./solana-verify";
 import { BLACKBOX_ANCHOR_SOLANA, verifyMemoAnchor } from "./solana-memo";
+import kiteTestnetDeployment from "../../contracts/deployment.kite-testnet.json";
 
 export type Check = { id: string; label: string; ok: boolean | null; detail: string };
 
@@ -18,6 +19,15 @@ function find(log: LogEntry[], kind: LogEntry["kind"]) {
 }
 
 const RPC: Record<number, string> = { 2368: "https://rpc-testnet.gokite.ai/", 2366: "https://rpc.gokite.ai/" };
+const KITE_TESTNET_ANCHOR = {
+  chainId: kiteTestnetDeployment.chainId,
+  chain: kiteTestnetDeployment.chain,
+  contract: kiteTestnetDeployment.contract,
+  explorer: kiteTestnetDeployment.explorer,
+};
+function isKiteTestnetAnchor(chainId: number | undefined, contract: string | undefined) {
+  return chainId === KITE_TESTNET_ANCHOR.chainId && contract?.toLowerCase() === KITE_TESTNET_ANCHOR.contract.toLowerCase();
+}
 const ANCHORS_ABI = [{ type: "function", name: "anchors", stateMutability: "view", inputs: [{ name: "", type: "bytes32" }],
   outputs: [{ name: "finalHash", type: "bytes32" }, { name: "refereeHash", type: "bytes32" }, { name: "blockTime", type: "uint64" }, { name: "writer", type: "address" }] }] as const;
 
@@ -31,6 +41,35 @@ export async function readAnchor(chainId: number, contract: string, dealId: stri
   if (j.error) throw new Error(j.error.message);
   const [finalHash, refereeHash, blockTime, writer] = decodeFunctionResult({ abi: ANCHORS_ABI, functionName: "anchors", data: j.result });
   return { finalHash: finalHash.slice(2), refereeHash: refereeHash.slice(2), blockTime: Number(blockTime), writer };
+}
+
+/** Reads the deployed Kite testnet contract only; this function never submits a transaction. */
+export async function checkKiteTestnetAnchor(
+  receipt: Pick<Receipt, "dealId" | "finalHash" | "referee">,
+  headOk: boolean,
+): Promise<Check> {
+  try {
+    const on = await readAnchor(KITE_TESTNET_ANCHOR.chainId, KITE_TESTNET_ANCHOR.contract, receipt.dealId);
+    if (on.blockTime === 0) {
+      return {
+        id: "kite-testnet-anchor", label: "Kite testnet anchor (read-only)", ok: null,
+        detail: `No anchor record for this deal on ${KITE_TESTNET_ANCHOR.chain}. This optional testnet check does not affect payment or settlement. ${KITE_TESTNET_ANCHOR.explorer}`,
+      };
+    }
+    const normalize = (hash: string) => hash.replace(/^0x/i, "").toLowerCase();
+    const finalHashMatches = normalize(on.finalHash) === normalize(receipt.finalHash);
+    const refereeHashMatches = normalize(on.refereeHash) === normalize(receipt.referee.hash);
+    const matches = headOk && finalHashMatches && refereeHashMatches;
+    return {
+      id: "kite-testnet-anchor", label: "Kite testnet anchor (read-only)", ok: matches,
+      detail: `${matches ? "Matches" : "Does NOT match"} the receipt's final and referee hashes on ${KITE_TESTNET_ANCHOR.chain} at ${new Date(on.blockTime * 1000).toISOString()}; writer ${on.writer}. This is testnet hash verification only, not USDC settlement. ${KITE_TESTNET_ANCHOR.explorer}`,
+    };
+  } catch (e) {
+    return {
+      id: "kite-testnet-anchor", label: "Kite testnet anchor (read-only)", ok: null,
+      detail: `Could not read the optional ${KITE_TESTNET_ANCHOR.chain} anchor (${(e as Error).message}). No transaction was submitted. ${KITE_TESTNET_ANCHOR.explorer}`,
+    };
+  }
 }
 
 export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_HASH, opts: { onchain?: boolean } = {}): Promise<Check[]> {
@@ -227,6 +266,8 @@ async function finishAnchor(r: Receipt, checks: Check[], headOk: boolean, opts: 
       } catch (e) {
         checks.push({ id: "anchor", label: "Final hash matches the onchain anchor", ok: null, detail: `Couldn't reach Solana mainnet (${(e as Error).message}). Check by hand: ${a.explorerUrl}` });
       }
+    } else if (opts.onchain && a.chainId && a.contract && isKiteTestnetAnchor(a.chainId, a.contract)) {
+      checks.push(await checkKiteTestnetAnchor(r, headOk));
     } else if (opts.onchain && a.chainId && a.contract) {
       try {
         const on = await readAnchor(a.chainId, a.contract, r.dealId);
@@ -240,6 +281,11 @@ async function finishAnchor(r: Receipt, checks: Check[], headOk: boolean, opts: 
     }
   } else {
     checks.push({ id: "anchor", label: "Final hash anchored onchain", ok: null, detail: r.anchor?.reason ?? "Not anchored yet." });
+  }
+  const alreadyCheckingKiteTestnet = r.anchor?.status === "anchored" &&
+    isKiteTestnetAnchor(r.anchor.chainId, r.anchor.contract);
+  if (opts.onchain && !alreadyCheckingKiteTestnet) {
+    checks.push(await checkKiteTestnetAnchor(r, headOk));
   }
   return checks;
 }
