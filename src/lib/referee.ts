@@ -1,7 +1,7 @@
 /**
  * The referee. Deterministic code, no model, no network, no clock, no randomness.
  * Same inputs always give the same outcome, so anyone can re-run it on a recorded log.
- * This file (plus schema.ts) is hashed at build time; the hash is shown in the UI and README.
+ * This file, schema.ts and referee-security.ts are hashed at build time; the hash is shown in the UI and README.
  *
  * Rules:
  *  - Each round both sides submit one sealed offer at the same time.
