@@ -3,6 +3,7 @@ import { HashChain, sealContent, type LogEntry } from "./chain";
 import { commitLimit } from "./commit";
 import { randomHex, round6 } from "./canonical";
 import { initialState, judge, closeRound, type Side, type RefereeState } from "./referee";
+import { promptGuard, multipathReview, shadowReview } from "./referee-security";
 import type { Offer } from "./schema";
 import { callServ, extractJson, systemPrompt, userPrompt, turnSchema, INJECTION, SERV_MODEL, type AgentContext, type Style, type LlmCall } from "./agents";
 import { getSettler } from "./settle-server";
@@ -172,7 +173,30 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         }
       }
 
-      const v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
+      // Prompt Guard inspects only the untrusted offer crossing the agent/referee boundary.
+      // Private reasoning and the other side's mandate are never passed to this check.
+      const guard = promptGuard(candidate);
+      if (guard.blocked) {
+        log("security.prompt_guard", "referee", { side, round: r, status: "blocked", rules: guard.ruleIds });
+        log("offer.blocked", "referee", {
+          side, round: r, reason: "blocked: non-schema content", preview: "[redacted by prompt guard]", sealed: rSeal,
+          ...(injectedBy ? { attack: true, attackKind: "injection", injectedBy, simulated: injectedBy === "harness" } : {}),
+        });
+        retryReason = "Prompt Guard blocked instruction-like content; submit only the permitted offer fields";
+        continue;
+      }
+
+      const reviewInput = { state: s, terms: { quantity: input.quantity, maxRounds }, side, raw: candidate, ownerLimit: ctx[side].limit, ...(side === "buyer" ? { budget } : {}) };
+      const paths = multipathReview(reviewInput);
+      const shadows = shadowReview(reviewInput);
+      log("security.multipath", "referee", { side, round: r, paths });
+      log("security.shadow_review", "referee", { side, round: r, reviewers: shadows.map(({ agent, passed, reason }) => ({ agent, passed, reason })) });
+
+      let v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
+      if (v.accepted && (paths.some((check) => !check.passed) || shadows.some((check) => !check.passed))) {
+        const failed = [...paths.filter((check) => !check.passed).map((check) => check.id), ...shadows.filter((check) => !check.passed).map((check) => check.reason)];
+        v = { side, accepted: false, reason: "rejected: independent security review failed (" + failed.join(", ") + ")", preview: String(v.offer.price) };
+      }
       if (v.accepted) {
         const agentSig = await agents[side].signOffer({ dealId, side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round });
         log("offer.accepted", "referee", { side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round, agent: agents[side].identity.runtimeKey, agentSig });
