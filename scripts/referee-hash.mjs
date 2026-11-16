@@ -1,7 +1,7 @@
 // Hashes the referee source (referee.ts + schema.ts) so the UI and README can publish it.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-const files = ["src/lib/schema.ts", "src/lib/referee.ts"];
+const files = ["src/lib/schema.ts", "src/lib/referee.ts", "src/lib/referee-security.ts"];
 const h = createHash("sha256");
 for (const f of files) {
   const src = readFileSync(f, "utf8").replace(/\r\n/g, "\n");
