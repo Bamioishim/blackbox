@@ -6,9 +6,9 @@ export type SecurityCheck = { id: string; passed: boolean };
 export type ShadowVerdict = { agent: "mandate-shadow" | "protocol-shadow"; passed: boolean; reason: string };
 
 const INJECTION_PATTERNS: Array<[string, RegExp]> = [
-  ["instruction_override", /ignore\\s+(all\\s+)?(previous|prior|your)\\s+instructions/i],
+  ["instruction_override", /ignore\s+(all\s+)?(previous|prior|your)\s+instructions/i],
   ["secret_exfiltration", /(reveal| disclose| print| output|state).{0,48}(buyer|seller|owner).{0,24}(ceiling|floor|limit|secret)/i],
-  ["role_override", /you\\s+are\\s+now\\s+(the\\s+)?(system|developer|admin)/i],
+  ["role_override", /you\s+are\s+now\s+(the\s+)?(system|developer|admin)/i],
   ["policy_bypass", /(bypass|disable|override).{0,32}(referee|policy|guard|rules)/i],
 ];
 
