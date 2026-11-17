@@ -13,6 +13,9 @@ function num(v: unknown, min: number, max: number): number | null {
 }
 
 export async function POST(req: Request) {
+  if (Number(req.headers.get("content-length") || 0) > 16_384) return Response.json({ error: "Request too large." }, { status: 413 });
+  const limit = await rateLimit(req, "public-negotiate", 6, 60);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body) return Response.json({ error: "bad request" }, { status: 400 });
   const input: NegotiateInput = {
@@ -29,8 +32,6 @@ export async function POST(req: Request) {
     budget: num(body.budget, 0.01, 1_000_000_000) ?? undefined,
   };
   // Small guard so a public preview can't burn the SERV credits.
-  const limit = await rateLimit(req, "public-negotiate", 6, 60);
-  if (!limit.allowed) return rateLimited(limit.retryAfter);
   if (inFlight >= 3) return Response.json({ error: "Busy. Try again in a minute." }, { status: 429, headers: { "Retry-After": "20" } });
   inFlight++;
 
