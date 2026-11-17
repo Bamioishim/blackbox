@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { rateLimit, rateLimited } from "@/lib/security";
 import { ensureRealSchema, publicSettlement } from "@/lib/real-deal";
 
 export async function GET(req:Request) {
@@ -35,6 +36,8 @@ export async function GET(req:Request) {
 export async function POST(req:Request) {
   const user=await currentUser();
   if(!user) return Response.json({error:"Sign in first."},{status:401});
+  const limit=await rateLimit(req,"marketplace-listing",20,60,user.id);
+  if(!limit.allowed) return rateLimited(limit.retryAfter);
   const b=await req.json().catch(()=>null) as Record<string,unknown>|null;
   const assetId=String(b?.assetId??"");
   const quantity=Number(b?.quantity),floor=Number(b?.floorPrice),reference=Number(b?.referencePrice);
