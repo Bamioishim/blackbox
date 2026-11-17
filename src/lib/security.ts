@@ -3,11 +3,30 @@ import { createHmac } from "node:crypto";
 import { db } from "@/lib/db";
 
 let tableReady: Promise<void> | null = null;
+let authSchemaReady: Promise<void> | null = null;
 
 function rateKey(scope: string, ip: string, identity = "") {
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) throw new Error("SESSION_SECRET must contain at least 32 characters.");
   return createHmac("sha256", secret).update([scope, ip, identity].join(":")).digest("hex");
+}
+
+export async function ensureAuthSecuritySchema() {
+  if (!authSchemaReady) {
+    authSchemaReady = (async () => {
+      const sql = db();
+      await sql`ALTER TABLE bb_users ADD COLUMN IF NOT EXISTS session_version integer NOT NULL DEFAULT 0`;
+      await sql`CREATE TABLE IF NOT EXISTS bb_password_resets (
+        token_hash text PRIMARY KEY,
+        user_id text NOT NULL REFERENCES bb_users(id) ON DELETE CASCADE,
+        expires_at timestamptz NOT NULL,
+        used_at timestamptz,
+        created_at timestamptz NOT NULL DEFAULT now()
+      )`;
+      await sql`CREATE INDEX IF NOT EXISTS bb_password_resets_user_idx ON bb_password_resets(user_id)`;
+    })().catch((error) => { authSchemaReady = null; throw error; });
+  }
+  return authSchemaReady;
 }
 
 async function ensureRateLimitTable() {
