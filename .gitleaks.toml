@@ -1,0 +1,26 @@
+title = "Blackbox Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public EVM runtime addresses recorded in Blackbox receipts and demo corpora; 20-byte addresses, not private keys."
+regexTarget = "line"
+regexes = ['"?runtimeKey"?\s*:\s*"0x[a-fA-F0-9]{40}"']
+paths = [
+  '''sprint/data/corpus\.json''',
+  '''sprint/data/corpus_seed2\.json''',
+  '''sprint/data/real_corpus\.json''',
+  '''public/deals/deal_74b9a05fe8f4\.json''',
+  '''src/lib/identity\.ts''',
+]
+
+[[allowlists]]
+description = "Public Solana token-account addresses and transaction signatures stored in settlement receipts."
+regexTarget = "line"
+regexes = ['"?((fromTokenAccount)|(toTokenAccount)|(signature))"?\s*:\s*"[1-9A-HJ-NP-Za-km-z]{32,90}"']
+paths = [
+  '''public/settlements/kite-solana-usdc-1\.json''',
+  '''public/deals/deal_74b9a05fe8f4\.json''',
+  '''src/lib/real-settlement\.ts''',
+]
