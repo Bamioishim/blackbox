@@ -31,10 +31,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Scan repository history for secrets
+      - name: Scan pull request changes for secrets
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Scan complete Git history for secrets
+        run: gitleaks detect --source . --redact --verbose --exit-code=2
       - name: Install dependencies
         run: npm ci
       - name: Audit dependency vulnerabilities
