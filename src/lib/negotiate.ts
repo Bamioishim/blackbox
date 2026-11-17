@@ -3,7 +3,6 @@ import { HashChain, sealContent, type LogEntry } from "./chain";
 import { commitLimit } from "./commit";
 import { randomHex, round6 } from "./canonical";
 import { initialState, judge, closeRound, type Side, type RefereeState } from "./referee";
-import { promptGuard, multipathReview, shadowReview } from "./referee-security";
 import type { Offer } from "./schema";
 import { callServ, extractJson, systemPrompt, userPrompt, turnSchema, INJECTION, SERV_MODEL, type AgentContext, type Style, type LlmCall } from "./agents";
 import { getSettler } from "./settle-server";
@@ -12,6 +11,7 @@ import { mintAgent, KITE_OWNER, type AgentOwner } from "./identity";
 import { getAnchorer } from "./anchor-solana";
 import { REFEREE_HASH, REFEREE_FILES } from "./referee-hash.generated";
 import type { Receipt, DealTerms } from "./receipt";
+import { enforceSettlementPreflight, scanPromptInjection } from "./referee-security";
 
 export type NegotiateInput = {
   item: string;
@@ -154,18 +154,24 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         candidate = { ...(candidate as object), price: round6(Math.max(0.000001, s.bid - Math.max(0.01, s.bid * 0.03))) };
       }
 
+      const promptSignals = scanPromptInjection(reply);
+      const auditPrompt = (result: "clear" | "referee_blocked" | "owner_guard_blocked" | "quarantined") =>
+        log("security.prompt_guard", "referee", { side, round: r, attempt, result, signals: promptSignals });
+
       // Owner guard: never let your own agent offer past your own limit. Numbers stay private.
       if (candidate && typeof candidate === "object" && typeof (candidate as Offer).price === "number") {
         const price = (candidate as Offer).price;
         const lim = ctx[side].limit;
         const overBudget = side === "buyer" && round6(price * input.quantity) > budget + 1e-9;
         if (overBudget) {
+          auditPrompt(promptSignals.length ? "owner_guard_blocked" : "clear");
           priv({ side, round: r, kind: "guard", text: `Your agent tried ${price} (${round6(price * input.quantity)} USDC total), past your spending limit ${budget} USDC. Held back and asked again.` });
           log("guard", side, { side, round: r, action: "held back an offer past the owner's spending limit" });
           retryReason = "that total breaks your owner's spending limit";
           continue;
         }
         if ((side === "buyer" && price > lim) || (side === "seller" && price < lim)) {
+          auditPrompt(promptSignals.length ? "owner_guard_blocked" : "clear");
           priv({ side, round: r, kind: "guard", text: `Your agent tried ${price}, past your ${side === "buyer" ? "ceiling" : "floor"} ${lim}. Held back and asked again.` });
           log("guard", side, { side, round: r, action: "held back an offer past the owner's own limit" });
           retryReason = `that price breaks your owner's ${side === "buyer" ? "ceiling" : "floor"}`;
@@ -173,30 +179,19 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
         }
       }
 
-      // Prompt Guard inspects only the untrusted offer crossing the agent/referee boundary.
-      // Private reasoning and the other side's mandate are never passed to this check.
-      const guard = promptGuard(candidate);
-      if (guard.blocked) {
-        log("security.prompt_guard", "referee", { side, round: r, status: "blocked", rules: guard.ruleIds });
+      const v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
+      if (v.accepted && promptSignals.length) {
+        auditPrompt("quarantined");
         log("offer.blocked", "referee", {
-          side, round: r, reason: "blocked: non-schema content", preview: "[redacted by prompt guard]", sealed: rSeal,
-          ...(injectedBy ? { attack: true, attackKind: "injection", injectedBy, simulated: injectedBy === "harness" } : {}),
+          side, round: r, reason: "blocked: suspected instruction injection", preview: "raw model response withheld", sealed: rSeal,
+          attack: true, attackKind: "injection", injectedBy: injectedBy ?? "model",
+          ...(injectedBy === "harness" ? { simulated: true } : {}),
+          ...(modelMessage !== undefined ? { modelMessage } : {}),
         });
-        retryReason = "Prompt Guard blocked instruction-like content; submit only the permitted offer fields";
+        retryReason = "that response contained an instruction-bypass pattern; submit only a compliant offer";
         continue;
       }
-
-      const reviewInput = { state: s, terms: { quantity: input.quantity, maxRounds }, side, raw: candidate, ownerLimit: ctx[side].limit, ...(side === "buyer" ? { budget } : {}) };
-      const paths = multipathReview(reviewInput);
-      const shadows = shadowReview(reviewInput);
-      log("security.multipath", "referee", { side, round: r, paths });
-      log("security.shadow_review", "referee", { side, round: r, reviewers: shadows.map(({ agent, passed, reason }) => ({ agent, passed, reason })) });
-
-      let v = judge(s, { quantity: input.quantity, maxRounds }, side, candidate);
-      if (v.accepted && (paths.some((check) => !check.passed) || shadows.some((check) => !check.passed))) {
-        const failed = [...paths.filter((check) => !check.passed).map((check) => check.id), ...shadows.filter((check) => !check.passed).map((check) => check.reason)];
-        v = { side, accepted: false, reason: "rejected: independent security review failed (" + failed.join(", ") + ")", preview: String(v.offer.price) };
-      }
+      auditPrompt(promptSignals.length ? "referee_blocked" : "clear");
       if (v.accepted) {
         const agentSig = await agents[side].signOffer({ dealId, side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round });
         log("offer.accepted", "referee", { side, price: v.offer.price, quantity: v.offer.quantity, round: v.offer.round, agent: agents[side].identity.runtimeKey, agentSig });
@@ -235,14 +230,23 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   log("reveal", "seller", { ...sc.reveal });
 
   if (state.status === "closed" && state.price !== null && total !== null) {
-    settlement = await (input.settler ?? getSettler()).settle({
-      dealId, item: input.item, quantity: input.quantity, unitPrice: state.price, total, asset: "USDC",
+    const { preflight, settlement: settled } = await enforceSettlementPreflight({
+      referee: state, proposedPrice: state.price, proposedTotal: total, quantity: input.quantity,
+      buyerCeiling: input.buyerCeiling, sellerFloor: input.sellerFloor, spendingCap: budget,
+    }, () => (input.settler ?? getSettler()).settle({
+      dealId, item: input.item, quantity: input.quantity, unitPrice: state.price!, total, asset: "USDC",
       payee: sellerOwner.account, payer: buyerOwner.wallet.evm, mandate,
+    }));
+    log("security.preflight", "referee", {
+      policy: "blackbox/referee-security-v1", decision: preflight.allowed ? "allow" : "block", checks: preflight.checks,
     });
-    const sim = !settlement.live && settlement.simulated !== false;
-    log("settle.session", "settlement", { session: settlement.session, delegation: settlement.delegation, label: settlement.label, budgetReveal: bud.reveal, simulated: sim, ...(settlement.fallback ? { fallback: settlement.fallback } : {}) });
-    log("settle.payment", "settlement", { ...settlement.payment, mode: settlement.mode, simulated: sim });
-    log("settle.enforcement", "settlement", { attempts: settlement.enforcement, mode: settlement.mode, simulated: sim });
+    if (settled) {
+      settlement = settled;
+      const sim = !settlement.live && settlement.simulated !== false;
+      log("settle.session", "settlement", { session: settlement.session, delegation: settlement.delegation, label: settlement.label, budgetReveal: bud.reveal, simulated: sim, ...(settlement.fallback ? { fallback: settlement.fallback } : {}) });
+      log("settle.payment", "settlement", { ...settlement.payment, mode: settlement.mode, simulated: sim });
+      log("settle.enforcement", "settlement", { attempts: settlement.enforcement, mode: settlement.mode, simulated: sim });
+    }
   }
 
   const finalHash = chain.head;

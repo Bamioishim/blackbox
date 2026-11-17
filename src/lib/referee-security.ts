@@ -1,84 +1,58 @@
-import type { Side, RefereeState, Terms } from "./referee";
-import { parseOffer, type Offer } from "./schema";
+import type { RefereeState } from "./referee";
 
-export type GuardResult = { blocked: boolean; ruleIds: string[] };
-export type SecurityCheck = { id: string; passed: boolean };
-export type ShadowVerdict = { agent: "mandate-shadow" | "protocol-shadow"; passed: boolean; reason: string };
+export type PromptSignal = "instruction_override" | "private_limit_request" | "rule_bypass";
+export type PreflightCheck = { id: string; ok: boolean };
 
-const INJECTION_PATTERNS: Array<[string, RegExp]> = [
-  ["instruction_override", /ignore\s+(all\s+)?(previous|prior|your)\s+instructions/i],
-  ["secret_exfiltration", /(reveal| disclose| print| output|state).{0,48}(buyer|seller|owner).{0,24}(ceiling|floor|limit|secret)/i],
-  ["role_override", /you\s+are\s+now\s+(the\s+)?(system|developer|admin)/i],
-  ["policy_bypass", /(bypass|disable|override).{0,32}(referee|policy|guard|rules)/i],
+const PROMPT_PATTERNS: ReadonlyArray<[PromptSignal, RegExp]> = [
+  ["instruction_override", /\b(?:ignore|disregard|forget)\b[\s\S]{0,80}\b(?:(?:previous|prior|system|developer)\s+)?instructions?\b/i],
+  ["private_limit_request", /\b(?:state|reveal|disclose|tell|print|share|expose|send)\b[\s\S]{0,80}\b(?:buyer(?:'s)?\s+ceiling|seller(?:'s)?\s+floor|(?:private\s+)?(?:ceiling|floor|limit))\b/i],
+  ["rule_bypass", /\b(?:bypass|override|disable|evade)\b[\s\S]{0,80}\b(?:referee|rules?|guard|limit|schema)\b/i],
 ];
 
-function collectStrings(value: unknown, out: string[] = [], depth = 0): string[] {
-  if (depth > 5 || out.length > 40) return out;
-  if (typeof value === "string") out.push(value);
-  else if (Array.isArray(value)) value.forEach((v) => collectStrings(v, out, depth + 1));
-  else if (value && typeof value === "object") {
-    for (const [key, child] of Object.entries(value)) {
-      out.push(key);
-      collectStrings(child, out, depth + 1);
-    }
-  }
-  return out;
+/** Local, rule-based screening only. Raw model text is never returned or logged. */
+export function scanPromptInjection(text: string): PromptSignal[] {
+  const bounded = text.slice(0, 12_000);
+  return PROMPT_PATTERNS.filter(([, pattern]) => pattern.test(bounded)).map(([signal]) => signal);
 }
 
-/** Local Prompt Guard boundary: detects instruction attacks before an offer reaches adjudication. */
-export function promptGuard(value: unknown): GuardResult {
-  const strings = collectStrings(value);
-  const ruleIds = new Set<string>();
-  for (const text of strings) {
-    for (const [id, pattern] of INJECTION_PATTERNS) if (pattern.test(text)) ruleIds.add(id);
-  }
-  return { blocked: ruleIds.size > 0, ruleIds: [...ruleIds].sort() };
-}
-
-type ReviewInput = {
-  state: RefereeState;
-  terms: Terms;
-  side: Side;
-  raw: unknown;
-  ownerLimit: number;
-  budget?: number;
+export type SettlementPreflight = {
+  allowed: boolean;
+  checks: PreflightCheck[];
 };
 
-/** Three independently reported policy paths. These are deterministic local checks, not model votes. */
-export function multipathReview(input: ReviewInput): SecurityCheck[] {
-  const parsed = parseOffer(input.raw, { quantity: input.terms.quantity, round: input.state.round });
-  const offer = parsed.ok ? parsed.offer : null;
-  const budgetOk = !offer || input.side !== "buyer" || input.budget === undefined ||
-    offer.price * input.terms.quantity <= input.budget + 1e-9;
-  const mandateOk = !offer || (input.side === "buyer"
-    ? offer.price <= input.ownerLimit
-    : offer.price >= input.ownerLimit);
-  const trajectoryOk = !offer || (input.side === "buyer"
-    ? input.state.bid === null || offer.price >= input.state.bid
-    : input.state.ask === null || offer.price <= input.state.ask);
-  return [
-    { id: "schema-and-round", passed: parsed.ok },
-    { id: "owner-mandate", passed: mandateOk && budgetOk },
-    { id: "trajectory", passed: trajectoryOk },
+/**
+ * Independent deterministic checks before Blackbox calls its settler.
+ * This is not a second signature, a Kite co-signer, or a SERV feature.
+ */
+export function evaluateSettlementPreflight(input: {
+  referee: Pick<RefereeState, "status" | "price">;
+  proposedPrice: number | null;
+  proposedTotal: number | null;
+  quantity: number;
+  buyerCeiling: number;
+  sellerFloor: number;
+  spendingCap: number;
+}): SettlementPreflight {
+  const price = input.proposedPrice;
+  const total = input.proposedTotal;
+  const validPrice = typeof price === "number" && Number.isFinite(price) && price > 0;
+  const validQuantity = Number.isInteger(input.quantity) && input.quantity > 0;
+  const exactTotal = validPrice && validQuantity && typeof total === "number" && Number.isFinite(total)
+    && Math.round(price * input.quantity * 1e6) / 1e6 === total;
+  const checks: PreflightCheck[] = [
+    { id: "referee-outcome", ok: input.referee.status === "closed" && input.referee.price !== null && price === input.referee.price },
+    { id: "owner-limits", ok: validPrice && Number.isFinite(input.buyerCeiling) && Number.isFinite(input.sellerFloor) && price <= input.buyerCeiling && price >= input.sellerFloor },
+    { id: "exact-total", ok: exactTotal },
+    { id: "spending-cap", ok: typeof total === "number" && Number.isFinite(total) && Number.isFinite(input.spendingCap) && total <= input.spendingCap + 1e-9 },
   ];
+  return { allowed: checks.every((check) => check.ok), checks };
 }
 
-/** Two isolated shadow reviewers inspect only their own side's offer and mandate. */
-export function shadowReview(input: ReviewInput): ShadowVerdict[] {
-  const parsed = parseOffer(input.raw, { quantity: input.terms.quantity, round: input.state.round });
-  if (!parsed.ok) return [
-    { agent: "mandate-shadow", passed: false, reason: "offer_schema_invalid" },
-    { agent: "protocol-shadow", passed: false, reason: "offer_schema_invalid" },
-  ];
-  const offer: Offer = parsed.offer;
-  const withinMandate = input.side === "buyer"
-    ? offer.price <= input.ownerLimit && (input.budget === undefined || offer.price * input.terms.quantity <= input.budget + 1e-9)
-    : offer.price >= input.ownerLimit;
-  const monotonic = input.side === "buyer"
-    ? input.state.bid === null || offer.price >= input.state.bid
-    : input.state.ask === null || offer.price <= input.state.ask;
-  return [
-    { agent: "mandate-shadow", passed: withinMandate, reason: withinMandate ? "within_owner_mandate" : "owner_mandate_violation" },
-    { agent: "protocol-shadow", passed: monotonic, reason: monotonic ? "trajectory_valid" : "backtracking_detected" },
-  ];
+/** Runs the settlement callback only after the deterministic preflight allows it. */
+export async function enforceSettlementPreflight<T>(
+  input: Parameters<typeof evaluateSettlementPreflight>[0],
+  settle: () => Promise<T>,
+): Promise<{ preflight: SettlementPreflight; settlement: T | null }> {
+  const preflight = evaluateSettlementPreflight(input);
+  return { preflight, settlement: preflight.allowed ? await settle() : null };
 }
