@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { rateLimit, rateLimited } from "@/lib/security";
 
 export async function GET() {
   const user = await currentUser();
@@ -11,6 +12,8 @@ export async function GET() {
 export async function POST(req:Request) {
   const user = await currentUser();
   if (!user) return Response.json({error:"Sign in first."},{status:401});
+  const limit = await rateLimit(req, "portfolio-manual-add", 20, 3600, user.id);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const b = await req.json().catch(()=>null) as Record<string,unknown>|null;
   const type = String(b?.assetType??"");
   const name = String(b?.name??"").trim().slice(0,100);

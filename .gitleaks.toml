@@ -1,0 +1,21 @@
+title = "Blackbox Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+# The generic-api-key detector misclassifies verified public chain identifiers
+# in these fixture/receipt files. Other Gitleaks rules still scan these paths.
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "Verified public EVM runtime addresses and Solana settlement identifiers; not private keys or API credentials."
+  paths = [
+    '''sprint/data/corpus\.json''',
+    '''sprint/data/corpus_seed2\.json''',
+    '''sprint/data/real_corpus\.json''',
+    '''public/deals/deal_74b9a05fe8f4\.json''',
+    '''public/settlements/kite-solana-usdc-1\.json''',
+    '''src/lib/identity\.ts''',
+    '''src/lib/real-settlement\.ts''',
+  ]

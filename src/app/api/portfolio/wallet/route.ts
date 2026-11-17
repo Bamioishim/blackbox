@@ -2,6 +2,7 @@ import { createPublicClient, http, isAddress, parseUnits, verifyMessage } from "
 import { base } from "viem/chains";
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { rateLimit, rateLimited } from "@/lib/security";
 
 const client = createPublicClient({ chain: base, transport: http("https://mainnet.base.org") });
 const erc20Abi = [
@@ -16,6 +17,8 @@ const erc1155Abi = [{ type: "function", name: "balanceOf", stateMutability: "vie
 export async function POST(req: Request) {
   const user = await currentUser();
   if (!user) return Response.json({ error: "Sign in first." }, { status: 401 });
+  const limit = await rateLimit(req, "wallet-asset-import", 15, 60, user.id);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const body = await req.json().catch(() => null) as Record<string, unknown> | null;
   const wallet = String(body?.walletAddress || "");
   const contract = String(body?.contractAddress || "");

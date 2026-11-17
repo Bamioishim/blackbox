@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { rateLimit, rateLimited } from "@/lib/security";
 import { ensureRealSchema, payoutAddressFor } from "@/lib/real-deal";
 import { isSolanaAddress } from "@/lib/solana-verify";
 
@@ -13,6 +14,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const user = await currentUser();
   if (!user) return Response.json({ error: "Sign in first." }, { status: 401 });
+  const limit = await rateLimit(req, "payout-update", 5, 3600, user.id);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const b = (await req.json().catch(() => null)) as Record<string, unknown> | null;
   const solana = String(b?.solana ?? "").trim();
   if (!isSolanaAddress(solana)) return Response.json({ error: "Enter a valid Solana address (base58 public key)." }, { status: 400 });

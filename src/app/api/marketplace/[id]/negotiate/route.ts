@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/session";
+import { rateLimit, rateLimited } from "@/lib/security";
 import { negotiate } from "@/lib/negotiate";
 import { sendDealCompletedEmail } from "@/lib/email";
 import { KitePendingSettler } from "@/lib/settle";
@@ -58,6 +59,8 @@ async function processNegotiation(negotiationId:string) {
 export async function POST(req:Request,{params}:{params:Promise<{id:string}>}) {
   const buyer=await currentUser();
   if(!buyer) return Response.json({error:"Sign in first."},{status:401});
+  const limit=await rateLimit(req,"marketplace-negotiate",3,60,buyer.id);
+  if(!limit.allowed) return rateLimited(limit.retryAfter);
   const {id}=await params;
   const b=await req.json().catch(()=>null) as Record<string,unknown>|null;
   const ceiling=Number(b?.buyerCeiling),budget=Number(b?.budget),buyerRounds=Math.max(1,Math.min(3,Math.floor(Number(b?.maxRounds)||3)));

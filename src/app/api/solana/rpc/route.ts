@@ -1,4 +1,5 @@
 import { forwardSolanaRpc } from "@/lib/solana-verify";
+import { rateLimit, rateLimited } from "@/lib/security";
 
 /**
  * Same-origin Solana mainnet RPC proxy for the public verifier.
@@ -6,6 +7,8 @@ import { forwardSolanaRpc } from "@/lib/solana-verify";
  * The browser still checks mint, amount and recipient itself.
  */
 export async function POST(req: Request) {
+  const limit = await rateLimit(req, "solana-rpc", 60, 60);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const b = (await req.json().catch(() => null)) as { method?: unknown; params?: unknown; id?: unknown } | null;
   if (!b) return Response.json({ jsonrpc: "2.0", id: null, error: { code: -32700, message: "Invalid JSON" } }, { status: 400 });
   const forwarded = await forwardSolanaRpc(String(b.method ?? ""), Array.isArray(b.params) ? b.params : [], {});
