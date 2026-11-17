@@ -60,6 +60,7 @@ export async function rateLimit(req: Request, scope: string, maxHits: number, wi
 }
 
 export function rateLimited(retryAfter: number) {
+  console.warn("[security] rate_limit_triggered", { retryAfter });
   return Response.json(
     { error: "Too many attempts. Please wait before trying again." },
     { status: 429, headers: { "Retry-After": String(retryAfter), "Cache-Control": "no-store" } },
