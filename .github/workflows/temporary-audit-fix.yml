@@ -27,7 +27,7 @@ jobs:
           npm ci
           npm audit fix
           npm audit --audit-level=moderate
-      - name: Verify tests and production build after reset-page dynamic rendering fix
+      - name: Verify tests and production build with reset route Suspense boundary
         run: |
           npm test
           npm run build
@@ -37,6 +37,8 @@ jobs:
             echo "No lockfile changes required."
             exit 0
           fi
+          git fetch origin security-hardening
+          git rebase origin/security-hardening
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json
