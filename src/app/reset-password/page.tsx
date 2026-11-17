@@ -1,3 +1,6 @@
 import ResetPasswordClient from "./ResetPasswordClient";
 
-export default function ResetPasswordPage() { return <ResetPasswordClient />; }
+export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
+  const { token = "" } = await searchParams;
+  return <ResetPasswordClient token={token} />;
+}
