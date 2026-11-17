@@ -27,7 +27,7 @@ jobs:
           npm ci
           npm audit fix
           npm audit --audit-level=moderate
-      - name: Verify tests and production build with reset route Suspense boundary
+      - name: Verify tests and production build with dynamic wallet portfolio route
         run: |
           npm test
           npm run build
