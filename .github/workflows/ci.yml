@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - blackbox-finalization
+      - security-hardening
   pull_request:
     branches:
       - main
@@ -13,37 +14,37 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-\${{ github.workflow }}-\${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Check out repository
+      - name: Check out repository and history
         uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
         run: npm ci
-
+      - name: Audit dependency vulnerabilities
+        run: npm audit --audit-level=high
       - name: Verify published referee hash
         run: npm run referee-hash
-
       - name: Run automated tests
         run: npm test
-
-      # Existing project-wide ESLint debt predates this CI workflow.
-      # Keep the report visible without blocking verified tests/builds.
       - name: Report existing lint debt (non-blocking)
         run: npm run lint
         continue-on-error: true
-
       - name: Build production bundle
         run: npm run build
