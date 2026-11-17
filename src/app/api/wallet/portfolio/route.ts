@@ -1,7 +1,9 @@
 import { isAddress } from "viem";
+import { connection } from "next/server";
 import { rateLimit, rateLimited } from "@/lib/security";
 
 export async function GET(req: Request) {
+  await connection();
   const limit = await rateLimit(req, "wallet-portfolio-read", 30, 60);
   if (!limit.allowed) return rateLimited(limit.retryAfter);
   const address = new URL(req.url).searchParams.get("address") || "";
