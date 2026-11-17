@@ -11,6 +11,9 @@ export async function POST(req: Request) {
   if (!/^\S+@\S+\.\S+$/.test(email)) return Response.json({ message: "If the account exists, a reset link will be sent." });
   const secret = process.env.SESSION_SECRET;
   if (!secret || secret.length < 32) throw new Error("SESSION_SECRET is not configured.");
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  if (!key || !from) return Response.json({ error: "Password recovery is not configured yet. Contact support." }, { status: 503 });
   const emailKey = createHash("sha256").update(email).digest("hex");
   const emailLimit = await rateLimit(req, "password-reset-email", 3, 3600, emailKey);
   if (!emailLimit.allowed) return rateLimited(emailLimit.retryAfter);
@@ -23,9 +26,7 @@ export async function POST(req: Request) {
     const tokenHash = createHash("sha256").update(token).digest("hex");
     await db()`UPDATE bb_password_resets SET used_at=now() WHERE user_id=${user.id} AND used_at IS NULL`;
     await db()`INSERT INTO bb_password_resets(token_hash,user_id,expires_at) VALUES(${tokenHash},${user.id},now()+interval '30 minutes')`;
-    const key = process.env.RESEND_API_KEY;
-    const from = process.env.RESEND_FROM_EMAIL;
-    if (key && from) {
+    {
       const base = (process.env.NEXT_PUBLIC_APP_URL || "https://blackbox-serv.vercel.app").replace(/\/$/, "");
       const link = base + "/reset-password?token=" + encodeURIComponent(token);
       const response = await fetch("https://api.resend.com/emails", {
@@ -40,9 +41,6 @@ export async function POST(req: Request) {
         await db()`UPDATE bb_password_resets SET used_at=now() WHERE token_hash=${tokenHash}`;
         console.error("Password reset email delivery failed.");
       }
-    } else {
-      await db()`UPDATE bb_password_resets SET used_at=now() WHERE token_hash=${tokenHash}`;
-      console.error("Password reset email is not configured.");
     }
   }
   return Response.json({ message: "If the account exists, a reset link will be sent." }, { headers: { "Cache-Control": "no-store" } });
