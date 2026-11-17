@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { ensureRealSchema, workerAuthorized, realSettleMax } from "@/lib/real-deal";
 import { verifyUsdcTransfer, isSolanaSignature, atomicToUsdc } from "@/lib/solana-verify";
 import { USDC_MINT_SOLANA } from "@/lib/real-settlement";
+import { KITE_OWNER } from "@/lib/identity";
 import type { OnchainPayment } from "@/lib/receipt";
 import { getAnchorer } from "@/lib/anchor-solana";
 import { BLACKBOX_ANCHOR_SOLANA, verifyMemoAnchor } from "@/lib/solana-memo";
@@ -82,13 +83,13 @@ export async function POST(req: Request) {
   const amountAtomic = BigInt(dryRun && b?.dryRunAmountAtomic ? String(b.dryRunAmountAtomic) : String(row.amount_atomic));
   const notBefore = dryRun ? undefined : Math.floor(new Date(row.requested_at).getTime() / 1000) - 5;
   let check;
-  try { check = await verifyUsdcTransfer({ signature, recipient: String(row.recipient), amountAtomic, notBefore }); }
+  try { check = await verifyUsdcTransfer({ signature, recipient: String(row.recipient), expectedSender: KITE_OWNER.wallet.solana, amountAtomic, notBefore }); }
   catch (e) { return Response.json({ ok: false, retry: true, error: (e as Error).message }, { status: 502 }); }
   if (!check.ok) return Response.json({ ok: false, retry: /not found|not confirmed/i.test(check.reason ?? ""), error: check.reason, check }, { status: 422 });
 
   const onchain: OnchainPayment = {
     chain: "solana-mainnet", asset: "USDC", mint: USDC_MINT_SOLANA,
-    amount: String(row.amount), amountAtomic: String(row.amount_atomic), recipient: String(row.recipient), sender: check.sender,
+    amount: String(row.amount), amountAtomic: String(row.amount_atomic), recipient: String(row.recipient), sender: check.sender, expectedSender: KITE_OWNER.wallet.solana,
     signature, explorerUrl: `https://solscan.io/tx/${signature}`, kiteRequestId: String(b?.kiteRequestId ?? row.kite_request_id ?? "") || undefined,
     slot: check.slot, blockTime: check.blockTime, verifiedAt: new Date().toISOString(),
   };

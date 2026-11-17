@@ -6,6 +6,7 @@
  *  - the transaction succeeded (meta.err is null) and is at least "confirmed"
  *  - the recipient wallet (token-account owner) gained exactly `amountAtomic`
  *    of the official USDC mint
+ *  - the only USDC-debiting wallet is the authorized buyer, and it paid exactly `amountAtomic`
  *  - optionally, the block time is not earlier than `notBefore` (so an older
  *    transfer can't be reused for a new deal)
  *
@@ -83,6 +84,7 @@ export type TransferCheck = {
   reason?: string;
   signature: string;
   recipient: string;
+  expectedSender: string;
   mint: string;
   amountAtomic: string;
   receivedAtomic?: string;
@@ -187,33 +189,41 @@ export async function forwardSolanaRpc(
 /** Pure check over a jsonParsed getTransaction result (exported for tests). */
 export function checkParsedTransfer(
   tx: any,
-  want: { signature: string; recipient: string; amountAtomic: bigint; notBefore?: number; mint?: string },
+  want: { signature: string; recipient: string; expectedSender: string; amountAtomic: bigint; notBefore?: number; mint?: string },
 ): TransferCheck {
   const mint = want.mint ?? USDC_MINT_SOLANA;
-  const base: TransferCheck = { ok: false, signature: want.signature, recipient: want.recipient, mint, amountAtomic: want.amountAtomic.toString(), explorerUrl: `https://solscan.io/tx/${want.signature}` };
+  const base: TransferCheck = { ok: false, signature: want.signature, recipient: want.recipient, expectedSender: want.expectedSender, mint, amountAtomic: want.amountAtomic.toString(), explorerUrl: `https://solscan.io/tx/${want.signature}` };
+  if (!isSolanaAddress(want.expectedSender)) return { ...base, reason: "No valid authorized buyer wallet was provided." };
   if (!tx) return { ...base, reason: "Transaction not found on Solana mainnet (yet)." };
   if (tx.meta?.err) return { ...base, reason: "Transaction failed on chain." };
   const pre: TokenBal[] = tx.meta?.preTokenBalances ?? [];
   const post: TokenBal[] = tx.meta?.postTokenBalances ?? [];
+  if ([...pre, ...post].some((b) => b.mint === mint && !b.owner)) {
+    return { ...base, reason: "Solana did not expose every USDC token-account owner; the sender cannot be verified." };
+  }
   const delta = new Map<string, bigint>();
   for (const b of post) if (b.mint === mint && b.owner) delta.set(b.owner, (delta.get(b.owner) ?? BigInt(0)) + BigInt(b.uiTokenAmount.amount));
   for (const b of pre) if (b.mint === mint && b.owner) delta.set(b.owner, (delta.get(b.owner) ?? BigInt(0)) - BigInt(b.uiTokenAmount.amount));
   const received = delta.get(want.recipient) ?? BigInt(0);
-  let sender: string | undefined;
-  for (const [owner, d] of delta) if (d < BigInt(0)) sender = owner;
+  const debits = [...delta].filter(([, d]) => d < BigInt(0));
+  const sender = debits.length === 1 ? debits[0][0] : undefined;
   const out: TransferCheck = { ...base, receivedAtomic: received.toString(), sender, slot: tx.slot, blockTime: tx.blockTime ?? undefined };
   if (received !== want.amountAtomic) return { ...out, reason: `Recipient received ${atomicToUsdc(received)} USDC, expected ${atomicToUsdc(want.amountAtomic)} USDC.` };
   if (want.notBefore !== undefined && (tx.blockTime ?? 0) < want.notBefore) return { ...out, reason: "Transaction is older than this payment request; it can't settle this deal." };
+  if (debits.length !== 1) return { ...out, reason: debits.length ? "Transaction debited USDC from multiple wallets; the sender is ambiguous." : "Transaction has no USDC debit from a sender wallet." };
+  if (sender !== want.expectedSender) return { ...out, reason: `Transaction sender ${sender} does not match the authorized buyer wallet ${want.expectedSender}.` };
+  if (-debits[0][1] !== want.amountAtomic) return { ...out, reason: `Authorized buyer wallet sent ${atomicToUsdc(-debits[0][1])} USDC, expected ${atomicToUsdc(want.amountAtomic)} USDC.` };
   return { ...out, ok: true };
 }
 
 export async function verifyUsdcTransfer(
-  want: { signature: string; recipient: string; amountAtomic: bigint; notBefore?: number },
+  want: { signature: string; recipient: string; expectedSender: string; amountAtomic: bigint; notBefore?: number },
   opts: { rpcUrl?: string; rpcUrls?: string[]; fetcher?: typeof fetch } = {},
 ): Promise<TransferCheck> {
   const urls = opts.rpcUrls ?? solanaRpcEndpoints({ rpcUrl: opts.rpcUrl });
   const f = opts.fetcher ?? fetch;
-  if (!isSolanaSignature(want.signature)) return { ok: false, reason: "Not a Solana transaction signature.", signature: want.signature, recipient: want.recipient, mint: USDC_MINT_SOLANA, amountAtomic: want.amountAtomic.toString(), explorerUrl: "" };
+  if (!isSolanaSignature(want.signature)) return { ok: false, reason: "Not a Solana transaction signature.", signature: want.signature, recipient: want.recipient, expectedSender: want.expectedSender, mint: USDC_MINT_SOLANA, amountAtomic: want.amountAtomic.toString(), explorerUrl: "" };
+  if (!isSolanaAddress(want.expectedSender)) return { ok: false, reason: "No valid authorized buyer wallet was provided.", signature: want.signature, recipient: want.recipient, expectedSender: want.expectedSender, mint: USDC_MINT_SOLANA, amountAtomic: want.amountAtomic.toString(), explorerUrl: `https://solscan.io/tx/${want.signature}` };
   const got = await rpcWithFallback(urls, "getTransaction", [want.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0, commitment: "confirmed" }], f);
   const check = checkParsedTransfer(got.result, want);
   if (!check.ok) return { ...check, rpcUsed: got.url };

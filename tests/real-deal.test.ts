@@ -7,21 +7,26 @@ import { USDC_MINT_SOLANA } from "@/lib/real-settlement";
 
 const PAYOUT = "BYwZAHbD38RvEihmJgy7E95CMKJ3mLXy3tEEs48cPaQx";
 const SENDER = "ABVbrFkJoTEtBHvh7AiSBH11HLo5XbwSU9vJoUajZahN";
+const OTHER = "11111111111111111111111111111111";
 const SIG = "3jHaiNfAZA2phuiHpbbxm933aMxDsiYw9946ZEqvXtyzUMb9T2sHRq47upvyrgetNrr8MsK1ABUJ5Y4vLgrLM2pM";
 
-function tx(received: string, opts: { err?: unknown; blockTime?: number; mint?: string } = {}) {
+function tx(received: string, opts: { err?: unknown; blockTime?: number; mint?: string; sender?: string; sourceDebit?: string; extraDebit?: string } = {}) {
   const mint = opts.mint ?? USDC_MINT_SOLANA;
+  const sender = opts.sender ?? SENDER;
+  const sourceDebit = opts.sourceDebit ?? received;
   return {
     slot: 1, blockTime: opts.blockTime ?? 2_000_000_000,
     meta: {
       err: opts.err ?? null,
       preTokenBalances: [
-        { accountIndex: 1, mint, owner: SENDER, uiTokenAmount: { amount: "1344717" } },
+        { accountIndex: 1, mint, owner: sender, uiTokenAmount: { amount: "1344717" } },
         { accountIndex: 2, mint, owner: PAYOUT, uiTokenAmount: { amount: "1000000" } },
+        ...(opts.extraDebit ? [{ accountIndex: 3, mint, owner: OTHER, uiTokenAmount: { amount: opts.extraDebit } }] : []),
       ],
       postTokenBalances: [
-        { accountIndex: 1, mint, owner: SENDER, uiTokenAmount: { amount: String(1344717 - Number(received)) } },
+        { accountIndex: 1, mint, owner: sender, uiTokenAmount: { amount: String(1344717 - Number(sourceDebit)) } },
         { accountIndex: 2, mint, owner: PAYOUT, uiTokenAmount: { amount: String(1000000 + Number(received)) } },
+        ...(opts.extraDebit ? [{ accountIndex: 3, mint, owner: OTHER, uiTokenAmount: { amount: "0" } }] : []),
       ],
     },
   };
@@ -52,11 +57,20 @@ describe("USDC amounts and addresses", () => {
 });
 
 describe("on-chain transfer check", () => {
-  const want = { signature: SIG, recipient: PAYOUT, amountAtomic: BigInt(750000) };
+  const want = { signature: SIG, recipient: PAYOUT, expectedSender: SENDER, amountAtomic: BigInt(750000) };
   it("accepts exactly the agreed USDC to the payout address", () => {
     const c = checkParsedTransfer(tx("750000"), want);
     expect(c.ok).toBe(true);
     expect(c.sender).toBe(SENDER);
+  });
+  it("refuses a transfer from a wallet other than the authorized buyer", () => {
+    const c = checkParsedTransfer(tx("750000", { sender: OTHER }), want);
+    expect(c.ok).toBe(false);
+    expect(c.reason).toMatch(/does not match the authorized buyer wallet/);
+  });
+  it("refuses multiple USDC-debiting wallets and a debit that does not equal the transfer", () => {
+    expect(checkParsedTransfer(tx("750000", { extraDebit: "1" }), want).reason).toMatch(/multiple wallets/);
+    expect(checkParsedTransfer(tx("750000", { sourceDebit: "740000" }), want).reason).toMatch(/sent 0\.74 USDC, expected 0\.75 USDC/);
   });
   it("refuses a different amount, a failed tx, the wrong mint, a missing tx and an older tx", () => {
     expect(checkParsedTransfer(tx("760000"), want).ok).toBe(false);
@@ -86,17 +100,21 @@ describe("real settlement request in a sealed deal", () => {
     expect(pending.find((c) => c.id === "payment")?.detail).toContain("Not paid yet");
 
     const total = Number(r.outcome.total).toFixed(6);
-    const paid = { ...r, onchainPayment: { chain: "solana-mainnet" as const, asset: "USDC" as const, mint: USDC_MINT_SOLANA, amount: total, amountAtomic: usdcToAtomic(total).toString(), recipient: PAYOUT, signature: SIG, explorerUrl: `https://solscan.io/tx/${SIG}`, verifiedAt: new Date().toISOString() } };
+    const paid = { ...r, onchainPayment: { chain: "solana-mainnet" as const, asset: "USDC" as const, mint: USDC_MINT_SOLANA, amount: total, amountAtomic: usdcToAtomic(total).toString(), recipient: PAYOUT, sender: SENDER, expectedSender: SENDER, signature: SIG, explorerUrl: `https://solscan.io/tx/${SIG}`, verifiedAt: new Date().toISOString() } };
     const done = await verifyReceipt(paid);
     expect(done.find((c) => c.id === "payment")?.ok).toBe(true);
 
     const wrong = await verifyReceipt({ ...paid, onchainPayment: { ...paid.onchainPayment, recipient: SENDER } });
     expect(wrong.find((c) => c.id === "payment")?.ok).toBe(false);
+    const wrongSender = await verifyReceipt({ ...paid, onchainPayment: { ...paid.onchainPayment, sender: OTHER } });
+    expect(wrongSender.find((c) => c.id === "payment")?.ok).toBe(false);
+    const missingSender = await verifyReceipt({ ...paid, onchainPayment: { ...paid.onchainPayment, sender: undefined } });
+    expect(missingSender.find((c) => c.id === "payment")?.ok).toBe(false);
   });
 });
 
 describe("Solana RPC fallbacks", () => {
-  const want = { signature: SIG, recipient: PAYOUT, amountAtomic: BigInt(750000) };
+  const want = { signature: SIG, recipient: PAYOUT, expectedSender: SENDER, amountAtomic: BigInt(750000) };
   const parsed = tx("750000");
   const statuses = { value: [{ confirmationStatus: "finalized" }] };
 

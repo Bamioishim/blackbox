@@ -69,6 +69,7 @@ export type OnchainPayment = {
   amountAtomic: string;
   recipient: string;
   sender?: string;
+  expectedSender?: string;
   signature: string;
   explorerUrl: string;
   kiteRequestId?: string;

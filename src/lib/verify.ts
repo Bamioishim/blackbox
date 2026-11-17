@@ -8,7 +8,7 @@ import { roundsFromLog, type Receipt } from "./receipt";
 import { REFEREE_HASH, LEGACY_REFEREE_HASHES } from "./referee-hash.generated";
 import { evaluateSettlementPreflight, type SettlementPreflight } from "./referee-security";
 import { checkBudgetReveal, KITE_PASSKEY_SCHEME, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
-import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
+import { offerMessage, KITE_AGENTS, KITE_OWNER, type AgentIdentity } from "./identity";
 import { verifyUsdcTransfer, usdcToAtomic } from "./solana-verify";
 import { BLACKBOX_ANCHOR_SOLANA, verifyMemoAnchor } from "./solana-memo";
 import kiteTestnetDeployment from "../../contracts/deployment.kite-testnet.json";
@@ -278,19 +278,20 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
       if (!p) {
         checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: null, detail: payReqOk ? `${total} USDC requested from the buyer's Kite Passport to ${ss.payee}. Not paid yet (no transaction recorded with this receipt).` : "Payment request does not match the deal total." });
       } else {
-        const matches = payReqOk && p.recipient === ss.payee && p.amount === total;
+        const expectedSender = KITE_OWNER.wallet.solana;
+        const matches = payReqOk && p.recipient === ss.payee && p.amount === total && p.sender === expectedSender && (!p.expectedSender || p.expectedSender === expectedSender);
         if (!matches) {
-          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: false, detail: `Recorded transfer (${p.amount} USDC to ${p.recipient}) does not match the sealed request (${total} USDC to ${ss.payee}).` });
+          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: false, detail: `Recorded transfer (${p.amount} USDC from ${p.sender ?? "unknown sender"} to ${p.recipient}) does not match the sealed request (${total} USDC to ${ss.payee}) or the authorized buyer wallet (${expectedSender}).` });
         } else if (opts.onchain) {
           try {
-            const c = await verifyUsdcTransfer({ signature: p.signature, recipient: p.recipient, amountAtomic: usdcToAtomic(p.amount) });
-            const live = c.ok ? `${p.amount} USDC reached ${p.recipient} (re-read live from Solana mainnet, ${c.confirmationStatus}). ${p.explorerUrl}` : `${c.reason} ${p.explorerUrl}`;
+            const c = await verifyUsdcTransfer({ signature: p.signature, recipient: p.recipient, expectedSender, amountAtomic: usdcToAtomic(p.amount) });
+            const live = c.ok ? `${p.amount} USDC from authorized buyer wallet ${expectedSender} reached ${p.recipient} (re-read live from Solana mainnet, ${c.confirmationStatus}). ${p.explorerUrl}` : `${c.reason} ${p.explorerUrl}`;
             checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: c.ok, detail: live });
           } catch (e) {
             checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: null, detail: `Couldn't reach Solana mainnet (${(e as Error).message}). Check by hand: ${p.explorerUrl}` });
           }
         } else {
-          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: true, detail: `${p.amount} USDC to ${p.recipient}, verified on Solana mainnet when recorded (not re-read in this check). ${p.explorerUrl}` });
+          checks.push({ id: "payment", label: "Real payment on Solana mainnet", ok: true, detail: `${p.amount} USDC from authorized buyer wallet ${expectedSender} to ${p.recipient}, verified on Solana mainnet when recorded (not re-read in this check). ${p.explorerUrl}` });
         }
       }
       return finishAnchor(r, checks, headOk, opts);
