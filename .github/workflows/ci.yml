@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Audit dependency vulnerabilities
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=moderate
       - name: Verify published referee hash
         run: npm run referee-hash
       - name: Run automated tests
