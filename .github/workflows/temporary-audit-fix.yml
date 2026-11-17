@@ -27,7 +27,7 @@ jobs:
           npm ci
           npm audit fix
           npm audit --audit-level=moderate
-      - name: Verify tests and production build
+      - name: Verify tests and production build after reset-page dynamic rendering fix
         run: |
           npm test
           npm run build
