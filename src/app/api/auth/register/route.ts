@@ -4,6 +4,7 @@ import { hashPassword, setSession } from "@/lib/session";
 import { rateLimit, rateLimited } from "@/lib/security";
 
 export async function POST(req: Request) {
+  if (Number(req.headers.get("content-length") || 0) > 8192) return Response.json({ error: "Request too large." }, { status: 413 });
   const ipLimit = await rateLimit(req, "register-ip", 5, 3600);
   if (!ipLimit.allowed) return rateLimited(ipLimit.retryAfter);
   const body = await req.json().catch(() => null) as Record<string, unknown> | null;
@@ -20,9 +21,9 @@ export async function POST(req: Request) {
   if (!emailLimit.allowed) return rateLimited(emailLimit.retryAfter);
   try {
     const id = randomUUID();
-    const rows = await db()\`INSERT INTO bb_users(id,email,display_name,password_hash)
-      VALUES(\${id},\${email},\${displayName || email.split("@")[0]},\${hashPassword(password)})
-      RETURNING id,email,display_name\`;
+    const rows = await db()`INSERT INTO bb_users(id,email,display_name,password_hash)
+      VALUES(${id},${email},${displayName || email.split("@")[0]},${hashPassword(password)})
+      RETURNING id,email,display_name`;
     await setSession(id);
     return Response.json({ user: rows[0] }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch {
