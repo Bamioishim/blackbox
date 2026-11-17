@@ -1,6 +1,9 @@
 import { isAddress } from "viem";
+import { rateLimit, rateLimited } from "@/lib/security";
 
 export async function GET(req: Request) {
+  const limit = await rateLimit(req, "wallet-portfolio-read", 30, 60);
+  if (!limit.allowed) return rateLimited(limit.retryAfter);
   const address = new URL(req.url).searchParams.get("address") || "";
   if (!isAddress(address)) return Response.json({ error: "Enter a valid EVM address." }, { status: 400 });
   const base = "https://base.blockscout.com/api/v2/addresses/" + address;
