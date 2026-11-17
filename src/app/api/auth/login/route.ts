@@ -4,6 +4,7 @@ import { setSession, verifyPassword } from "@/lib/session";
 import { rateLimit, rateLimited } from "@/lib/security";
 
 export async function POST(req: Request) {
+  if (Number(req.headers.get("content-length") || 0) > 8192) return Response.json({ error: "Request too large." }, { status: 413 });
   const ipLimit = await rateLimit(req, "login-ip", 8, 900);
   if (!ipLimit.allowed) return rateLimited(ipLimit.retryAfter);
   const body = await req.json().catch(() => null) as Record<string, unknown> | null;
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
   const identity = createHmac("sha256", secret).update(email).digest("hex");
   const emailLimit = await rateLimit(req, "login-email", 8, 900, identity);
   if (!emailLimit.allowed) return rateLimited(emailLimit.retryAfter);
-  const rows = await db()\`SELECT id,email,display_name,password_hash FROM bb_users WHERE email=\${email} LIMIT 1\`;
+  const rows = await db()`SELECT id,email,display_name,password_hash FROM bb_users WHERE email=${email} LIMIT 1`;
   const user = rows[0] as { id: string; email: string; display_name: string | null; password_hash: string | null } | undefined;
   if (!user?.password_hash || !verifyPassword(password, user.password_hash)) {
     return Response.json({ error: "Email or password is incorrect." }, { status: 401, headers: { "Cache-Control": "no-store" } });
