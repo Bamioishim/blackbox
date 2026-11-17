@@ -1,35 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_COOKIE = "blackbox_session";
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const WORKER_PATH = "/api/settlement/worker";
 
-/**
- * Same-origin guard for cookie-authenticated mutations. Server-to-server
- * worker calls do not carry the browser session cookie and are unaffected.
- */
+/** Reject cross-origin API mutations. The settlement worker uses bearer auth. */
 export function proxy(request: NextRequest) {
-  if (!MUTATING_METHODS.has(request.method) || !request.cookies.has(SESSION_COOKIE)) {
+  if (!MUTATING_METHODS.has(request.method) || request.nextUrl.pathname === WORKER_PATH) {
     return NextResponse.next();
   }
-
   const origin = request.headers.get("origin");
   const host = request.headers.get("host")?.toLowerCase();
-  if (!origin || !host) {
-    return NextResponse.json({ error: "Cross-site request rejected." }, { status: 403 });
-  }
-
+  if (!origin || !host) return NextResponse.json({ error: "Cross-site request rejected." }, { status: 403 });
   try {
     const parsed = new URL(origin);
-    if (parsed.host.toLowerCase() !== host || parsed.protocol !== "https:" && host !== "localhost:3000") {
+    const localHttp = parsed.protocol === "http:" && (host === "localhost:3000" || host === "127.0.0.1:3000");
+    if (parsed.host.toLowerCase() !== host || (parsed.protocol !== "https:" && !localHttp)) {
       return NextResponse.json({ error: "Cross-site request rejected." }, { status: 403 });
     }
   } catch {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
   }
-
   return NextResponse.next();
 }
 
-export const config = {
-  matcher: ["/api/:path*"],
-};
+export const config = { matcher: ["/api/:path*"] };
