@@ -5,7 +5,8 @@ import { checkReveal, priceWithinLimits, type Commitment, type Reveal } from "./
 import { replay, initialState, judge, closeRound, type RefereeState, type Side } from "./referee";
 import type { Offer } from "./schema";
 import { roundsFromLog, type Receipt } from "./receipt";
-import { REFEREE_HASH } from "./referee-hash.generated";
+import { REFEREE_HASH, LEGACY_REFEREE_HASHES } from "./referee-hash.generated";
+import { evaluateSettlementPreflight, type SettlementPreflight } from "./referee-security";
 import { checkBudgetReveal, KITE_PASSKEY_SCHEME, type SessionIntent, type Delegation, type PaymentAttempt, type BudgetCommitment, type BudgetReveal } from "./settle";
 import { offerMessage, KITE_AGENTS, type AgentIdentity } from "./identity";
 import { verifyUsdcTransfer, usdcToAtomic } from "./solana-verify";
@@ -16,6 +17,32 @@ export type Check = { id: string; label: string; ok: boolean | null; detail: str
 
 function find(log: LogEntry[], kind: LogEntry["kind"]) {
   return log.filter((e) => e.kind === kind);
+}
+
+function expectedSecurityPreflight(log: LogEntry[], state: RefereeState, receiptBudget?: string): SettlementPreflight | null {
+  const closed = find(log, "deal.closed")[0]?.payload as { unitPrice?: number; total?: number } | undefined;
+  const open = find(log, "deal.open")[0]?.payload as { quantity?: number } | undefined;
+  const reveals = find(log, "reveal").map((e) => e.payload as unknown as Reveal);
+  const settlement = find(log, "settle.session")[0]?.payload as { budgetReveal?: { budget?: string } } | undefined;
+  const budget = Number(receiptBudget ?? settlement?.budgetReveal?.budget);
+  if (!closed || !open || !Number.isFinite(budget)) return null;
+  return evaluateSettlementPreflight({
+    referee: state,
+    proposedPrice: typeof closed.unitPrice === "number" ? closed.unitPrice : null,
+    proposedTotal: typeof closed.total === "number" ? closed.total : null,
+    quantity: Number(open.quantity),
+    buyerCeiling: Number(reveals.find((x) => x.side === "buyer")?.limit),
+    sellerFloor: Number(reveals.find((x) => x.side === "seller")?.limit),
+    spendingCap: budget,
+  });
+}
+
+function securityPreflightMatches(payload: Record<string, unknown>, expected: SettlementPreflight): boolean {
+  const actual = Array.isArray(payload.checks) ? payload.checks as { id?: unknown; ok?: unknown }[] : [];
+  return payload.policy === "blackbox/referee-security-v1" &&
+    payload.decision === (expected.allowed ? "allow" : "block") &&
+    actual.length === expected.checks.length &&
+    expected.checks.every((check, i) => actual[i]?.id === check.id && actual[i]?.ok === check.ok);
 }
 
 const RPC: Record<number, string> = { 2368: "https://rpc-testnet.gokite.ai/", 2366: "https://rpc.gokite.ai/" };
@@ -86,10 +113,15 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
   checks.push({ id: "final", label: "Final hash matches the log", ok: headOk, detail: headOk ? r.finalHash : "The receipt's final hash is not the last entry of this log." });
 
   // 2. Referee code
-  const refOk = r.referee?.hash === publishedRefereeHash;
+  const legacyRefOk = publishedRefereeHash === REFEREE_HASH &&
+    LEGACY_REFEREE_HASHES.includes(r.referee?.hash ?? "") &&
+    JSON.stringify(r.referee?.files) === JSON.stringify(["src/lib/schema.ts", "src/lib/referee.ts"]);
+  const refOk = r.referee?.hash === publishedRefereeHash || legacyRefOk;
   checks.push({
-    id: "referee", label: "Referee code matches the published hash", ok: refOk,
-    detail: refOk ? publishedRefereeHash : `Receipt says ${r.referee?.hash ?? "nothing"}, this site publishes ${publishedRefereeHash}.`,
+    id: "referee", label: "Referee source hash recognized", ok: refOk,
+    detail: r.referee?.hash === publishedRefereeHash ? publishedRefereeHash : legacyRefOk
+      ? `Legacy referee hash ${r.referee.hash}; this older build predates the Blackbox security preflight.`
+      : `Receipt says ${r.referee?.hash ?? "nothing"}, this site publishes ${publishedRefereeHash}.`,
   });
 
   // 3. Verify each side's requested rounds and the effective lower limit.
@@ -123,6 +155,34 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     });
   } catch (e) {
     checks.push({ id: "replay", label: "Re-running the referee gives the same result", ok: false, detail: String((e as Error).message) });
+  }
+
+  const preflightEntry = find(log, "security.preflight")[0];
+  if (preflightEntry) {
+    try {
+      const state = replay({ quantity: Number(open?.quantity), maxRounds: Number(open?.maxRounds) }, roundsFromLog(log));
+      const expected = expectedSecurityPreflight(log, state, r.budget?.limit);
+      const payload = preflightEntry.payload as Record<string, unknown>;
+      const settlementRecorded = find(log, "settle.session").length > 0;
+      const settlementConsistent = expected ? (expected.allowed ? settlementRecorded && !!r.settlement : !settlementRecorded && !r.settlement) : false;
+      const ok = !!expected && securityPreflightMatches(payload, expected) && settlementConsistent;
+      checks.push({
+        id: "preflight", label: "Blackbox settlement preflight replay", ok,
+        detail: !expected ? "Could not recompute the preflight from this receipt's deal, reveals, and spending cap."
+          : ok ? `${expected.allowed ? "Allowed" : "Blocked"} exactly as the deterministic checks require; payment ${expected.allowed ? "was sent to the settler" : "was not sent to the settler"}.`
+          : "The recorded preflight decision, check results, or settlement behavior disagrees with the deterministic rules.",
+      });
+    } catch (e) {
+      checks.push({ id: "preflight", label: "Blackbox settlement preflight replay", ok: false, detail: String((e as Error).message) });
+    }
+  } else {
+    const currentHash = r.referee?.hash === publishedRefereeHash;
+    checks.push({
+      id: "preflight", label: "Blackbox settlement preflight replay",
+      ok: currentHash && r.outcome?.status === "closed" ? false : null,
+      detail: r.outcome?.status === "closed" && currentHash ? "Current referee receipt is missing its pre-settlement security record."
+        : r.outcome?.status === "closed" ? "Historical receipt predates this preflight." : "Not applicable: no deal closed.",
+    });
   }
 
   // 4. Commit-reveal
@@ -186,8 +246,11 @@ export async function verifyReceipt(r: Receipt, publishedRefereeHash = REFEREE_H
     const firstOffer = log.findIndex((e) => e.kind.startsWith("offer."));
     return m !== -1 && (firstOffer === -1 || m < firstOffer);
   })();
+  const preflightDecision = (find(log, "security.preflight")[0]?.payload as { decision?: string } | undefined)?.decision;
   if (!closed) {
     checks.push({ id: "caps", label: "Payment session capped", ok: null, detail: "No deal, nothing to settle." });
+  } else if (!sessE?.session && preflightDecision === "block") {
+    checks.push({ id: "caps", label: "Payment session capped", ok: null, detail: "Settlement was stopped by the recorded Blackbox preflight; no payment session was created." });
   } else if (!sessE?.session) {
     checks.push({ id: "caps", label: "Payment session capped", ok: false, detail: "No settlement session in the log." });
   } else {
@@ -304,7 +367,7 @@ export type EntryAudit = {
  * Per-entry audit: recomputes each entry's hash and link, and re-runs the referee on every
  * offer, refusal, round close, deal close and reveal, so a judge sees exactly which line fails.
  */
-export function auditEntries(log: LogEntry[]): EntryAudit[] {
+export function auditEntries(log: LogEntry[], receipt?: Pick<Receipt, "budget" | "settlement">): EntryAudit[] {
   const chain = verifyChain(log);
   const open = log.find((e) => e.kind === "deal.open")?.payload as { quantity?: number; maxRounds?: number } | undefined;
   const terms = { quantity: Number(open?.quantity), maxRounds: Number(open?.maxRounds) };
@@ -345,6 +408,20 @@ export function auditEntries(log: LogEntry[]): EntryAudit[] {
         const ok = !!c && checkReveal(c, p as unknown as Reveal);
         rule = ok ? "ok" : "fail";
         note = ok ? "hashes to its commitment" : "does not match its commitment";
+      } else if (e.kind === "security.preflight") {
+        const expected = expectedSecurityPreflight(log, state, receipt?.budget?.limit);
+        if (!expected) {
+          rule = null;
+          note = "cannot independently replay without the revealed deal terms and spending cap";
+        } else {
+          const matches = securityPreflightMatches(p, expected);
+          const settlementRecorded = find(log, "settle.session").length > 0;
+          const settlementConsistent = expected.allowed
+            ? settlementRecorded && (receipt ? !!receipt.settlement : true)
+            : !settlementRecorded && (receipt ? !receipt.settlement : true);
+          rule = matches && settlementConsistent ? "ok" : "fail";
+          note = rule === "ok" ? `${expected.allowed ? "allow" : "block"} matches the deterministic preflight` : "preflight or settlement behavior does not match the deterministic rules";
+        }
       }
     } catch (err) {
       rule = "fail"; note = (err as Error).message;

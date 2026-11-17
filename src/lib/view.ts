@@ -23,11 +23,23 @@ export function describe(e: LogEntry): string {
     case "prompt": return `${p.side} agent prompted for round ${p.round} (sealed, ${p.chars} chars)`;
     case "response": return `${p.side} agent replied (sealed, ${p.chars} chars)`;
     case "offer.accepted": return `${p.side} ${p.side === "buyer" ? "bids" : "asks"} ${p.price} for ${p.quantity}, round ${p.round}`;
-    case "offer.blocked": return `${p.reason}: "${p.preview}"${p.attack ? (p.injectedBy === "model" ? " (attack line written by the compromised SERV agent itself)" : ` (simulated attack: the test harness wrote this line${p.modelMessage !== undefined ? `; asked to, the SERV model only produced "${p.modelMessage}"` : ""})`) : ""}`;
+    case "offer.blocked": return p.reason === "blocked: suspected instruction injection"
+      ? `${p.reason}: ${p.preview} (raw response withheld by Blackbox's rule-based screen)`
+      : `${p.reason}: "${p.preview}"${p.attack ? (p.injectedBy === "model" ? " (attack line written by the compromised SERV agent itself)" : ` (simulated attack: the test harness wrote this line${p.modelMessage !== undefined ? `; asked to, the SERV model only produced "${p.modelMessage}"` : ""})`) : ""}`;
     case "offer.rejected": return p.attackKind === "backtrack"
       ? `${p.reason}: tried ${p.attempted} after standing at a higher bid (simulated rule-break: the test harness rewrote the ${p.side}'s offer${p.modelPrice !== undefined ? `; the SERV model had sent ${p.modelPrice}` : ""})`
       : `${p.reason} (${p.side}, round ${p.round})`;
     case "guard": return `${p.side}'s own guard ${p.action}`;
+    case "security.prompt_guard": {
+      const signals = Array.isArray(p.signals) ? (p.signals as string[]).join(", ") : "none";
+      const result = String(p.result ?? "unknown").replaceAll("_", " ");
+      return `Blackbox rule-based prompt screen: ${result}; signals ${signals}. Raw model text stays sealed.`;
+    }
+    case "security.preflight": {
+      const checks = Array.isArray(p.checks) ? p.checks as { id?: string; ok?: boolean }[] : [];
+      const summary = checks.map((c) => `${String(c.id ?? "check").replaceAll("-", " ")} ${c.ok ? "PASS" : "BLOCK"}`).join("; ");
+      return `Blackbox settlement preflight ${String(p.decision ?? "unknown").toUpperCase()}: ${summary}.`;
+    }
     case "round.closed": return `Round ${p.round} closed. Standing bid ${p.bid ?? "none"}, ask ${p.ask ?? "none"}.`;
     case "deal.closed": return `Deal closed at ${p.unitPrice} per unit, ${p.total} USDC total, round ${p.round}.`;
     case "deal.no_deal": return `No deal after ${p.rounds} rounds.`;

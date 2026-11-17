@@ -80,7 +80,7 @@ export function Verifier() {
     const el = chain?.brokenAt != null ? box.querySelector<HTMLElement>(`[data-seq="${chain.brokenAt}"]`) : null;
     box.scrollTo({ top: el ? el.offsetTop - box.offsetTop - 80 : 0, behavior: "smooth" });
   }, [chain?.brokenAt, effective]);
-  const audit = useMemo(() => (effective ? auditEntries(effective.r.log) : null), [effective]);
+  const audit = useMemo(() => (effective ? auditEntries(effective.r.log, effective.r) : null), [effective]);
   const auditBad = audit ? audit.filter((a) => a.hash !== "ok" || a.rule === "fail") : [];
   const failed = checks?.some((c) => c.ok === false) || auditBad.length > 0;
   const chart = effective ? chartData(effective.r.log) : null;
