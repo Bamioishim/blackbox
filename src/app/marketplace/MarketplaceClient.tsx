@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { WalletPanel } from "@/components/WalletPanel";
+import { VaultPanel } from "@/components/VaultPanel";
 import { AssetPicker } from "@/components/AssetPicker";
 import { RealSettlementReceipt } from "@/components/RealSettlementReceipt";
 import { capListQuantity, nextSelectedAssetId } from "@/lib/portfolio-list";
@@ -57,7 +58,7 @@ export default function MarketplaceClient(){
    <label style={{display:"block",marginBottom:14}}><span style={label}>Password · 12+ characters</span><input style={input} type="password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
    <button style={button} disabled={busy} onClick={auth}>{busy?"Working…":register?"Create account":"Sign in"}</button> <button onClick={()=>setRegister(!register)}>{register?"I have an account":"Create account"}</button> {!register&&<a href="/forgot-password" style={{marginLeft:8,color:"var(--wax)"}}>Forgot password?</a>}
    <p style={muted}>Email ownership is not verified in this preview. Deal emails require a configured Resend key and verified sender.</p></section>:<>
-   <section id="portfolio" style={{marginTop:34,scrollMarginTop:28}}><div className="section-heading"><h2 className="display" style={{fontSize:30}}>Portfolio</h2><span className="hud">YOUR ASSETS</span></div><WalletPanel onAdded={() => { refresh().catch(e => setError(e.message)); }}/><div className="market-split">
+   <section id="portfolio" style={{marginTop:34,scrollMarginTop:28}}><div className="section-heading"><h2 className="display" style={{fontSize:30}}>Portfolio</h2><span className="hud">YOUR ASSETS</span></div><WalletPanel onAdded={() => { refresh().catch(e => setError(e.message)); }}/><VaultPanel/><div className="market-split">
     <div style={panel}>{assets.length===0?<p style={muted}>No assets yet. Add an asset to start selling.</p>:assets.map(a=><div key={a.id} style={{display:"flex",justifyContent:"space-between",gap:10,padding:"12px 0",borderBottom:"1px solid var(--rule)"}}><div><b>{a.name}{a.symbol?" · "+a.symbol:""}</b><div style={muted}>{a.asset_type}{a.chain?" · "+a.chain:""} · {a.metadata?.acquired_via==="blackbox-deal"?"bought in a Blackbox deal · paid in USDC on Solana":a.verified_ownership?"verified":"manual / unverified"}</div></div><div style={{textAlign:"right"}}><b>{qty(a.quantity)} {a.unit||""}</b><div style={muted}>{qty(a.available_quantity)} available</div></div></div>)}</div>
     <div style={panel}><p className="hud">Add an asset</p><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>
      <label><span style={label}>Type</span><select style={input} value={assetType} onChange={e=>setAssetType(e.target.value)}><option value="token">Token</option><option value="nft">NFT</option><option value="collectible">Trading card</option><option value="other">Other</option></select></label>

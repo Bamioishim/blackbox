@@ -11,6 +11,7 @@ import { ReceiptCard } from "@/components/ReceiptCard";
 import { Ticket } from "@/components/Ticket";
 import { RefusalScene } from "@/components/RefusalScene";
 import { IdentityPanel } from "@/components/IdentityPanel";
+import { VaultPanel } from "@/components/VaultPanel";
 import { RealSettlementReceipt } from "@/components/RealSettlementReceipt";
 
 type Style = "patient" | "balanced" | "eager";
@@ -54,6 +55,7 @@ export function DealConsole() {
   const effectiveRounds = Math.min(buyerMaxRounds, sellerMaxRounds);
 
   const [running, setRunning] = useState(false);
+  const [vaultTick, setVaultTick] = useState(0);
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +93,7 @@ export function DealConsole() {
       setError((e as Error).message);
     } finally {
       setRunning(false);
+      setVaultTick((t) => t + 1);
     }
   }
 
@@ -152,6 +155,7 @@ export function DealConsole() {
             </span>
           </div>
           <IdentityPanel agents={agentSeats(entries)} sessionId={entries.find((e) => e.kind === "mandate.open")?.payload.sessionId as string | undefined} />
+          <VaultPanel refreshKey={vaultTick} />
           <AnimatePresence>
             {attack && attacks.length === 0 && (
               <motion.div key="sim" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring}

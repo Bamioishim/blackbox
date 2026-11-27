@@ -6,7 +6,7 @@ Two AI agents strike a private deal. Neither sees the other's limit. A determini
 
 ![Round-by-round offers with both revealed limits as shaded bands](docs/haggle-chart.gif)
 
-Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**.
+Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**. Their keys are kept in a **1Claw** vault and released just in time ([1Claw integration](#1claw-integration-the-agents-hold-no-secrets)).
 
 The live site includes the marketplace and wallets, a tappable asset picker when you list from your portfolio, and a landing illustration that starts as a spinning point-cloud and, after about two seconds, loops through how a price forms (sealed limits, converging offers, the referee, a sealed price, and a receipt). The animation respects `prefers-reduced-motion`.
 
@@ -161,11 +161,35 @@ One deal type today: a fixed quantity of one item, negotiated on **price**, with
 
 **Who pays 0.3%?** Whoever needs a deal they can defend later: marketplaces running agent-to-agent trades, OTC-style token deals, and companies whose procurement agents buy from other agents. The bigger business is the recorder on its own, sold as an audit log for anyone running agents.
 
+## 1Claw integration: the agents hold no secrets
+
+Blackbox's buyer and seller agents, its SERV Reasoning calls and its anchor wallet no longer read keys from the deployment's env. Every sensitive key lives in a [1Claw](https://1claw.co) vault and is fetched **just in time**, at the moment a step needs it, with the official [`@1claw/sdk`](https://www.npmjs.com/package/@1claw/sdk).
+
+| Secret | 1Claw path | Fetched when |
+| --- | --- | --- |
+| SERV Reasoning API key | `blackbox/serv-api-key` | the first model call of a negotiation |
+| Kite buyer agent runtime key (signs every buyer offer) | `blackbox/kite-buyer-agent-key` | a Kite-owned seat sits down at the table |
+| Kite seller agent runtime key (signs every seller offer) | `blackbox/kite-seller-agent-key` | same |
+| Solana anchor wallet key (writes the SPL Memo) | `blackbox/anchor-solana-key` | a deal's final hash is anchored |
+
+How it works ([`src/lib/vault.ts`](src/lib/vault.ts)):
+
+- The app authenticates to 1Claw as an **agent** (`ocv_` key, exchanged for a short-lived JWT by the SDK). A 1Claw policy grants that agent **read** on `blackbox/*` only. The owner's admin key never goes into the app.
+- Each value stays in that server process's memory for reuse and is never written to disk, the DB, logs, receipts or the browser. If the vault refuses, the deal stops (SERV) or the seat falls back to a per-deal key that the receipt labels unbound (agent keys).
+- Once 1Claw is configured, the old env vars are ignored, even if they are still set. They are read only when 1Claw isn't configured, which keeps local dev and the test suite working.
+- **Secured by 1Claw panel** on `/deal` and `/marketplace`: a live access log of which path was released, for what, and when (fetched from 1Claw vs reused from memory). It never shows a value. Served by `GET /api/vault/log` from Blackbox's own DB, so viewing it costs no 1Claw calls.
+- **Budget guard:** 1Claw's free plan allows 100 API calls a month. Blackbox counts its own calls (token exchanges plus GETs) and stops asking at `ONECLAW_MONTHLY_CAP` (default 30).
+- **Moving the keys in:** `POST /api/vault/migrate` (operator-only, behind the settlement worker secret) copied the old env values into 1Claw server to server, so nobody pasted a key by hand. It checks each agent and anchor key against its published address before writing. After the move, `scripts/oneclaw-policy.mjs lock` cut the agent's policy back to read-only, so that route can no longer write. `GET /api/vault/check` (also operator-only) proves each vault key is the right one by deriving its public address, and returns booleans only.
+
+**Why the anchor isn't signed through 1Claw Intents (yet).** 1Claw Intents can sign Solana transactions with memos, but an Intents key is a new HSM wallet with a different address. Blackbox's verifier pins the published anchor wallet `3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8`, and a new wallet would need mainnet SOL. The free plan's 10 signatures a month are also shared with another project. So for now the anchor key is kept in the vault and fetched only at anchor time. The next step is to move anchoring onto an Intents Solana signer and publish its address in the verifier.
+
+Env for 1Claw (all server-side, stored as Vercel sensitive vars): `ONECLAW_VAULT_ID`, `ONECLAW_AGENT_ID`, `ONECLAW_AGENT_API_KEY`, optional `ONECLAW_MONTHLY_CAP`. No 1Claw value or Blackbox secret is in this repo.
+
 ## Run it
 
 ```bash
 npm install
-cp .env.example .env.local   # add SERV_API_KEY
+cp .env.example .env.local   # add the ONECLAW_* vars (or SERV_API_KEY for a vault-less local run)
 npm run dev                  # http://localhost:3000
 npm test                     # referee, schema, commit-reveal, hash chain, verifier, end-to-end with a scripted model
 npm run live-run -- --attack # one real negotiation on SERV Reasoning, prints the verifier result
@@ -182,6 +206,7 @@ Latest outputs are in [`test-output/`](test-output/).
 - `src/lib/identity.ts`: owner identity (Kite Passport) and per-deal agent keys that sign offers
 - `src/lib/settle.ts`: `settle(deal)`, spending-limit commitment, intended Kite delegation shape, the SIMULATED settler and `KitePendingSettler` (real payment request); `real-deal.ts`, `solana-verify.ts`, `app/api/settlement/worker`, `scripts/settle-worker.mjs`: real marketplace settlement; `settle-server.ts`: picks the settler and labels any fallback; `settle-kite.ts`: guarded placeholder that refuses unsupported server-side CLI execution; `real-settlement.ts`: the verified 1 USDC Kite Passport Solana mainnet receipt
 - `src/lib/anchor.ts`, `anchor-solana.ts`, `solana-memo.ts`, `scripts/anchor-solana.mjs`: Solana mainnet SPL Memo anchoring of the final hash after settlement. `anchor-evm.ts` remains an opt-in writer; `/verify` reads the deployed Kite testnet contract without submitting transactions.
+- `src/lib/vault.ts`, `src/components/VaultPanel.tsx`, `app/api/vault/*`, `scripts/oneclaw-policy.mjs`: 1Claw just-in-time secrets, the access-log panel and the one-time migration
 - `src/lib/verify.ts`: the checks the public verifier runs, including the read-only Kite testnet anchor check
 
 ## Deploys

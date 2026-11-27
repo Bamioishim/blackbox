@@ -9,6 +9,7 @@ import { getSettler } from "./settle-server";
 import { commitBudget, SESSION_TTL_SECONDS, type Mandate, type Settler } from "./settle";
 import { mintAgent, KITE_OWNER, type AgentOwner } from "./identity";
 import { getAnchorer } from "./anchor-solana";
+import { getSecret } from "./vault";
 import { REFEREE_HASH, REFEREE_FILES } from "./referee-hash.generated";
 import type { Receipt, DealTerms } from "./receipt";
 import { enforceSettlementPreflight, scanPromptInjection } from "./referee-security";
@@ -60,7 +61,11 @@ export async function negotiate(input: NegotiateInput, emit: Emit, llm: LlmCall 
   // Who is at the table: each agent gets its own runtime key for this deal and signs every offer it makes.
   const buyerOwner = input.buyerOwner ?? KITE_OWNER;
   const sellerOwner = input.sellerOwner ?? KITE_OWNER;
-  const agents = { buyer: mintAgent("buyer", buyerOwner), seller: mintAgent("seller", sellerOwner) };
+  // Kite-owned seats sign with their bound runtime keys, released by 1Claw just in time for this deal.
+  // If the vault refuses, the seat falls back to a per-deal key and the record says it is unbound.
+  const held = async (side: Side, owner: AgentOwner) => (owner.provider === "kite-passport" ? getSecret(side).catch(() => null) : undefined);
+  const [buyerKey, sellerKey] = await Promise.all([held("buyer", buyerOwner), held("seller", sellerOwner)]);
+  const agents = { buyer: mintAgent("buyer", buyerOwner, buyerKey), seller: mintAgent("seller", sellerOwner, sellerKey) };
   log("agent.identity", "buyer-agent", { ...agents.buyer.identity });
   log("agent.identity", "seller-agent", { ...agents.seller.identity });
 
