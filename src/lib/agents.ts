@@ -1,5 +1,6 @@
 import "server-only";
 import type { Side } from "./referee";
+import { getSecret } from "./vault";
 
 export const SERV_BASE = "https://inference-api.openserv.ai/v1";
 export const SERV_MODEL = process.env.SERV_MODEL || "gpt-5.4-mini";
@@ -83,8 +84,9 @@ export function turnSchema(compromised: boolean) {
 export type LlmCall = (system: string, user: string, responseFormat?: unknown) => Promise<string>;
 
 export async function callServ(system: string, user: string, responseFormat?: unknown): Promise<string> {
-  const key = process.env.SERV_API_KEY;
-  if (!key) throw new Error("SERV_API_KEY is not set");
+  // Fetched just in time from 1Claw (cached for this process). Never stored in the repo or the agent.
+  const key = await getSecret("serv");
+  if (!key) throw new Error("SERV API key is not available (1Claw path blackbox/serv-api-key)");
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 45_000);
   try {

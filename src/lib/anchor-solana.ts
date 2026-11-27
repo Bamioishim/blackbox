@@ -4,6 +4,7 @@ import { NotAnchored, type Anchorer, type AnchorRecord } from "./anchor";
 import { EvmAnchorer } from "./anchor-evm";
 import { BLACKBOX_ANCHOR_SOLANA, MEMO_PROGRAM_ID, anchorMemo } from "./solana-memo";
 import { rpcWithFallback, solanaRpcEndpoints } from "./solana-verify";
+import { getSecret, secretAvailable } from "./vault";
 
 const COMPUTE_BUDGET_PROGRAM = "ComputeBudget111111111111111111111111111111";
 const CU_LIMIT = 80_000;
@@ -77,7 +78,7 @@ export function parseSolanaSecret(raw: string): Uint8Array {
   return bytes;
 }
 
-function keypairFromSecret(secret: Uint8Array): { secret: Uint8Array; publicKey: Uint8Array; address: string } {
+export function keypairFromSecret(secret: Uint8Array): { secret: Uint8Array; publicKey: Uint8Array; address: string } {
   const seed = secret.length === 64 ? secret.slice(0, 32) : secret;
   const publicKey = ed25519.getPublicKey(seed);
   return { secret: seed, publicKey, address: b58encode(publicKey) };
@@ -121,17 +122,19 @@ function b64(bytes: Uint8Array): string {
 }
 
 export function solanaAnchorConfigured(): boolean {
-  return Boolean(process.env.ANCHOR_SOLANA_SECRET_KEY?.trim());
+  if (process.env.ANCHOR_DISABLED === "1") return false;
+  return secretAvailable("anchor");
 }
 
 /** Writes `blackbox:<dealId>:<finalHash>` as an SPL Memo on Solana mainnet. */
 export class SolanaMemoAnchorer implements Anchorer {
   async anchor(dealId: string, finalHash: string): Promise<AnchorRecord> {
-    const raw = process.env.ANCHOR_SOLANA_SECRET_KEY?.trim();
-    if (!raw) throw new Error("ANCHOR_SOLANA_SECRET_KEY is not set.");
+    // The anchor wallet key lives in 1Claw (blackbox/anchor-solana-key) and is fetched only when a deal is anchored.
+    const raw = (await getSecret("anchor"))?.trim();
+    if (!raw) throw new Error("Anchor wallet key is not available (1Claw path blackbox/anchor-solana-key).");
     const kp = keypairFromSecret(parseSolanaSecret(raw));
     if (kp.address !== BLACKBOX_ANCHOR_SOLANA) {
-      throw new Error("ANCHOR_SOLANA_SECRET_KEY does not match the published Blackbox anchor wallet.");
+      throw new Error("The anchor key from the vault does not match the published Blackbox anchor wallet.");
     }
     const memo = anchorMemo(dealId, finalHash);
     const bh = await rpc("getLatestBlockhash", [{ commitment: "confirmed" }]);

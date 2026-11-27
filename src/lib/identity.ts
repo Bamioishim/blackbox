@@ -96,9 +96,13 @@ export function inspectKiteAgentKey(
   }
 }
 
-export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER): AgentSigner {
+/**
+ * `heldKey`: the registered runtime key, fetched just in time from 1Claw by the caller (negotiate.ts) and never
+ * stored at rest in this app. When omitted, falls back to the legacy env var (local dev and tests).
+ */
+export function mintAgent(side: Side, owner: AgentOwner = KITE_OWNER, heldKey?: string | null): AgentSigner {
   const reg = owner.provider === "kite-passport" ? KITE_AGENTS[side] : undefined;
-  const raw = (typeof process !== "undefined" ? process.env[`BLACKBOX_${side.toUpperCase()}_AGENT_KEY`] : undefined)?.trim();
+  const raw = (heldKey !== undefined ? (heldKey ?? undefined) : (typeof process !== "undefined" ? process.env[`BLACKBOX_${side.toUpperCase()}_AGENT_KEY`] : undefined))?.trim();
   const keyCheck = reg ? inspectKiteAgentKey(side, raw) : undefined;
   const held = keyCheck?.status === "match"
     ? ((raw!.startsWith("0x") ? raw! : `0x${raw!}`) as `0x${string}`)

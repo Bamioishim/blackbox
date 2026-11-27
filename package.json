@@ -17,6 +17,7 @@
     "anchor:kite": "node scripts/anchor.mjs"
   },
   "dependencies": {
+    "@1claw/sdk": "^0.63.6",
     "@neondatabase/serverless": "^1.2.0",
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.8.0",
