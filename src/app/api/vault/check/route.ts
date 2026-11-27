@@ -1,6 +1,6 @@
 import { privateKeyToAccount } from "viem/accounts";
 import { workerAuthorized } from "@/lib/real-deal";
-import { getSecret, oneclawConfigured, callsThisMonth, type SecretName } from "@/lib/vault";
+import { getSecret, oneclawConfigured, vaultManaged, callsThisMonth, type SecretName } from "@/lib/vault";
 import { KITE_AGENTS } from "@/lib/identity";
 import { keypairFromSecret, parseSolanaSecret } from "@/lib/anchor-solana";
 import { BLACKBOX_ANCHOR_SOLANA } from "@/lib/solana-memo";
@@ -17,7 +17,8 @@ export async function GET(req: Request) {
   const one = async (name: SecretName, check: (v: string) => unknown) => {
     try {
       const v = await getSecret(name);
-      out[name] = v ? check(v) : { ok: false, error: "empty" };
+      const source = vaultManaged(name) ? "1claw" : "env";
+      out[name] = v ? { source, ...(check(v) as object) } : { source, ok: false, error: "empty" };
     } catch (e) {
       out[name] = { ok: false, error: (e as Error).message };
     }

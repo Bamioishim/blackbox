@@ -62,3 +62,26 @@ describe("1Claw just-in-time secrets", () => {
     expect(get).not.toHaveBeenCalled();
   });
 });
+
+describe("ONECLAW_SECRETS scoping", () => {
+  beforeEach(() => {
+    _resetVaultForTests();
+    get.mockReset();
+    process.env.ONECLAW_VAULT_ID = "v"; process.env.ONECLAW_AGENT_ID = "a"; process.env.ONECLAW_AGENT_API_KEY = "ocv_x";
+    process.env.ONECLAW_SECRETS = "serv";
+  });
+  afterEach(() => { for (const k of ["ONECLAW_VAULT_ID", "ONECLAW_AGENT_ID", "ONECLAW_AGENT_API_KEY", "ONECLAW_SECRETS", "BLACKBOX_BUYER_AGENT_KEY"]) delete process.env[k]; });
+
+  it("reads unscoped secrets from env and never asks 1Claw for them", async () => {
+    process.env.BLACKBOX_BUYER_AGENT_KEY = "envkey";
+    expect(await getSecret("buyer")).toBe("envkey");
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  it("remembers a refusal instead of retrying every deal", async () => {
+    get.mockResolvedValue({ data: null, error: { type: "auth_error", message: "no" }, meta: { status: 403 } });
+    await expect(getSecret("serv")).rejects.toThrow(/403/);
+    await expect(getSecret("serv")).rejects.toThrow(/403/);
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+});
