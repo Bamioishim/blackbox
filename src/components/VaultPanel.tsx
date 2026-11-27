@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 type Entry = { at: string; path: string; purpose: string; source: "1claw" | "memory" | "denied" | "error"; status?: number; note?: string };
-type Log = { entries: Entry[]; callsThisMonth: number; cap: number; configured: boolean; paths: string[] };
+type Log = { entries: Entry[]; callsThisMonth: number; cap: number; configured: boolean; paths: string[]; fromVault?: string[]; notFromVault?: string[] };
 
 const SOURCE_LABEL: Record<Entry["source"], string> = {
   "1claw": "fetched from 1Claw",
@@ -35,8 +35,13 @@ export function VaultPanel({ refreshKey = 0 }: { refreshKey?: number }) {
       </div>
       <div style={{ padding: "12px 14px 14px" }}>
         <p className="muted" style={{ fontSize: 13, margin: "0 0 10px" }}>
-          The agents hold no keys. The SERV key, both Kite agent signing keys and the anchor wallet key live in a 1Claw vault and are released just in time, one path at a time. Values never reach this page or the logs.
+          The agents don&apos;t carry their keys. The server asks a 1Claw vault for one path at a time, just when a step needs it, and keeps it in memory only. Values never reach this page or the logs.
         </p>
+        {log?.configured && (log.notFromVault?.length ?? 0) > 0 && (
+          <p className="muted" style={{ fontSize: 12, margin: "0 0 10px" }}>
+            Released by 1Claw: <span className="mono">{log.fromVault?.join(", ")}</span>. Also stored in the vault but still read from encrypted server env: <span className="mono">{log.notFromVault?.join(", ")}</span>. 1Claw blocks raw private-key reads for an agent that has Intents signing on, so those keys move to Intents signing next.
+          </p>
+        )}
         {!log ? (
           <div className="mono muted">loading access log…</div>
         ) : !log.configured ? (

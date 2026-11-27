@@ -6,7 +6,7 @@ Two AI agents strike a private deal. Neither sees the other's limit. A determini
 
 ![Round-by-round offers with both revealed limits as shaded bands](docs/haggle-chart.gif)
 
-Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**. Their keys are kept in a **1Claw** vault and released just in time ([1Claw integration](#1claw-integration-the-agents-hold-no-secrets)).
+Built for **SERV Hackathon 02** (Kite track). Both agents run on **SERV Reasoning**. Their SERV key is kept in a **1Claw** vault and released just in time ([1Claw integration](#1claw-integration-keys-stay-in-the-vault-not-with-the-agents)).
 
 The live site includes the marketplace and wallets, a tappable asset picker when you list from your portfolio, and a landing illustration that starts as a spinning point-cloud and, after about two seconds, loops through how a price forms (sealed limits, converging offers, the referee, a sealed price, and a receipt). The animation respects `prefers-reduced-motion`.
 
@@ -161,29 +161,29 @@ One deal type today: a fixed quantity of one item, negotiated on **price**, with
 
 **Who pays 0.3%?** Whoever needs a deal they can defend later: marketplaces running agent-to-agent trades, OTC-style token deals, and companies whose procurement agents buy from other agents. The bigger business is the recorder on its own, sold as an audit log for anyone running agents.
 
-## 1Claw integration: the agents hold no secrets
+## 1Claw integration: keys stay in the vault, not with the agents
 
-Blackbox's buyer and seller agents, its SERV Reasoning calls and its anchor wallet no longer read keys from the deployment's env. Every sensitive key lives in a [1Claw](https://1claw.co) vault and is fetched **just in time**, at the moment a step needs it, with the official [`@1claw/sdk`](https://www.npmjs.com/package/@1claw/sdk).
+Blackbox's buyer and seller agents no longer carry their SERV Reasoning key. It lives in a [1Claw](https://1claw.co) vault and is fetched **just in time**, at the first model call of a negotiation, with the official [`@1claw/sdk`](https://www.npmjs.com/package/@1claw/sdk). The Kite agent keys and the anchor wallet key are in the same vault, but the app doesn't read them from there yet (see below).
 
-| Secret | 1Claw path | Fetched when |
+| Secret | 1Claw path | Status |
 | --- | --- | --- |
-| SERV Reasoning API key | `blackbox/serv-api-key` | the first model call of a negotiation |
-| Kite buyer agent runtime key (signs every buyer offer) | `blackbox/kite-buyer-agent-key` | a Kite-owned seat sits down at the table |
-| Kite seller agent runtime key (signs every seller offer) | `blackbox/kite-seller-agent-key` | same |
-| Solana anchor wallet key (writes the SPL Memo) | `blackbox/anchor-solana-key` | a deal's final hash is anchored |
+| SERV Reasoning API key | `blackbox/serv-api-key` | **Live:** fetched from 1Claw at call time, legacy env ignored |
+| Kite buyer agent runtime key (signs every buyer offer) | `blackbox/kite-buyer-agent-key` | Stored in 1Claw; still read from encrypted server env |
+| Kite seller agent runtime key (signs every seller offer) | `blackbox/kite-seller-agent-key` | Stored in 1Claw; still read from encrypted server env |
+| Solana anchor wallet key (writes the SPL Memo) | `blackbox/anchor-solana-key` | Stored in 1Claw; still read from encrypted server env |
 
 How it works ([`src/lib/vault.ts`](src/lib/vault.ts)):
 
 - The app authenticates to 1Claw as an **agent** (`ocv_` key, exchanged for a short-lived JWT by the SDK). A 1Claw policy grants that agent **read** on `blackbox/*` only. The owner's admin key never goes into the app.
-- Each value stays in that server process's memory for reuse and is never written to disk, the DB, logs, receipts or the browser. If the vault refuses, the deal stops (SERV) or the seat falls back to a per-deal key that the receipt labels unbound (agent keys).
-- Once 1Claw is configured, the old env vars are ignored, even if they are still set. They are read only when 1Claw isn't configured, which keeps local dev and the test suite working.
-- **Secured by 1Claw panel** on `/deal` and `/marketplace`: a live access log of which path was released, for what, and when (fetched from 1Claw vs reused from memory). It never shows a value. Served by `GET /api/vault/log` from Blackbox's own DB, so viewing it costs no 1Claw calls.
+- A fetched value stays in that server process's memory for reuse and is never written to disk, the DB, logs, receipts or the browser. If the vault refuses, the deal stops with a clear error and nothing settles. A refusal is remembered for 10 minutes, so one bad path can't burn the quota on every deal.
+- `ONECLAW_SECRETS` chooses which paths come from 1Claw (default: all). Production runs `ONECLAW_SECRETS=serv`.
+- **Secured by 1Claw panel** on `/deal` and `/marketplace`: a live access log of which path was released, for what, and when (fetched from 1Claw vs reused from memory). It never shows a value. It's served by `GET /api/vault/log` from Blackbox's own DB, so viewing it costs no 1Claw calls.
 - **Budget guard:** 1Claw's free plan allows 100 API calls a month. Blackbox counts its own calls (token exchanges plus GETs) and stops asking at `ONECLAW_MONTHLY_CAP` (default 30).
-- **Moving the keys in:** `POST /api/vault/migrate` (operator-only, behind the settlement worker secret) copied the old env values into 1Claw server to server, so nobody pasted a key by hand. It checks each agent and anchor key against its published address before writing. After the move, `scripts/oneclaw-policy.mjs lock` cut the agent's policy back to read-only, so that route can no longer write. `GET /api/vault/check` (also operator-only) proves each vault key is the right one by deriving its public address, and returns booleans only.
+- **Moving keys in:** `POST /api/vault/migrate` (operator-only, behind the settlement worker secret) copied the env values into 1Claw server to server, so nobody pasted a key by hand. It checks each agent and anchor key against its published address before writing it. After the move, `scripts/oneclaw-policy.mjs lock` cut the agent's policy back to read-only, so that route can no longer write. `GET /api/vault/check` (also operator-only) proves each key is the right one by deriving its public address, and returns booleans only.
 
-**Why the anchor isn't signed through 1Claw Intents (yet).** 1Claw Intents can sign Solana transactions with memos, but an Intents key is a new HSM wallet with a different address. Blackbox's verifier pins the published anchor wallet `3G8NByQCiNgECMhRCFZUBFFVeu3zdgEb2igFfkjBAtS8`, and a new wallet would need mainnet SOL. The free plan's 10 signatures a month are also shared with another project. So for now the anchor key is kept in the vault and fetched only at anchor time. The next step is to move anchoring onto an Intents Solana signer and publish its address in the verifier.
+**Why the signing keys aren't read from 1Claw yet.** The 1Claw free plan has one agent, and that agent has Intents signing turned on for another project. For an Intents-enabled agent, 1Claw blocks raw reads of `private_key` secrets (HTTP 403), so keys can only be used through its signing proxy. That's the right rule, and we didn't relabel the keys to get around it. The proper fix is to sign through 1Claw Intents: EIP-191 for each offer signature, and a Solana memo transaction for the anchor. That isn't practical on the free plan, though. It allows 10 signatures a month and a single deal signs about 6 offers. An Intents Solana key would also be a new wallet that needs mainnet SOL, and the verifier would have to pin its address. With a second agent (no Intents) or a paid plan, setting `ONECLAW_SECRETS=serv,buyer,seller,anchor` switches all four to just-in-time vault reads with no code change.
 
-Env for 1Claw (all server-side, stored as Vercel sensitive vars): `ONECLAW_VAULT_ID`, `ONECLAW_AGENT_ID`, `ONECLAW_AGENT_API_KEY`, optional `ONECLAW_MONTHLY_CAP`. No 1Claw value or Blackbox secret is in this repo.
+Env for 1Claw (server-side, stored as Vercel sensitive vars): `ONECLAW_VAULT_ID`, `ONECLAW_AGENT_ID`, `ONECLAW_AGENT_API_KEY`, plus optional `ONECLAW_SECRETS` and `ONECLAW_MONTHLY_CAP`. No 1Claw value or Blackbox secret is in this repo.
 
 ## Run it
 

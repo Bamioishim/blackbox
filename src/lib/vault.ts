@@ -45,11 +45,23 @@ export type AccessEntry = {
   note?: string;
 };
 
-type G = { __bbVault?: { cache: Map<SecretName, string>; inflight: Map<SecretName, Promise<string | null>>; log: AccessEntry[]; calls: number; lastMemoLog: Map<SecretName, number>; client?: OneclawClient } };
+type G = { __bbVault?: { cache: Map<SecretName, string>; inflight: Map<SecretName, Promise<string | null>>; failed: Map<SecretName, { at: number; message: string }>; log: AccessEntry[]; calls: number; lastMemoLog: Map<SecretName, number>; client?: OneclawClient } };
 function state() {
   const g = globalThis as unknown as G;
-  g.__bbVault ??= { cache: new Map(), inflight: new Map(), log: [], calls: 0, lastMemoLog: new Map() };
+  g.__bbVault ??= { cache: new Map(), inflight: new Map(), failed: new Map(), log: [], calls: 0, lastMemoLog: new Map() };
   return g.__bbVault;
+}
+
+/**
+ * Which secrets this deployment takes from 1Claw. Default: all of them.
+ * ONECLAW_SECRETS=serv limits it, e.g. when the only 1Claw agent on the plan has Intents enabled: 1Claw then
+ * blocks raw reads of private_key secrets (403) so keys can only be used through its signing proxy.
+ */
+export function vaultManaged(name: SecretName): boolean {
+  if (!oneclawConfigured()) return false;
+  const list = process.env.ONECLAW_SECRETS?.trim();
+  if (!list) return true;
+  return list.split(",").map((x) => x.trim()).includes(name);
 }
 
 export function oneclawConfigured(): boolean {
@@ -138,8 +150,11 @@ async function fetchFromVault(name: SecretName): Promise<string | null> {
  * isn't configured, so local dev and tests keep working. Returns null if the secret isn't set anywhere.
  */
 export async function getSecret(name: SecretName): Promise<string | null> {
-  if (!oneclawConfigured()) return process.env[LEGACY_ENV[name]]?.trim() || null;
+  if (!vaultManaged(name)) return process.env[LEGACY_ENV[name]]?.trim() || null;
   const s = state();
+  // A refusal is remembered for 10 minutes so a misconfigured path can't burn the monthly quota deal after deal.
+  const failed = s.failed.get(name);
+  if (failed && Date.now() - failed.at < 10 * 60_000) throw new Error(failed.message);
   const hit = s.cache.get(name);
   if (hit) {
     const last = s.lastMemoLog.get(name) ?? 0;
@@ -151,7 +166,9 @@ export async function getSecret(name: SecretName): Promise<string | null> {
   }
   let p = s.inflight.get(name);
   if (!p) {
-    p = fetchFromVault(name).finally(() => s.inflight.delete(name));
+    p = fetchFromVault(name)
+      .catch((e: Error) => { s.failed.set(name, { at: Date.now(), message: e.message }); throw e; })
+      .finally(() => s.inflight.delete(name));
     s.inflight.set(name, p);
   }
   const v = await p;
@@ -164,11 +181,11 @@ export async function getSecret(name: SecretName): Promise<string | null> {
 
 /** True when the secret can be obtained (vault configured, or legacy env present). No 1Claw call. */
 export function secretAvailable(name: SecretName): boolean {
-  return oneclawConfigured() || Boolean(process.env[LEGACY_ENV[name]]?.trim());
+  return vaultManaged(name) || Boolean(process.env[LEGACY_ENV[name]]?.trim());
 }
 
 /** Public, value-free access log for the "Secured by 1Claw" panel. */
-export async function accessLog(limit = 12): Promise<{ entries: AccessEntry[]; callsThisMonth: number; cap: number; configured: boolean }> {
+export async function accessLog(limit = 12): Promise<{ entries: AccessEntry[]; callsThisMonth: number; cap: number; configured: boolean; fromVault: string[]; notFromVault: string[] }> {
   const s = state();
   const configured = oneclawConfigured();
   let entries = s.log.slice(0, limit);
@@ -180,7 +197,12 @@ export async function accessLog(limit = 12): Promise<{ entries: AccessEntry[]; c
       entries = rows.map((r) => ({ at: new Date(r.at as string).toISOString(), path: String(r.path), purpose: String(r.purpose), source: r.source as AccessEntry["source"], status: r.status == null ? undefined : Number(r.status), note: r.note == null ? undefined : String(r.note) }));
     } catch { /* fall back to this process's log */ }
   }
-  return { entries, callsThisMonth: await callsThisMonth(), cap: monthlyCap(), configured };
+  const names = Object.keys(VAULT_PATHS) as SecretName[];
+  return {
+    entries, callsThisMonth: await callsThisMonth(), cap: monthlyCap(), configured,
+    fromVault: names.filter((n) => vaultManaged(n)).map((n) => VAULT_PATHS[n]),
+    notFromVault: names.filter((n) => !vaultManaged(n)).map((n) => VAULT_PATHS[n]),
+  };
 }
 
 /** Test hook. */
